@@ -1,0 +1,10 @@
+appsettings.Development.json
+appsettings.json
+/bin
+./bin
+/obj
+.obj
+*.mp3
+*.webm
+Uploads/
+./Uploads
