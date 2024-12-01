@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Auth
 {
     
-    public class AuthController(IJwtTokenService jwtTokenService,UserManager<AppUser> userManager) : BaseController
+    public class AuthController(IJwtTokenService jwtTokenService,UserManager<AppUser> userManager) : BaseController(userManager)
 
     {
         [AllowAnonymous]

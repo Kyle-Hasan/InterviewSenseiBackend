@@ -5,6 +5,7 @@ using API.AI;
 using API.Auth;
 using API.Data;
 using API.Interviews;
+using API.Questions;
 using API.Users;
 using FFMpegCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
@@ -77,7 +78,10 @@ builder.Services.AddAuthentication(options => {
 
 builder.Services.AddScoped<IJwtTokenService,JwtTokenService>();
 builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<IinterviewRepository, interviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+
 
 builder.Services.AddAuthorization();
 
