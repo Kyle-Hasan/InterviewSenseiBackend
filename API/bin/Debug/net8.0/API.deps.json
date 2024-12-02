@@ -18,6 +18,8 @@
           "OpenAI": "2.0.0",
           "Swashbuckle.AspNetCore": "6.4.0",
           "System.IdentityModel.Tokens.Jwt": "8.2.1",
+          "Whisper.net": "1.7.2",
+          "Whisper.net.Runtime": "1.7.3",
           "itext7": "9.0.0"
         },
         "runtime": {
@@ -1320,7 +1322,16 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
-      }
+      },
+      "Whisper.net/1.7.2": {
+        "runtime": {
+          "lib/net8.0/Whisper.net.dll": {
+            "assemblyVersion": "1.7.2.0",
+            "fileVersion": "1.7.2.0"
+          }
+        }
+      },
+      "Whisper.net.Runtime/1.7.3": {}
     }
   },
   "libraries": {
@@ -2224,6 +2235,20 @@
       "sha512": "sha512-lJ8AxvkX7GQxpC6GFCeBj8ThYVyQczx2+f/cWHJU8tjS7YfI6Cv6bon70jVEgs2CiFbmmM8b9j1oZVx0dSI2Ww==",
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
+    },
+    "Whisper.net/1.7.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lFihlwqNL7ylziClLjw8ICJR82olUfes3Qj2C4V6QK3X8xFDnlXpCbskfjmLPkl1Z0zq8aBpTImW4xrKoRMFew==",
+      "path": "whisper.net/1.7.2",
+      "hashPath": "whisper.net.1.7.2.nupkg.sha512"
+    },
+    "Whisper.net.Runtime/1.7.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iQ1ynOcxFks0idM8zNd4OSX2dhy5N1EVCFau/A3mU0HnaENYGy6HGdt186Dx9C2m/I+365Xur6g+AnPT6xqe3g==",
+      "path": "whisper.net.runtime/1.7.3",
+      "hashPath": "whisper.net.runtime.1.7.3.nupkg.sha512"
     }
   }
 }

@@ -1,4 +1,7 @@
 ﻿using FFMpegCore;
+using FFMpegCore.Arguments;
+using FFMpegCore.Enums;
+
 namespace API.FFMPEG
 {
     public class FfmpegService
@@ -8,13 +11,25 @@ namespace API.FFMPEG
             GlobalFFOptions.Configure(options => options.BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin");
 
         }
-        public static string extractAudioFile(string videoPath)
+        public static async Task<string> extractAudioFile(string videoPath)
         {
-            string audioPath = "./extractedAudio.mp3";
-            audioPath = Path.GetFullPath(audioPath);
-            FFMpeg.ExtractAudio(videoPath, audioPath);
-            return audioPath;
+           
+            string wavPath = "./outputAudio.wav";
+
+            
+         
+            await FFMpegArguments
+                .FromFileInput(videoPath)
+                .OutputToFile(wavPath, true, options => options
+                    .WithCustomArgument("-vn") 
+                    .WithCustomArgument("-ar 16000") 
+                    .WithCustomArgument("-ac 1") 
+                    .WithCustomArgument("-f wav"))
+                .ProcessAsynchronously();
+
+            return wavPath;
         }
+        
     }
     
 }

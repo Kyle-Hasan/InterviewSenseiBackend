@@ -17,15 +17,18 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         {
             return BadRequest("no video provided");
         }
-        
-        var filePath=  Path.Combine("Uploads", Guid.NewGuid().ToString() + "_" + ratingRequest.video.FileName);
+
+        string videoName = Guid.NewGuid().ToString() + "_" + ratingRequest.video.FileName;
+        var filePath=  Path.Combine("Uploads", videoName);
 
         using (var stream = new FileStream(filePath, FileMode.Create,FileAccess.ReadWrite))
         {
             await ratingRequest.video.CopyToAsync(stream);
         }
+        
+        string serverUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
-       var retVal = await interviewService.rateAnswer(ratingRequest.question,int.Parse(ratingRequest.id), filePath,user);
+       var retVal = await interviewService.rateAnswer(ratingRequest.question,int.Parse(ratingRequest.id), filePath,videoName,serverUrl,user);
        return retVal;
 
 
@@ -100,7 +103,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     {
         var user = await base.GetCurrentUser();
         var videoPath = Path.Combine("Uploads", fileName);
-        bool canView =  await interviewService.verifyVideoView(videoPath,user);
+        bool canView =  await interviewService.verifyVideoView(fileName,user);
         if (!canView)
         {
             return Unauthorized();

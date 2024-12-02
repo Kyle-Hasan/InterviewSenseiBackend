@@ -1,6 +1,9 @@
-﻿using API.FFMPEG;
+﻿using System.Text;
+using API.FFMPEG;
 using OpenAI.Audio;
 using OpenAI.Chat;
+using Whisper.net;
+using Whisper.net.Ggml;
 
 namespace API.AI;
 using OpenAI;
@@ -11,6 +14,7 @@ public class OpenAIService : IOpenAIService
     private readonly string _apiKey;
     ChatClient _chatClient;
     AudioClient _audioClient;
+    private string modelName = "ggml-base.bin";
 
     public OpenAIService(IConfiguration configuration)
     {
@@ -20,10 +24,10 @@ public class OpenAIService : IOpenAIService
         _audioClient = new("whisper-1", apiKey: _apiKey);
     }
 
-    public async Task<string> GetTranscript(String videoPath)
+    public async Task<string> TranscribeAudioAPI(String videoPath)
     {
         string absolutePath = Path.GetFullPath(videoPath);
-        string audioFile = FfmpegService.extractAudioFile(absolutePath);
+        string audioFile = await FfmpegService.extractAudioFile(absolutePath);
         AudioTranscriptionOptions options = new()
         {
             ResponseFormat = AudioTranscriptionFormat.Verbose,
@@ -49,6 +53,46 @@ public class OpenAIService : IOpenAIService
   
         ChatCompletion completion = await _chatClient.CompleteChatAsync(new ChatMessage[] {message}, options);
         return completion.Content[0].Text;
+    }
+
+    public async Task<String> TranscribeAudio(string videoPath)
+    {
+        string audioFilePath = await FfmpegService.extractAudioFile(videoPath);
+        
+        if (!File.Exists(modelName))
+        {
+            using var modelStream = await WhisperGgmlDownloader.GetGgmlModelAsync(GgmlType.Base);
+            using var fileWriter = File.OpenWrite(modelName);
+            await modelStream.CopyToAsync(fileWriter);
+        }
+        
+        using var whisperFactory = WhisperFactory.FromPath("ggml-base.bin");
+
+        using var processor = whisperFactory.CreateBuilder()
+            .WithLanguage("auto")
+            .Build();
+
+        using var fileStream = File.OpenRead(audioFilePath);
+        StringBuilder sb = new StringBuilder("");
+        await foreach (var result in processor.ProcessAsync(fileStream))
+        {
+            sb.Append(result.Text);
+            
+        }
+
+        return sb.ToString();
+
+    }
+
+    public async Task TaskDownloadModel()
+    {
+        var modelFileName = "ggml-base.bin";
+        if (!File.Exists(modelFileName))
+        {
+            using var modelStream = await WhisperGgmlDownloader.GetGgmlModelAsync(GgmlType.Base);
+            using var fileWriter = File.OpenWrite(modelFileName);
+            await modelStream.CopyToAsync(fileWriter);
+        }
     }
     
     

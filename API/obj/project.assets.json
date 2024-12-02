@@ -2332,6 +2332,21 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XmlDocument.dll": {}
         }
+      },
+      "Whisper.net/1.7.2": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Whisper.net.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/Whisper.net.dll": {}
+        }
+      },
+      "Whisper.net.Runtime/1.7.3": {
+        "type": "package",
+        "build": {
+          "build/Whisper.net.Runtime.targets": {}
+        }
       }
     }
   },
@@ -7117,11 +7132,79 @@
         "system.xml.xmldocument.4.3.0.nupkg.sha512",
         "system.xml.xmldocument.nuspec"
       ]
+    },
+    "Whisper.net/1.7.2": {
+      "sha512": "lFihlwqNL7ylziClLjw8ICJR82olUfes3Qj2C4V6QK3X8xFDnlXpCbskfjmLPkl1Z0zq8aBpTImW4xrKoRMFew==",
+      "type": "package",
+      "path": "whisper.net/1.7.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/net6.0/Whisper.net.dll",
+        "lib/net8.0-android34.0/Whisper.net.dll",
+        "lib/net8.0-android34.0/Whisper.net.xml",
+        "lib/net8.0-ios18.0/Whisper.net.dll",
+        "lib/net8.0-maccatalyst18.0/Whisper.net.dll",
+        "lib/net8.0-tvos18.0/Whisper.net.dll",
+        "lib/net8.0/Whisper.net.dll",
+        "lib/netstandard2.0/Whisper.net.dll",
+        "readme.md",
+        "whisper.net.1.7.2.nupkg.sha512",
+        "whisper.net.nuspec"
+      ]
+    },
+    "Whisper.net.Runtime/1.7.3": {
+      "sha512": "iQ1ynOcxFks0idM8zNd4OSX2dhy5N1EVCFau/A3mU0HnaENYGy6HGdt186Dx9C2m/I+365Xur6g+AnPT6xqe3g==",
+      "type": "package",
+      "path": "whisper.net.runtime/1.7.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/Whisper.net.Runtime.targets",
+        "build/android-arm64-v8a/libggml-whisper.so",
+        "build/android-arm64-v8a/libwhisper.so",
+        "build/android-x86/libggml-whisper.so",
+        "build/android-x86/libwhisper.so",
+        "build/android-x86_64/libggml-whisper.so",
+        "build/android-x86_64/libwhisper.so",
+        "build/browser-wasm/libggml-whisper.a",
+        "build/browser-wasm/libwhisper.a",
+        "build/ggml-metal.metal",
+        "build/ios-device/libggml-whisper.dylib",
+        "build/ios-device/libwhisper.dylib",
+        "build/ios-simulator/libggml-whisper.dylib",
+        "build/ios-simulator/libwhisper.dylib",
+        "build/linux-arm/libggml-whisper.so",
+        "build/linux-arm/libwhisper.so",
+        "build/linux-arm64/libggml-whisper.so",
+        "build/linux-arm64/libwhisper.so",
+        "build/linux-x64/libggml-whisper.so",
+        "build/linux-x64/libwhisper.so",
+        "build/maccatalyst/libggml-whisper.dylib",
+        "build/maccatalyst/libwhisper.dylib",
+        "build/macos-arm64/libggml-whisper.dylib",
+        "build/macos-arm64/libwhisper.dylib",
+        "build/macos-x64/libggml-whisper.dylib",
+        "build/macos-x64/libwhisper.dylib",
+        "build/tvos-device/libggml-whisper.dylib",
+        "build/tvos-device/libwhisper.dylib",
+        "build/tvos-simulator/libwhisper.dylib",
+        "build/win-arm64/ggml-whisper.dll",
+        "build/win-arm64/whisper.dll",
+        "build/win-x64/ggml-whisper.dll",
+        "build/win-x64/whisper.dll",
+        "build/win-x86/ggml-whisper.dll",
+        "build/win-x86/whisper.dll",
+        "content/readme.md",
+        "whisper.net.runtime.1.7.3.nupkg.sha512",
+        "whisper.net.runtime.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "FFMpegCore >= *",
+      "FFMpegCore >= 5.1.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.11",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.11",
       "Microsoft.EntityFrameworkCore >= 8.0.11",
@@ -7131,6 +7214,8 @@
       "OpenAI >= 2.0.0",
       "Swashbuckle.AspNetCore >= 6.4.0",
       "System.IdentityModel.Tokens.Jwt >= 8.2.1",
+      "Whisper.net >= 1.7.2",
+      "Whisper.net.Runtime >= 1.7.3",
       "itext7 >= 9.0.0"
     ]
   },
@@ -7181,7 +7266,7 @@
         "dependencies": {
           "FFMpegCore": {
             "target": "Package",
-            "version": "[*, )"
+            "version": "[5.1.0, )"
           },
           "Microsoft.AspNetCore.Authentication.JwtBearer": {
             "target": "Package",
@@ -7220,6 +7305,14 @@
           "System.IdentityModel.Tokens.Jwt": {
             "target": "Package",
             "version": "[8.2.1, )"
+          },
+          "Whisper.net": {
+            "target": "Package",
+            "version": "[1.7.2, )"
+          },
+          "Whisper.net.Runtime": {
+            "target": "Package",
+            "version": "[1.7.3, )"
           },
           "itext7": {
             "target": "Package",

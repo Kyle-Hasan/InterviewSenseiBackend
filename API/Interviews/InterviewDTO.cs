@@ -13,6 +13,8 @@ public class InterviewDTO
     
     public string resumeLink {get; set;}
     
+    public string createdDate {get; set;}
+    
     
     
 }

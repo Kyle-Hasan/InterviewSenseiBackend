@@ -5,7 +5,7 @@ namespace API.Interviews;
 
 public interface IinterviewService
 {
-    Task<QuestionDTO> rateAnswer(string question, int questionId, string videoPath,AppUser user);
+    Task<QuestionDTO> rateAnswer(string question, int questionId, string videoPath,string videoName, string serverUrl,AppUser user);
 
     Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
         int numberOfTechnical, string resumePdfPath);

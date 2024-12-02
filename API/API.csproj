@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FFMpegCore" Version="*" />
+    <PackageReference Include="FFMpegCore" Version="5.1.0" />
     <PackageReference Include="itext7" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
@@ -21,6 +21,8 @@
     <PackageReference Include="OpenAI" Version="2.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
+    <PackageReference Include="Whisper.net" Version="1.7.2" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.7.3" />
   </ItemGroup>
 
   <ItemGroup>

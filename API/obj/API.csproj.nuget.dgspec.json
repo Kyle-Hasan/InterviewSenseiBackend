@@ -48,7 +48,7 @@
           "dependencies": {
             "FFMpegCore": {
               "target": "Package",
-              "version": "[*, )"
+              "version": "[5.1.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -87,6 +87,14 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.2.1, )"
+            },
+            "Whisper.net": {
+              "target": "Package",
+              "version": "[1.7.2, )"
+            },
+            "Whisper.net.Runtime": {
+              "target": "Package",
+              "version": "[1.7.3, )"
             },
             "itext7": {
               "target": "Package",

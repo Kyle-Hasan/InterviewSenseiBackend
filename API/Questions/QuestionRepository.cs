@@ -26,12 +26,12 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         return await base._entities.AnyAsync(q => q.VideoLink.Contains(filename) && q.CreatedById == user.Id);
     }
 
-    public async Task<Question> updateAnswer(int id, string answer,string feedback, string videoPath, AppUser user)
+    public async Task<Question> updateAnswer(int id, string answer,string feedback, string videoName, string serverUrl, AppUser user)
     {
         Question question = await base.getById(id);
         question.Response = answer;
         question.Feedback = feedback;
-        question.VideoLink = videoPath;
+        question.VideoLink = serverUrl + "/" + videoName;
         return await base.Save(question, user);
     }
 
