@@ -13,8 +13,9 @@ namespace API.FFMPEG
         }
         public static async Task<string> extractAudioFile(string videoPath)
         {
-           
-            string wavPath = "./outputAudio.wav";
+            string fileName = Guid.NewGuid().ToString() + ".wav";
+            string wavPath = Path.Combine("Uploads", fileName);
+            
 
             
          

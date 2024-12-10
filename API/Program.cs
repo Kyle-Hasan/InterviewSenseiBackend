@@ -25,7 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-
+builder.Services.AddSignalR();
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
     options.Password.RequireDigit = false;
@@ -90,6 +90,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+
 var app = builder.Build();
 
 
@@ -111,5 +114,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<InterviewHub>("/hubs/interview");
 
 app.Run();

@@ -123,6 +123,37 @@ namespace API.Auth
 
         }
 
+        [AllowAnonymous]
+        [HttpGet("refreshToken")]
+        public async Task RefreshAccessToken()
+        {
+            string refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new UnauthorizedAccessException("Refresh token is missing.");
+            }
+
+            AppUser user = await base.GetCurrentUser();
+            string accessToken = await jwtTokenService.GenerateToken(user, false);
+
+            Response.Cookies.Append("accessToken", accessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(15)
+            });
+        }
+
+        [HttpGet("logout")]
+        public async Task Logout()
+        {
+            Response.Cookies.Delete("accessToken");
+            Response.Cookies.Delete("refreshToken");
+            
+        }
+        
+
         private async Task<bool> UserExists(string username)
         {
             return await userManager.Users.AnyAsync(x=> x.NormalizedUserName == username.ToUpper() );

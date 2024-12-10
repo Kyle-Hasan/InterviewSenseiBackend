@@ -11,4 +11,6 @@ public class Interview:BaseEntity
     public string ResumeLink { get; set; }
     
     public string JobDescription { get; set; }
+    
+    public int secondsPerAnswer { get; set; }
 }

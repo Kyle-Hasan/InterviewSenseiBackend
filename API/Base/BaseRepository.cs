@@ -48,6 +48,12 @@ public abstract class BaseRepository<T> where T : BaseEntity
         return await results.ToListAsync();
     }
 
+    public IQueryable<T> GetAllCreatedByQueryable(AppUser user)
+    {
+        IQueryable<T> results = _entities.Where(x=> x.CreatedById == user.Id);
+        return results;
+    }
+
     public async Task<T> getById(int id)
     {
         return await _entities.FindAsync(id);

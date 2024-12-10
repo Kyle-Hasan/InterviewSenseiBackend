@@ -5,10 +5,10 @@ namespace API.Interviews;
 
 public interface IinterviewService
 {
-    Task<QuestionDTO> rateAnswer(string question, int questionId, string videoPath,string videoName, string serverUrl,AppUser user);
+    Task<QuestionDTO> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user);
 
     Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
-        int numberOfTechnical, string resumePdfPath);
+        int numberOfTechnical, int secondsPerAnswer, string resumePdfPath);
 
     Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath );
     
@@ -18,7 +18,7 @@ public interface IinterviewService
     
     Task<Interview> createInterview(Interview interview, AppUser user);
     
-    Task<List<InterviewDTO>> getInterviews(AppUser user);
+    Task<PagedInterviewResponse> getInterviews(AppUser user,InterviewSearchParams interviewSearchParamsParams);
 
     Task<InterviewDTO> getInterviewDto(int id,AppUser user);
     

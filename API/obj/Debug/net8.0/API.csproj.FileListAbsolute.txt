@@ -160,3 +160,4 @@ C:\Users\kyleh\Documents\InterviewSensei\api\obj\Debug\net8.0\refint\API.dll
 C:\Users\kyleh\Documents\InterviewSensei\api\obj\Debug\net8.0\API.pdb
 C:\Users\kyleh\Documents\InterviewSensei\api\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\kyleh\Documents\InterviewSensei\api\obj\Debug\net8.0\ref\API.dll
+C:\Users\kyleh\Documents\InterviewSensei\API\bin\Debug\net8.0\System.Net.WebSockets.WebSocketProtocol.dll

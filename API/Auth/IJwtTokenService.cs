@@ -9,5 +9,7 @@ namespace API.Auth
     public interface IJwtTokenService
     {
         Task<string> GenerateToken(AppUser appUser,bool refreshToken);
+
+        bool ValidateRefreshToken(string token);
     }
 }

@@ -7,5 +7,7 @@ public class GenerateInterviewRequest
     public int numberOfTechnical {get; set;}
     public IFormFile resume { get; set; }
     
+    public int secondsPerAnswer { get; set; }
+    
     public string name { get; set; }
 }

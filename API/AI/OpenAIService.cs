@@ -34,8 +34,8 @@ public class OpenAIService : IOpenAIService
             TimestampGranularities = AudioTimestampGranularities.Word | AudioTimestampGranularities.Segment,
         };
         AudioTranscription transcription = _audioClient.TranscribeAudio(audioFile, options);
-        Console.WriteLine("Transcription:");
-        Console.WriteLine($"{transcription.Text}");
+        
+        System.IO.File.Delete(audioFile);
         return transcription.Text;
     }
 
@@ -72,13 +72,17 @@ public class OpenAIService : IOpenAIService
             .WithLanguage("auto")
             .Build();
 
-        using var fileStream = File.OpenRead(audioFilePath);
         StringBuilder sb = new StringBuilder("");
-        await foreach (var result in processor.ProcessAsync(fileStream))
+
+        await using (var fileStream = File.OpenRead(audioFilePath)) 
         {
-            sb.Append(result.Text);
-            
+            await foreach (var result in processor.ProcessAsync(fileStream))
+            {
+                sb.Append(result.Text);
+            }
         }
+        
+        System.IO.File.Delete(audioFilePath);
 
         return sb.ToString();
 

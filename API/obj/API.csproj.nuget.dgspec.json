@@ -13,7 +13,6 @@
         "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\obj\\",
         "projectStyle": "PackageReference",
-        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
           "C:\\Users\\kyleh\\Documents\\InterviewSensei\\NuGet.Config",
           "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -57,6 +56,10 @@
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.11, )"
+            },
+            "Microsoft.AspNetCore.SignalR": {
+              "target": "Package",
+              "version": "[1.1.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

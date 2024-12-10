@@ -38,6 +38,55 @@ public class JwtTokenService : IJwtTokenService
         );
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+        public  bool ValidateRefreshToken(
+            string token
+            )
+        {
+            JwtSettings jwtSettings = _config.GetSection("JwtSettings").Get<JwtSettings>();
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false, 
+                ValidateAudience = false, 
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                // Ensure the token is a JWT token
+                if (validatedToken is JwtSecurityToken jwtToken)
+                {
+                    var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value;
+
+                    if (tokenType == null || tokenType != "refresh")
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+    
 
 
 }

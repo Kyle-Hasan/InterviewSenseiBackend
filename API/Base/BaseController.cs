@@ -20,18 +20,24 @@ namespace API.Base
             
             if (HttpContext.User?.Identity?.IsAuthenticated != true)
             {
-                return null; 
+                throw new UnauthorizedAccessException();
             }
             
             string idString = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(idString))
             {
-                return null; 
+                throw new UnauthorizedAccessException();
             }
             int id = int.Parse(idString);
             
-            return await userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+            AppUser user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            return user;
         }
     
     }

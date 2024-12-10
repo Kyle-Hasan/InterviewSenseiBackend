@@ -1,4 +1,5 @@
 ﻿using API.Base;
+using API.Extensions;
 using API.Questions;
 using API.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         
         string serverUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
-       var retVal = await interviewService.rateAnswer(ratingRequest.question,int.Parse(ratingRequest.id), filePath,videoName,serverUrl,user);
+       var retVal = await interviewService.rateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
        return retVal;
 
 
@@ -52,7 +53,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     public async Task<ActionResult<InterviewDTO>> generateInterview(
         [FromForm] GenerateInterviewRequest generateQuestionsRequest)
     {
-        var filePath= Path.Combine("Uploads", "resume.pdf");
+        var filePath= Path.Combine("Uploads", Guid.NewGuid().ToString() + "-" + generateQuestionsRequest.resume.FileName);
         using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
         {
             await generateQuestionsRequest.resume.CopyToAsync(stream);
@@ -61,7 +62,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         var user = await base.GetCurrentUser();
 
         var i = await interviewService.GenerateInterview(user,generateQuestionsRequest.name, generateQuestionsRequest.jobDescription,
-            generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical, filePath);
+            generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical,  generateQuestionsRequest.secondsPerAnswer, filePath);
         return InterviewService.interviewToDTO(i);
     }
 
@@ -92,10 +93,12 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     }
 
     [HttpGet("interviewList")]
-    public async Task<List<InterviewDTO>> getInterviewList()
+    public async Task<List<InterviewDTO>> getInterviewList([FromQuery] InterviewSearchParams interviewSearchParamsParams)
     {
         var user = await base.GetCurrentUser();
-        return await interviewService.getInterviews(user);
+        PagedInterviewResponse pagedInterviewResponse = await interviewService.getInterviews(user,interviewSearchParamsParams);
+        Response.AddPaginationHeader(pagedInterviewResponse.total,interviewSearchParamsParams.startIndex,interviewSearchParamsParams.pageSize);
+        return pagedInterviewResponse.interviews.Select(x=> InterviewService.interviewToDTO(x)).ToList();
     }
 
     [HttpGet("getVideo/{fileName}")]

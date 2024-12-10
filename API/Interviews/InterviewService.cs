@@ -9,9 +9,10 @@ namespace API.Interviews;
 public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository): IinterviewService
 {
     private readonly string _splitToken = "@u5W$";
-    public async Task<QuestionDTO> rateAnswer(string question, int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
+    public async Task<QuestionDTO> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
     {
         string transcript =  await openAiService.TranscribeAudioAPI(videoPath);
+        Question question = await questionRepository.getQuestionById(questionId);
 
         string formatInstruction =
             $"Response should always be in format '{_splitToken} Good: insert your answer here {_splitToken} Needs Improvement: insert your answer here' Absolutely DO NOT forget the ${_splitToken} or this format or else the program breaks.   ";
@@ -20,12 +21,12 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
             $"Imagine you are an interviewer who is a complete perfectionist for a company and you are giving a candidate brutally honest feedback about what they could have improved, write like you are talking to them face-to-face. Keep STAR method in mind as well and tone. I want highly critical and specific feedback. Avoid general or vague statements. If transcript is nonsensical or empty just mention 'no strengths shown...' in good and 'Incomplete answer...' in Needs Improvement " +
             $"Use a blunt tone and be as strict as possible.Avoid sugarcoating or fake compliments or feeling like you have to give praise, if its bad don't praise at all. Be very very cynical and give no benefit of the doubt. If they mention something relevent praise that. Anything that sounds vague or unclear assume the worst but if it's relevent note it as strength for at least mentioning, but mention that vagueness could be improved on with examples. Don't force yourself to find strong points, only consider them strong points if they make you think this person is qualified for the job, its ok to only have 'You showed no strengths in your response' Separate all sentences using 3 periods always " +
             $" , given this question " +
-            $"${question} say what is good and what needs improvement about this answer ${transcript} give concise and specific feedback that's easy to understand, quick to read and work on immediately, provide examples of what they could've done instead if applicable. "
+            $"${question.Body} say what is good and what needs improvement about this answer ${transcript} give concise and specific feedback that's easy to understand, quick to read and work on immediately, provide examples of what they could've done instead if applicable. "
             + $"${formatInstruction} ";
         
         string response = await openAiService.MakeRequest(prompt);
         string[] split = response.Split(_splitToken);
-        var retval = await questionRepository.updateAnswer(questionId, transcript, response, videoName,serverUrl,user);
+        var retval = await questionRepository.updateAnswer(question, transcript, response, videoName,serverUrl,user);
         /*var retval =  new RatingResponse
         {
             good = split[1].Split("Good:")[1],
@@ -125,9 +126,20 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         ";
         
         string response = await openAiService.MakeRequest(prompt);
+        string[] behavioralQuestions = new string[] { };
+        string[] technicalQuestions = new string[] { };
         string[] sections = response.Split(new string[] {"Behavioral Questions:", "Technical Questions:" },StringSplitOptions.RemoveEmptyEntries);
-        string[] behavioralQuestions = sections[0].Split("\n").Skip(1).Where(q=> q.Length >= 4).Select(q => q.Trim().Substring(3)).ToArray();
-        string [] technicalQuestions = sections[1].Split("\n").Skip(1).Where(q=> q.Length >= 4).Select(q => q.Trim().Substring(3)).ToArray();
+        if (numberOfBehavioral > 0)
+        {
+            behavioralQuestions = sections[0].Split("\n").Skip(1).Where(q => q.Length >= 4)
+                .Select(q => q.Trim().Substring(3)).ToArray();
+        }
+        if (numberOfTechnical > 0)
+        {
+            technicalQuestions = sections[1].Split("\n").Skip(1).Where(q => q.Length >= 4)
+                .Select(q => q.Trim().Substring(3)).ToArray();
+        }
+
         return new GenerateQuestionsResponse
         {
             behavioralQuestions = behavioralQuestions,
@@ -135,7 +147,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         };
     }
 
-    public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath)
+    public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath)
     {
         Interview interview = new Interview();
         var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath);
@@ -144,13 +156,21 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         var behavioralQuestions = questions.behavioralQuestions
             .Select(x => QuestionRepository.createQuestionFromString(x,"behavioral")).ToList();
         var questionList = new List<Question>();
-        questionList.AddRange(technicalQuestions);
-        questionList.AddRange(behavioralQuestions);
-        
+        if (technicalQuestions.Any())
+        {
+            questionList.AddRange(technicalQuestions);
+        }
+
+        if (behavioralQuestions.Any())
+        {
+            questionList.AddRange(behavioralQuestions);
+        }
+
         interview.Name = interviewName;
         interview.Questions = questionList;
         interview.JobDescription = jobDescription;
         interview.ResumeLink = resumePdfPath;
+        interview.secondsPerAnswer = secondsPerAnswer;
         
         var i = await createInterview(interview, user);
         return i;
@@ -175,10 +195,11 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
        return await interviewRepository.Save(interview, user);
     }
 
-    public async Task<List<InterviewDTO>> getInterviews(AppUser user)
+    public async Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
-        List<Interview> interviews = await interviewRepository.GetInterviews(user);
-        return interviews.Select(x=> interviewToDTO(x)).ToList();
+        return await interviewRepository.GetInterviews(user, interviewSearchParams);
+        
+        
         
     }
 
@@ -218,6 +239,8 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interviewDTO.resumeLink = interview.ResumeLink;
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
+
+        interviewDTO.secondsPerAnswer = interview.secondsPerAnswer;
         return interviewDTO;
         
     }
