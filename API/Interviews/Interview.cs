@@ -13,4 +13,6 @@ public class Interview:BaseEntity
     public string JobDescription { get; set; }
     
     public int secondsPerAnswer { get; set; }
+    
+    public string? AdditionalDescription { get; set; }
 }

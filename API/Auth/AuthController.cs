@@ -133,7 +133,16 @@ namespace API.Auth
                 throw new UnauthorizedAccessException("Refresh token is missing.");
             }
 
-            AppUser user = await base.GetCurrentUser();
+            int userId = jwtTokenService.ValidateRefreshToken(refreshToken);
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("Refresh token is invalid.");
+            }
+            AppUser user = userManager.Users.FirstOrDefault(x => x.Id == userId);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
             string accessToken = await jwtTokenService.GenerateToken(user, false);
 
             Response.Cookies.Append("accessToken", accessToken, new CookieOptions
@@ -144,7 +153,7 @@ namespace API.Auth
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
         }
-
+        [AllowAnonymous]
         [HttpGet("logout")]
         public async Task Logout()
         {

@@ -3,6 +3,7 @@ using API.Questions;
 using API.Users;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Interviews;
 
@@ -52,11 +53,11 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         });
     }
 
-    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath )
+    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription )
     {
         string resume = "";
 
-        if (resumePdfPath != null)
+        if (!string.IsNullOrEmpty(resumePdfPath))
         {
             resume = await GetPdfTranscriptAsync(resumePdfPath);
         }
@@ -124,6 +125,13 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
    - Do not use special characters like `*` in the response under any circumstances.
    - Responses should use plain text formatting for clarity.
         ";
+
+
+        if (!string.IsNullOrEmpty(additionalDescription))
+        {
+            prompt += " Please consider this additional description when you make the questions " +
+                      additionalDescription;
+        }
         
         string response = await openAiService.MakeRequest(prompt);
         string[] behavioralQuestions = new string[] { };
@@ -147,10 +155,10 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         };
     }
 
-    public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath)
+    public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,string additionalDescription, string resumeName,string serverUrl)
     {
         Interview interview = new Interview();
-        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath);
+        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath, additionalDescription);
         var technicalQuestions =
             questions.technicalQuestions.Select(x => QuestionRepository.createQuestionFromString(x,"technical")).ToList();
         var behavioralQuestions = questions.behavioralQuestions
@@ -166,11 +174,27 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
             questionList.AddRange(behavioralQuestions);
         }
 
+        if (string.IsNullOrEmpty(jobDescription))
+        {
+            jobDescription = "";
+        }
+
+        if (string.IsNullOrEmpty(resumePdfPath))
+        {
+            resumePdfPath = "";
+        }
+
+        if (string.IsNullOrEmpty(interviewName))
+        {
+            throw new BadHttpRequestException("Interview name is required.");
+        }
+
         interview.Name = interviewName;
         interview.Questions = questionList;
         interview.JobDescription = jobDescription;
-        interview.ResumeLink = resumePdfPath;
+        interview.ResumeLink = serverUrl + "/" + resumeName;
         interview.secondsPerAnswer = secondsPerAnswer;
+        interview.AdditionalDescription = additionalDescription;
         
         var i = await createInterview(interview, user);
         return i;
@@ -214,6 +238,11 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         return await questionRepository.verifyVideoView(fileName, user);
     }
 
+    public async Task<bool> verifyPdfView(string fileName, AppUser user)
+    {
+        return await interviewRepository.verifyPdfView(user, fileName);
+    }
+
     public async Task<InterviewDTO> getInterviewDto(int id,AppUser user)
     {
         Interview i = await getInterview(id,user);
@@ -239,6 +268,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interviewDTO.resumeLink = interview.ResumeLink;
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
+        interviewDTO.additionalDescription  = interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
 
         interviewDTO.secondsPerAnswer = interview.secondsPerAnswer;
         return interviewDTO;
@@ -252,6 +282,8 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interview.Name = interviewDTO.name;
         interview.JobDescription = interviewDTO.jobDescription;
         interview.ResumeLink = interviewDTO.resumeLink;
+        interview.secondsPerAnswer = interviewDTO.secondsPerAnswer;
+        interview.AdditionalDescription = interviewDTO.additionalDescription;
 
         if (interviewDTO.questions != null)
         {
@@ -260,8 +292,6 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
                 .Select(x => QuestionRepository.convertQuestionToEntity(x)).ToList();
         }
         
-        
-
         return interview;
     }
     

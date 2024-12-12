@@ -17,6 +17,8 @@ public class InterviewDTO
     
     public int secondsPerAnswer {get; set;}
     
+    public string additionalDescription {get; set;}
+    
     
     
 }

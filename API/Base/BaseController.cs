@@ -18,10 +18,7 @@ namespace API.Base
         public async Task<AppUser> GetCurrentUser()
         {
             
-            if (HttpContext.User?.Identity?.IsAuthenticated != true)
-            {
-                throw new UnauthorizedAccessException();
-            }
+            
             
             string idString = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 

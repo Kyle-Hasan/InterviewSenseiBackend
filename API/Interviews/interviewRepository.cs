@@ -96,5 +96,8 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         return base.updateObjectFields(newInterview, oldInterview);
     }
 
-    
+    public Task<bool> verifyPdfView(AppUser user, string filePath)
+    {
+        return _entities.AnyAsync(x => x.Id == user.Id && x.ResumeLink == filePath);
+    }
 }

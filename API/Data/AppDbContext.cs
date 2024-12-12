@@ -85,7 +85,7 @@ namespace API.Data
                 {
                     if ((int)E.Property("CreatedById").CurrentValue != user.Id)
                     {
-                        throw new UnauthorizedAccessException("You are not authorized to edit this object.");
+                        throw new UnauthorizedAccessException("You are not authorized to delete this object.");
                     }
                     E.Property("ModifiedDate").CurrentValue = DateTime.Now;
                 }

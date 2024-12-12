@@ -8,9 +8,9 @@ public interface IinterviewService
     Task<QuestionDTO> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user);
 
     Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
-        int numberOfTechnical, int secondsPerAnswer, string resumePdfPath);
+        int numberOfTechnical, int secondsPerAnswer, string resumePdfPath, string additionalDescription, string resumeName,string serverUrl);
 
-    Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath );
+    Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription );
     
     Task deleteInterview(Interview interview, AppUser user);
     
@@ -25,6 +25,8 @@ public interface IinterviewService
     Task<Interview> getInterview(int id,AppUser user);
     
     Task<bool> verifyVideoView(string fileName, AppUser user);
+    
+    Task<bool> verifyPdfView(string fileName, AppUser user);
     
     
 

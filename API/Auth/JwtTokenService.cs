@@ -38,7 +38,9 @@ public class JwtTokenService : IJwtTokenService
         );
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-        public  bool ValidateRefreshToken(
+    
+    // return -1 if invalid token , return user id if valid token
+        public  int ValidateRefreshToken(
             string token
             )
         {
@@ -60,31 +62,41 @@ public class JwtTokenService : IJwtTokenService
             {
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
-                // Ensure the token is a JWT token
+                
                 if (validatedToken is JwtSecurityToken jwtToken)
                 {
                     var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value;
-
+                    int? userId = int.Parse((jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value));
+                    if (userId.HasValue)
+                    {
+                        return userId.Value;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
                     if (tokenType == null || tokenType != "refresh")
                     {
-                        return false;
+                        return -1;
                     }
                 }
                 else
                 {
-                    return false;
+                    return -1;
                 }
 
-                return true;
+                
             }
             catch (SecurityTokenExpiredException)
             {
-                return false;
+                return -1;
             }
             catch (Exception ex)
             {
-                return false;
+                return -1;
             }
+
+            return -1;
         }
     
 

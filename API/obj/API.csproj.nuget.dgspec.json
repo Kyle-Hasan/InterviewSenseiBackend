@@ -13,6 +13,7 @@
         "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
           "C:\\Users\\kyleh\\Documents\\InterviewSensei\\NuGet.Config",
           "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
