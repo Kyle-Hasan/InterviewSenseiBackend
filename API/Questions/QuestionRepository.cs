@@ -1,5 +1,7 @@
-﻿using API.Base;
+﻿using System.Runtime.CompilerServices;
+using API.Base;
 using API.Data;
+using API.Responses;
 using API.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +9,10 @@ namespace API.Questions;
 
 public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
 {
-    public QuestionRepository(AppDbContext appDbContext) : base(appDbContext)
+    private readonly IResponseRepository responseRepository;
+    public QuestionRepository(AppDbContext appDbContext, IResponseRepository responseRepository) : base(appDbContext)
     {
+        this.responseRepository = responseRepository;
     }
 
     public async Task<Question> saveQuestion(Question question,AppUser user)
@@ -21,17 +25,14 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         return await base.getById(id);
     }
 
-    public async Task<bool> verifyVideoView(string filename, AppUser user)
-    {
-        return await base._entities.AnyAsync(q => q.VideoLink.Contains(filename) && q.CreatedById == user.Id);
-    }
+  
 
     public async Task<Question> updateAnswer(Question question, string answer,string feedback, string videoName, string serverUrl, AppUser user)
     {
         
-        question.Response = answer;
-        question.Feedback = feedback;
-        question.VideoLink = serverUrl + "/" + videoName;
+        
+        var newResponse = await this.responseRepository.updateAnswer(answer,feedback, videoName,serverUrl,question.Id, user);
+        question.Responses.Add(newResponse);
         return await base.Save(question, user);
     }
 
@@ -40,28 +41,32 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         await base.Save(question,user);
     }
 
-    public static QuestionDTO convertQuestionToDTO(Question question)
+    public QuestionDTO convertQuestionToDTO(Question question)
     {
         return new QuestionDTO
         {
             id = question.Id,
-            response = question.Response,
-            videoLink = question.VideoLink,
+          
             body = question.Body,
             type = question.Type,
-            feedback = question.Feedback,
+            responses = new List<ResponseDto>()
         };
     }
 
-    public static Question convertQuestionToEntity(QuestionDTO questionDTO)
+    public async Task<bool> verifyVideoView(string fileName, AppUser user)
+    {
+       return await this.responseRepository.verifyVideoView(fileName, user);
+    }
+
+    public Question convertQuestionToEntity(QuestionDTO questionDTO)
     {
         return new Question
         {
             Id = questionDTO.id,
-            Response = questionDTO.response,
-            VideoLink = questionDTO.videoLink,
+           
             Body = questionDTO.body,
-            Feedback = questionDTO.feedback,
+            
+            Responses = questionDTO.responses.Select(x=> this.responseRepository.dtoToResponse(x)).ToList()
 
         };
     }
@@ -71,10 +76,9 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         return new Question
         {
             Body = body,
-            Response = "",
-            VideoLink = "",
+           
             Type = type,
-            Feedback = "",
+            Responses = new List<Response>()
 
         };
     }

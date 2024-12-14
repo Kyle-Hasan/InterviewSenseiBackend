@@ -10,6 +10,14 @@ public interface IQuestionRepository
     Task<Question> updateAnswer(Question question, string answer, string feedback, string videoName,string serverUrl, AppUser user);
 
     Task<Question> getQuestionById(int id);
+
+    QuestionDTO convertQuestionToDTO(Question question);
     
-    Task<bool> verifyVideoView(string filename,AppUser user);
+    Task<bool> verifyVideoView(string fileName, AppUser user);
+
+    Question convertQuestionToEntity(QuestionDTO questionDTO);
+    
+    
+
+
 }

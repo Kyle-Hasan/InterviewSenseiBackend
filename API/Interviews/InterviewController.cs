@@ -10,31 +10,7 @@ namespace API.Interviews;
 [Authorize]
 public class InterviewController(IinterviewService interviewService,UserManager<AppUser> userManager):BaseController(userManager)
 {
-    [HttpPost("rateAnswer")]
-    [RequestSizeLimit(100_000_000)]
-    public async Task<ActionResult<QuestionDTO>> getRating([FromForm]RatingRequestDTO ratingRequest)
-    {
-        var user = await base.GetCurrentUser();
-        if (ratingRequest.video == null || ratingRequest.video.Length == 0)
-        {
-            return BadRequest("no video provided");
-        }
-
-        string videoName = Guid.NewGuid().ToString() + "_" + ratingRequest.video.FileName;
-        var filePath=  Path.Combine("Uploads", videoName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create,FileAccess.ReadWrite))
-        {
-            await ratingRequest.video.CopyToAsync(stream);
-        }
-        
-        string serverUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
-
-       var retVal = await interviewService.rateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
-       return retVal;
-
-
-    }
+    
 
     [HttpPost("generateQuestions")]
     public async Task<ActionResult<GenerateQuestionsResponse>> getQuestions(
@@ -79,7 +55,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
 
         var i = await interviewService.GenerateInterview(user,generateQuestionsRequest.name, generateQuestionsRequest.jobDescription,
             generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical,  generateQuestionsRequest.secondsPerAnswer, filePath, generateQuestionsRequest.additionalDescription,fileName,serverUrl);
-        return InterviewService.interviewToDTO(i);
+        return interviewService.interviewToDTO(i);
     }
 
 
@@ -95,10 +71,10 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     [HttpPut("")]
     public async Task<InterviewDTO> update([FromBody]InterviewDTO interviewDTO)
     {
-        var interview = InterviewService.DtoToInterview(interviewDTO);
+        var interview = interviewService.DtoToInterview(interviewDTO);
         var user = await base.GetCurrentUser();
         var updated = await interviewService.updateInterview(interview,user);
-        return InterviewService.interviewToDTO(updated);
+        return interviewService.interviewToDTO(updated);
     }
 
     [HttpGet("{id}")]
@@ -114,7 +90,7 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         var user = await base.GetCurrentUser();
         PagedInterviewResponse pagedInterviewResponse = await interviewService.getInterviews(user,interviewSearchParamsParams);
         Response.AddPaginationHeader(pagedInterviewResponse.total,interviewSearchParamsParams.startIndex,interviewSearchParamsParams.pageSize);
-        return pagedInterviewResponse.interviews.Select(x=> InterviewService.interviewToDTO(x)).ToList();
+        return pagedInterviewResponse.interviews.Select(x=> interviewService.interviewToDTO(x)).ToList();
     }
 
     [HttpGet("getVideo/{fileName}")]

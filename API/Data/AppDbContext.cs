@@ -3,6 +3,7 @@ using API.Base;
 using API.Extensions;
 using API.Interviews;
 using API.Questions;
+using API.Responses;
 using API.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -25,12 +26,19 @@ namespace API.Data
             
            
             builder.AddBaseEntity<Question>();
+            
+            
             builder.Entity<Question>()
-                .HasOne<Interview>(x => x.Interview)
-                .WithMany()
-                .HasForeignKey(x => x.InterviewId)
+                .HasMany(q=> q.Responses)
+                .WithOne(r => r.Question)
+                .HasForeignKey(r => r.QuestionId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.AddBaseEntity<Response>();
+            
+            
             
             
             builder.AddBaseEntity<Interview>();

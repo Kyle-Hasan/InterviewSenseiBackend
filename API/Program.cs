@@ -6,6 +6,7 @@ using API.Auth;
 using API.Data;
 using API.Interviews;
 using API.Questions;
+using API.Responses;
 using API.Users;
 using FFMpegCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -81,6 +82,8 @@ builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 builder.Services.AddScoped<IinterviewRepository, interviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IResponseRepository,ResponseRepository>();
+builder.Services.AddScoped<IResponseService,ResponseService>();
 
 
 builder.Services.AddAuthorization();
