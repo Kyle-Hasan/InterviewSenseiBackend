@@ -9,7 +9,11 @@ public interface IQuestionRepository
 
     Task<Question> updateAnswer(Question question, string answer, string feedback, string videoName,string serverUrl, AppUser user);
 
-    Task<Question> getQuestionById(int id);
+    Task<Question> getQuestionById(int id,AppUser user);
+    
+    Task<Question> getQuestionByIdWithInterview(int id,AppUser user);
+    
+    
 
     QuestionDTO convertQuestionToDTO(Question question);
     

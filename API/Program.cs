@@ -20,9 +20,14 @@ using Microsoft.VisualBasic;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ??
+                       builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -84,6 +89,7 @@ builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IResponseRepository,ResponseRepository>();
 builder.Services.AddScoped<IResponseService,ResponseService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 
 builder.Services.AddAuthorization();

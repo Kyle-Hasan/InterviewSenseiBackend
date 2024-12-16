@@ -1,5 +1,6 @@
 appsettings.Development.json
 appsettings.json
+appsettings.Production.json
 /bin
 ./bin
 /obj
@@ -10,3 +11,4 @@ Uploads/
 ./Uploads
 *.wav
 *.bin
+appsettings.*

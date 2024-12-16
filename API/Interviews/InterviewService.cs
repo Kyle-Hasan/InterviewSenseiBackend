@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Interviews;
 
-public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository): IinterviewService
+public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository, IQuestionService questionService): IinterviewService
 {
    
 
@@ -104,7 +104,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
         if (!string.IsNullOrEmpty(additionalDescription))
         {
-            prompt += " Please consider this additional description when you make the questions " +
+            prompt += " Please consider this additional description when you make the questions, assume this information has a very importance, be certain it is taken into account.  If asked to include specific questions, make your own call of whether to count as behavioral or technical but don't go over the user specified caps for either category ever. If you decide that the information is unrelated to other information, then put it under behavioral. \n" +
                       additionalDescription;
         }
         
@@ -224,18 +224,17 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         return interviewToDTO(i);
     }
 
-    public  InterviewDTO interviewToDTO(Interview interview)
+    public InterviewDTO interviewToDTO(Interview interview)
     {
         InterviewDTO interviewDTO = new InterviewDTO();
         if (interview.Questions != null)
         {
-            List<QuestionDTO> questionDTOs =
-                interview.Questions.Select(x => questionRepository.convertQuestionToDTO(x)).ToList();
-            interviewDTO.questions = questionDTOs;
+            var questions = questionService.ConvertToDtos(interview.Questions, interview);
+            interviewDTO.questions = questions;
         }
         else
         {
-            interviewDTO.questions = new List<QuestionDTO>();
+            interviewDTO.questions = new List<QuestionPageDto>();
         }
 
         interviewDTO.id = interview.Id;

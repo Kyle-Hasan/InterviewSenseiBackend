@@ -20,12 +20,23 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
        return await base.Save(question,user);
     }
 
-    public async Task<Question> getQuestionById(int id)
+    public async Task<Question> getQuestionById(int id,AppUser user)
     {
-        return await base.getById(id);
+        var question =  await base.getById(id);
+        if (question.CreatedById != user.Id)
+        {
+            throw new UnauthorizedAccessException();
+        }
+        return question;
     }
 
-  
+    public async Task<Question> getQuestionByIdWithInterview(int id, AppUser user)
+    {
+       return  _entities.Include(x=> x.Interview).ThenInclude(x=> x.Questions).Include(x=> x.Responses)
+            .FirstOrDefault(x=> x.Id == id && x.CreatedById == user.Id);
+            
+    }
+
 
     public async Task<Question> updateAnswer(Question question, string answer,string feedback, string videoName, string serverUrl, AppUser user)
     {

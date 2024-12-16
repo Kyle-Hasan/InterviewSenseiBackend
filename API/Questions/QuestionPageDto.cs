@@ -2,7 +2,11 @@
 
 public class QuestionPageDto: QuestionDTO
 {
-    int nextId {get;set;}
+    public int nextQuestionId {get;set;}
     
-    int prevId {get;set;}
+    public int previousQuestionId {get;set;}
+    
+    public int interviewId {get;set;}
+
+    public int secondsPerAnswer { get; set; }
 }

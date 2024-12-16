@@ -10,6 +10,8 @@ public interface IinterviewRepository
     
    Task<Interview> GetInterview(AppUser user, int id);
    
+   
+   
    Interview GetChangedInterview(Interview newInterview, Interview oldInterview);
    
    Task<bool> verifyPdfView(AppUser user, string filePath);

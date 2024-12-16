@@ -4,7 +4,7 @@ namespace API.Interviews;
 
 public class InterviewDTO
 {
-    public List<QuestionDTO>? questions { get; set; }
+    public List<QuestionPageDto>? questions { get; set; }
     
     public int id {get; set;}
     public string name {get; set;}

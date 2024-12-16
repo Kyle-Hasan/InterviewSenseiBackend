@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\API.csproj": {}
+    "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\API.csproj": {
+    "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\API.csproj",
+        "projectPath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\API.csproj",
         "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kyleh\\Documents\\InterviewSensei\\API\\obj\\",
+        "outputPath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\obj\\",
         "projectStyle": "PackageReference",
         "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\kyleh\\Documents\\InterviewSensei\\NuGet.Config",
+          "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\NuGet.Config",
           "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

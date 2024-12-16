@@ -21,7 +21,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
 
     private async Task sendCacheInvalidation(AppUser user)
     {
-        await _hubContext.Clients.Groups("interviews").SendAsync("entitiesUpdated","interview", "true");
+        await _hubContext.Clients.Groups("interviews").SendAsync("entitiesUpdated","interviews", "true");
 
     } 
 
