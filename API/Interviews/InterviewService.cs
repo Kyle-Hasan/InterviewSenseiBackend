@@ -46,8 +46,8 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         Candidate Resume:
         {resume}
 
-        Generate {numberOfBehavioral} behavioral interview questions that evaluate soft skills and cultural fit.
-        Generate {numberOfTechnical} technical interview questions that assess job-specific technical expertise.
+        Generate only {numberOfBehavioral} behavioral interview questions that evaluate soft skills and cultural fit.
+        Generate only {numberOfTechnical} technical interview questions that assess job-specific technical expertise.
 
         Follow these guidelines:
 
