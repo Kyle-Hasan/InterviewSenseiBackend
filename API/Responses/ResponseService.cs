@@ -10,9 +10,12 @@ public class ResponseService(IOpenAIService openAiService,IResponseRepository re
     private readonly string _splitToken = "@u5W$";
     public async Task<ResponseDto> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
     {
+        // transcribe api, find the question being answer and then ask chat gpt to rate the answer
         string transcript =  await openAiService.TranscribeAudioAPI(videoPath);
         Question question = await questionRepository.getQuestionById(questionId,user);
 
+        // response format outlined, split token used to easily split positive and negative feedback(used on frontend).
+        // The token itself is a string that the answer nor the rating would ever normally contain, guaranteeing no weird splits due to that
         string formatInstruction =
             $"Response should always be in format '{_splitToken} Good: insert your answer here {_splitToken} Needs Improvement: insert your answer here' Absolutely DO NOT forget the ${_splitToken} or this format or else the program breaks.   ";
         

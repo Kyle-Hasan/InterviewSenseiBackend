@@ -13,7 +13,6 @@
         "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\obj\\",
         "projectStyle": "PackageReference",
-        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
           "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\NuGet.Config",
           "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,8 +38,9 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
-        }
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -146,7 +146,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\kyleh\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

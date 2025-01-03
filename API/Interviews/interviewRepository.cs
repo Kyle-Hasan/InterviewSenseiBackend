@@ -18,7 +18,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         await base.Delete(interview, user);
         await sendCacheInvalidation(user);
     }
-
+    // send cache invalidation message through signalR to clients subscribed to the interview entities so that frontend cache isnt outdated
     private async Task sendCacheInvalidation(AppUser user)
     {
         if (_hubContext.Clients != null && _hubContext.Clients.Groups("interviews") != null)
@@ -39,8 +39,9 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
 
     public async Task<PagedInterviewResponse> GetInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
+        // make a base query and add additional filters/sorts as needed after
         var query = base.GetAllCreatedByQueryable(user);
-
+    
         if (interviewSearchParams.name != null && interviewSearchParams.name != "")
         {
             query = query.Where(i => i.Name.Contains(interviewSearchParams.name));
@@ -67,6 +68,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         {
             query = query.OrderBy(x => x.Id);
         }
+        // paginate by skipping all the ones before start index
         var total = await query.CountAsync();
         query = query.Skip(interviewSearchParams.startIndex).Take(interviewSearchParams.pageSize);
         var interviews =  await query.ToListAsync();

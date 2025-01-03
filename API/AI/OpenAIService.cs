@@ -26,7 +26,9 @@ public class OpenAIService : IOpenAIService
 
     public async Task<string> TranscribeAudioAPI(String videoPath)
     {
+        
         string absolutePath = Path.GetFullPath(videoPath);
+        
         string audioFile = await FfmpegService.extractAudioFile(absolutePath);
         AudioTranscriptionOptions options = new()
         {
@@ -57,8 +59,9 @@ public class OpenAIService : IOpenAIService
 
     public async Task<String> TranscribeAudio(string videoPath)
     {
+        // gives a wav file,which is needed since mp4 video files not accepted by local whisper modal
         string audioFilePath = await FfmpegService.extractAudioFile(videoPath);
-        
+        // download whisper model if it isnt already downloaded on local file system
         if (!File.Exists(modelName))
         {
             using var modelStream = await WhisperGgmlDownloader.GetGgmlModelAsync(GgmlType.Base);
@@ -81,7 +84,7 @@ public class OpenAIService : IOpenAIService
                 sb.Append(result.Text);
             }
         }
-        
+        //delete file after done
         System.IO.File.Delete(audioFilePath);
 
         return sb.ToString();

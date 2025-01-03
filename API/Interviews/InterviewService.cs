@@ -36,7 +36,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         {
             resume = await GetPdfTranscriptAsync(resumePdfPath);
         }
-        
+        // put everything in prompt for chat gpt request(info about format in prompt)
         string prompt = $@"
         You are an AI specialized in creating highly relevant interview questions.
 
@@ -60,7 +60,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
    - Pull all technical questions strictly from the job description. 
    - Prioritize skills mentioned in both the job description and the resume.
    - If the job description does not include specific technical skills, pull from the resume alone.
-   - If no job description or resume is availa*ble, generate generic technical questions relevant to the specified role (e.g., Full Stack Developer).
+   - If no job description or resume is available, generate generic technical questions relevant to the specified role (e.g., Full Stack Developer).
    - **Framework-/Language-Specific Questions*:
      - Prioritize practical, hands-on questions about frameworks, languages, and tools explicitly mentioned in the job description or resume (e.g., C#, Angular, SQL Server).
      - Examples:
@@ -111,6 +111,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         string response = await openAiService.MakeRequest(prompt);
         string[] behavioralQuestions = new string[] { };
         string[] technicalQuestions = new string[] { };
+        // split questions into categories and send back
         string[] sections = response.Split(new string[] {"Behavioral Questions:", "Technical Questions:" },StringSplitOptions.RemoveEmptyEntries);
         if (numberOfBehavioral > 0)
         {
@@ -181,7 +182,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
     {
        await interviewRepository.Delete(interview, user);
     }
-
+    // only update properties that changed
     public async Task<Interview> updateInterview(Interview interview, AppUser user)
     {
         Interview oldInterview = await getInterview(interview.Id, user);
@@ -207,6 +208,8 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         Interview i = await interviewRepository.GetInterview(user,id);
         return i;
     }
+    
+    //verify methods check whether that user can view the file
 
     public async Task<bool> verifyVideoView(string fileName, AppUser user)
     {

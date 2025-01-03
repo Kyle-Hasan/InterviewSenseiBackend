@@ -11,7 +11,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
         Question q = await questionRepository.getQuestionByIdWithInterview(questionId,user);
         
         Interview interview = q.Interview;
-
+        // order by id so that the same order is always sent back
         List<Question> sortedList = interview.Questions.OrderBy(x => x.Id).ToList();
         var dto = convertToDto(q, sortedList,interview);
         return dto;

@@ -28,7 +28,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
         {
             return BadRequest("no video provided");
         }
-
+        // give video new random name to be saved into system
         string videoName = Guid.NewGuid().ToString() + "_" + ratingRequest.video.FileName;
         var filePath=  Path.Combine("Uploads", videoName);
 
