@@ -1,18 +1,29 @@
 ﻿using API.AI;
+using API.AWS;
 using API.Interviews;
 using API.Questions;
 using API.Users;
 
 namespace API.Responses;
 
-public class ResponseService(IOpenAIService openAiService,IResponseRepository responseRepository, IQuestionRepository questionRepository): IResponseService
+public class ResponseService(IOpenAIService openAiService,IResponseRepository responseRepository, IQuestionRepository questionRepository, IBlobStorageService blobStorageService): IResponseService
 {
     private readonly string _splitToken = "@u5W$";
     public async Task<ResponseDto> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
     {
-        // transcribe api, find the question being answer and then ask chat gpt to rate the answer
+        /* save video cloud in the background and delete one saved on server (cloud key is the same as video name for now so dont need to do anything with it)
+         Don't delete video on server just yet to avoid the unlikely race condition it deletes the video before transcribing
+         */
+        Task<string> cloudKey = null;
+        if (AppConfig.UseCloudStorage)
+        {
+            cloudKey = blobStorageService.UploadFileAsync(videoPath, videoName, "videos");
+        }
+
+        // transcribe api, find the question being answered and then ask chat gpt to rate the answer
         string transcript =  await openAiService.TranscribeAudioAPI(videoPath);
         Question question = await questionRepository.getQuestionById(questionId,user);
+   
 
         // response format outlined, split token used to easily split positive and negative feedback(used on frontend).
         // The token itself is a string that the answer nor the rating would ever normally contain, guaranteeing no weird splits due to that
@@ -29,6 +40,13 @@ public class ResponseService(IOpenAIService openAiService,IResponseRepository re
         string feedback = await openAiService.MakeRequest(prompt);
         string[] split = feedback.Split(_splitToken);
         var response = await responseRepository.updateAnswer( transcript, feedback, videoName,serverUrl,question.Id,user);
+        // make sure video is uploaded before we leave this function so if an error happens we can deal with it
+        if (AppConfig.UseCloudStorage)
+        {
+            await cloudKey;
+            File.Delete(videoPath);
+        }
+
         /*var retval =  new RatingResponse
         {
             good = split[1].Split("Good:")[1],

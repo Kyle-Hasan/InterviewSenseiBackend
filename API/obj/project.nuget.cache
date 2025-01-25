@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "muWiptY9Li4=",
+  "dgSpecHash": "eYYiuPXqkMI=",
   "success": true,
   "projectFilePath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\kyleh\\.nuget\\packages\\awssdk.core\\3.7.401.4\\awssdk.core.3.7.401.4.nupkg.sha512",
+    "C:\\Users\\kyleh\\.nuget\\packages\\awssdk.s3\\3.7.412.4\\awssdk.s3.3.7.412.4.nupkg.sha512",
     "C:\\Users\\kyleh\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\kyleh\\.nuget\\packages\\ffmpegcore\\5.1.0\\ffmpegcore.5.1.0.nupkg.sha512",
     "C:\\Users\\kyleh\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

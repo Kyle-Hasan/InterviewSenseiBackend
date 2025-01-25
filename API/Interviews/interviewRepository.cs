@@ -103,6 +103,6 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
 
     public Task<bool> verifyPdfView(AppUser user, string filePath)
     {
-        return _entities.AnyAsync(x => x.Id == user.Id && x.ResumeLink == filePath);
+        return _entities.AnyAsync(x => x.CreatedById == user.Id && x.ResumeLink.Contains(filePath));
     }
 }

@@ -13,6 +13,7 @@
         "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
           "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\NuGet.Config",
           "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,13 +40,16 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+        }
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "AWSSDK.S3": {
+              "target": "Package",
+              "version": "[3.7.412.4, )"
+            },
             "FFMpegCore": {
               "target": "Package",
               "version": "[5.1.0, )"

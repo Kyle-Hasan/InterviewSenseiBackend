@@ -1,4 +1,5 @@
-﻿using API.Base;
+﻿using API.AWS;
+using API.Base;
 using API.Extensions;
 using API.Questions;
 using API.Users;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Interviews;
 [Authorize]
-public class InterviewController(IinterviewService interviewService,UserManager<AppUser> userManager):BaseController(userManager)
+public class InterviewController(IinterviewService interviewService,UserManager<AppUser> userManager, IBlobStorageService blobStorageService):BaseController(userManager)
 {
     
 
@@ -16,14 +17,15 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     public async Task<ActionResult<GenerateQuestionsResponse>> getQuestions(
         [FromForm] GenerateInterviewRequest generateQuestionsRequest)
     {
-        var filePath= Path.Combine("Uploads", Guid.NewGuid().ToString() + "-" + generateQuestionsRequest.resume.FileName);
+        var fileName = Guid.NewGuid().ToString() + "-" + generateQuestionsRequest.resume.FileName;
+        var filePath= Path.Combine("Uploads", fileName);
         using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
         {
             await generateQuestionsRequest.resume.CopyToAsync(stream);
         }
 
         return await interviewService.generateQuestions(generateQuestionsRequest.jobDescription,
-            generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical, filePath,generateQuestionsRequest.additionalDescription);
+            generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical, filePath,generateQuestionsRequest.additionalDescription,fileName);
     }
     
     [HttpPost("generateInterview")]
@@ -34,7 +36,11 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         {
             return BadRequest();
         }
-
+        else if (generateQuestionsRequest.secondsPerAnswer < 10 || generateQuestionsRequest.numberOfBehavioral > 300)
+        {
+            return BadRequest();
+        }
+ 
         string filePath = "";
         string fileName = "";
         if (generateQuestionsRequest.resume != null)
@@ -103,11 +109,13 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         {
             return Unauthorized();
         }
-        
-        
-        var stream = new FileStream(videoPath,FileMode.Open,FileAccess.Read);
+
+        var stream = await interviewService.ServeFile(fileName, videoPath, "videos", HttpContext);
         var mimeType = "video/webm";
-        return File(stream, mimeType, enableRangeProcessing: true);
+        var response = File(stream, mimeType, enableRangeProcessing: true);
+        
+
+        return response;
     }
 
 
@@ -115,14 +123,22 @@ public class InterviewController(IinterviewService interviewService,UserManager<
     public async Task<IActionResult> getInterview(string fileName)
     {
         var user = await base.GetCurrentUser();
-        
         // security check
+        bool canView =  await interviewService.verifyPdfView(fileName,user);
+        if (!canView)
+        {
+            return Unauthorized();
+        }
         
-        var videoPath = Path.Combine("Uploads", fileName);
+        var pdfPath = Path.Combine("Uploads", fileName);
         
-        var stream = new FileStream(videoPath,FileMode.Open,FileAccess.Read);
+        var stream = await interviewService.ServeFile(fileName, pdfPath, "resumes", HttpContext);
+
         var mimeType = "application/pdf";
-        return File(stream, mimeType, enableRangeProcessing: true); 
+        var response = File(stream, mimeType, enableRangeProcessing: true);
+        
+
+        return response;
         
     }
     

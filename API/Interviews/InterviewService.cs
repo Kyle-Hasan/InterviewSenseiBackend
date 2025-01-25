@@ -1,16 +1,18 @@
 ﻿using API.AI;
+using API.AWS;
 using API.Questions;
 using API.Users;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Interviews;
 
-public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository, IQuestionService questionService): IinterviewService
+public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository, IQuestionService questionService, IBlobStorageService blobStorageService): IinterviewService
 {
    
-
+    
     private async Task<string> GetPdfTranscriptAsync(string pdfPath)
     {
         return await Task.Run(() =>
@@ -28,14 +30,27 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         });
     }
 
-    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription )
+    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription, string resumeName )
     {
         string resume = "";
+        
+        
 
         if (!string.IsNullOrEmpty(resumePdfPath))
         {
             resume = await GetPdfTranscriptAsync(resumePdfPath);
         }
+        
+        /* upload resume in the background to blob storage,delete old resume because we are done with it
+         after reading it to avoid an error where 2 processes are using the same file
+
+        */
+        Task<string> cloudKey = null;
+        if (AppConfig.UseCloudStorage)
+        {
+            cloudKey = blobStorageService.UploadFileDeleteAsync(resumePdfPath, resumeName, "resumes");
+        }
+
         // put everything in prompt for chat gpt request(info about format in prompt)
         string prompt = $@"
         You are an AI specialized in creating highly relevant interview questions.
@@ -123,6 +138,12 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
             technicalQuestions = sections[1].Split("\n").Skip(1).Where(q => q.Length >= 4)
                 .Select(q => q.Trim().Substring(3)).ToArray();
         }
+        // wait for resume upload in order to deal with errors there
+        if (AppConfig.UseCloudStorage)
+        {
+            await cloudKey;
+            
+        }
 
         return new GenerateQuestionsResponse
         {
@@ -134,7 +155,8 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
     public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,string additionalDescription, string resumeName,string serverUrl)
     {
         Interview interview = new Interview();
-        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath, additionalDescription);
+        
+        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath, additionalDescription,resumeName);
         var technicalQuestions =
             questions.technicalQuestions.Select(x => QuestionRepository.createQuestionFromString(x,"technical")).ToList();
         var behavioralQuestions = questions.behavioralQuestions
@@ -173,6 +195,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interview.AdditionalDescription = additionalDescription;
         
         var i = await createInterview(interview, user);
+        
         return i;
 
 
@@ -270,6 +293,30 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         }
         
         return interview;
+    }
+
+    public async Task<FileStream> ServeFile(string fileName,string filePath, string folderName, HttpContext httpContext)
+    {
+       
+       
+        if (AppConfig.UseCloudStorage)
+        {
+            await blobStorageService.DownloadFileAsync(fileName, filePath, folderName);
+        }
+
+        var stream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+        
+        
+        if (AppConfig.UseCloudStorage)
+        {
+            httpContext.Response.OnCompleted(async () =>
+            {
+                stream.Close();
+                System.IO.File.Delete(filePath);
+
+            });
+        }
+        return stream;
     }
     
     

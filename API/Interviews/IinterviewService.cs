@@ -1,5 +1,6 @@
 ﻿using API.Questions;
 using API.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Interviews;
 
@@ -10,7 +11,7 @@ public interface IinterviewService
     Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
         int numberOfTechnical, int secondsPerAnswer, string resumePdfPath, string additionalDescription, string resumeName,string serverUrl);
 
-    Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription );
+    Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName );
     
     Task deleteInterview(Interview interview, AppUser user);
     
@@ -31,6 +32,8 @@ public interface IinterviewService
     InterviewDTO interviewToDTO(Interview interview);
 
     Interview DtoToInterview(InterviewDTO interviewDTO);
+
+    Task<FileStream> ServeFile(string fileName, string filePath, string folderName, HttpContext httpContext);
 
 
 

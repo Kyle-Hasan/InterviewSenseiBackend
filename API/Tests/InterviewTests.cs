@@ -31,7 +31,7 @@ public class InterviewTests
       
         mockInterviewHub.Setup(hub => hub.Clients).Returns(mockClients.Object);
 
-         .var context = CreateInMemoryDbContext();
+         var context = CreateInMemoryDbContext();
 
 
 
