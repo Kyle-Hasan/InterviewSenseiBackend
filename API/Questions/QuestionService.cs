@@ -76,7 +76,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
 
     public async Task<List<QuestionPageDto>> GetQuestionsByInterviewId(int interviewId, AppUser user)
     {
-        Interview interview = await interviewRepository.GetInterview(user,interviewId);
+        Interview interview = await interviewRepository.getInterview(user,interviewId);
         return  ConvertToDtos(interview.Questions, interview);
         
         

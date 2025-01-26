@@ -34,6 +34,9 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 bool useCloudStorage = builder.Configuration.GetValue<bool>("UseCloudStorage");
+bool useSignedUrl = builder.Configuration.GetValue<bool>("UseSignedUrl");
+AppConfig.LoadConfiguration(builder.Configuration);
+builder.Services.AddSingleton<object>(useSignedUrl);
 builder.Services.AddSingleton<object>(useCloudStorage);
 builder.Services.AddSignalR();
 builder.Services.AddIdentity<AppUser, AppRole>(options =>

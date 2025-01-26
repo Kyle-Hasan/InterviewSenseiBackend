@@ -1,9 +1,11 @@
 ﻿public static class AppConfig
 {
     public static bool UseCloudStorage { get; private set; }
+    public static bool UseSignedUrl { get; private set; }
 
     public static void LoadConfiguration(IConfiguration configuration)
     {
-        UseCloudStorage = (bool)configuration.GetValue<object>("UseCloudStorage");
+        UseCloudStorage = configuration.GetValue<object>("UseCloudStorage").ToString().ToLower().Equals(bool.TrueString.ToLower());
+        UseSignedUrl = (bool)configuration.GetValue<object>("UseSignedUrl").ToString().ToLower().Equals(bool.TrueString.ToLower());
     }
 }

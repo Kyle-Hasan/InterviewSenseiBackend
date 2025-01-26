@@ -203,24 +203,24 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
     public async Task  deleteInterview(Interview interview, AppUser user)
     {
-       await interviewRepository.Delete(interview, user);
+       await interviewRepository.delete(interview, user);
     }
     // only update properties that changed
     public async Task<Interview> updateInterview(Interview interview, AppUser user)
     {
         Interview oldInterview = await getInterview(interview.Id, user);
-        Interview toUpdated = interviewRepository.GetChangedInterview(interview, oldInterview);
-        return await interviewRepository.Save(toUpdated, user);
+        Interview toUpdated = interviewRepository.getChangedInterview(interview, oldInterview);
+        return await interviewRepository.save(toUpdated, user);
     }
 
     public async Task<Interview> createInterview(Interview interview, AppUser user)
     {
-       return await interviewRepository.Save(interview, user);
+       return await interviewRepository.save(interview, user);
     }
 
     public async Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
-        return await interviewRepository.GetInterviews(user, interviewSearchParams);
+        return await interviewRepository.getInterviews(user, interviewSearchParams);
         
         
         
@@ -228,7 +228,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
     public async Task<Interview> getInterview(int id,AppUser user)
     {
-        Interview i = await interviewRepository.GetInterview(user,id);
+        Interview i = await interviewRepository.getInterview(user,id);
         return i;
     }
     
@@ -295,7 +295,7 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         return interview;
     }
 
-    public async Task<FileStream> ServeFile(string fileName,string filePath, string folderName, HttpContext httpContext)
+    public async Task<FileStream> serveFile(string fileName,string filePath, string folderName, HttpContext httpContext)
     {
        
        
@@ -318,6 +318,53 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         }
         return stream;
     }
-    
-    
+
+    private string getStringAfterPattern(string searchPattern, string text)
+    {
+        
+        // gives start index of pattern
+        int index = text.IndexOf(searchPattern);
+        string result = "";
+
+        if (index != -1)
+        {
+            // add the length to skip over the search pattern
+            result = text.Substring(index + searchPattern.Length);
+                
+        }
+        return result;
+    }
+
+    public async Task<ResumeUrlAndName> getLatestResume(AppUser user)
+    {
+        string url = await interviewRepository.getLatestResume(user);
+        if (url == null)
+        {
+            return new ResumeUrlAndName
+            {
+                url = "",
+                fileName = ""
+            };
+        }
+        // get every after /Interview/getPdf/ in the url to get actual file name and not anything in the server endpoint to get it
+        string searchPattern = "/Interview/getPdf/";
+        // gives start index of pattern
+        string filename = getStringAfterPattern(searchPattern, url);
+        if (AppConfig.UseSignedUrl)
+        {
+            url = await blobStorageService.GeneratePreSignedUrlAsync("resumes",filename);
+            
+        }
+        
+        // cut off guid part we added to file name now to
+        // get the original name the user uploaded(we needed the guid part to fish it from storage)
+        filename = getStringAfterPattern("_", filename);
+
+        return new ResumeUrlAndName
+        {
+            url = url,
+            fileName = filename
+        };
+
+    }
 }

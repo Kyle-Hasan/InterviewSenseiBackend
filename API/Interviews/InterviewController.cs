@@ -98,9 +98,9 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         Response.AddPaginationHeader(pagedInterviewResponse.total,interviewSearchParamsParams.startIndex,interviewSearchParamsParams.pageSize);
         return pagedInterviewResponse.interviews.Select(x=> interviewService.interviewToDTO(x)).ToList();
     }
-
+    // get video file or signed url to video file in blob storage
     [HttpGet("getVideo/{fileName}")]
-    public async Task<IActionResult> GetFile(string fileName)
+    public async Task<IActionResult> GetVideo(string fileName)
     {
         var user = await base.GetCurrentUser();
         var videoPath = Path.Combine("Uploads", fileName);
@@ -110,17 +110,25 @@ public class InterviewController(IinterviewService interviewService,UserManager<
             return Unauthorized();
         }
 
-        var stream = await interviewService.ServeFile(fileName, videoPath, "videos", HttpContext);
-        var mimeType = "video/webm";
-        var response = File(stream, mimeType, enableRangeProcessing: true);
-        
+        if (!AppConfig.UseSignedUrl)
+        {
+            var stream = await interviewService.serveFile(fileName, videoPath, "videos", HttpContext);
+            var mimeType = "video/webm";
+            var response = File(stream, mimeType, enableRangeProcessing: true);
+            return response;
+        }
+        else
+        {
+            return Ok(blobStorageService.GeneratePreSignedUrlAsync("videos", fileName, 10)); 
+        }
 
-        return response;
+
+        
     }
 
-
+    // get pdf file or signed url to pdf file in blob storage
     [HttpGet("getPdf/{fileName}")]
-    public async Task<IActionResult> getInterview(string fileName)
+    public async Task<IActionResult> getResume(string fileName)
     {
         var user = await base.GetCurrentUser();
         // security check
@@ -129,17 +137,34 @@ public class InterviewController(IinterviewService interviewService,UserManager<
         {
             return Unauthorized();
         }
-        
-        var pdfPath = Path.Combine("Uploads", fileName);
-        
-        var stream = await interviewService.ServeFile(fileName, pdfPath, "resumes", HttpContext);
 
-        var mimeType = "application/pdf";
-        var response = File(stream, mimeType, enableRangeProcessing: true);
-        
 
-        return response;
-        
+        if (!AppConfig.UseSignedUrl)
+        {
+
+            var pdfPath = Path.Combine("Uploads", fileName);
+
+            var stream = await interviewService.serveFile(fileName, pdfPath, "resumes", HttpContext);
+
+            var mimeType = "application/pdf";
+            var response = File(stream, mimeType, enableRangeProcessing: true);
+
+
+            return response;
+        }
+        else
+        {
+            return Ok(blobStorageService.GeneratePreSignedUrlAsync("resumes", fileName, 10));
+        }
+
+    }
+    
+    [HttpGet("getLatestResume")]
+    public async Task<ResumeUrlAndName> getLatestResume()
+    {
+        var user = await base.GetCurrentUser();
+        return await interviewService.getLatestResume(user);
+
     }
     
     

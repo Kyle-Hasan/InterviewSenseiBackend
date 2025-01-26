@@ -13,7 +13,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
     {
         _hubContext = hubContext;
     }
-    public async Task Delete(Interview interview,AppUser user)
+    public async Task delete(Interview interview,AppUser user)
     {
         await base.Delete(interview, user);
         await sendCacheInvalidation(user);
@@ -28,7 +28,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         }
     } 
 
-    public async Task<Interview> Save(Interview interview,AppUser user)
+    public async Task<Interview> save(Interview interview,AppUser user)
     {
         Interview i =  await base.Save(interview, user);
         await sendCacheInvalidation(user);
@@ -37,7 +37,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
     
     
 
-    public async Task<PagedInterviewResponse> GetInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
+    public async Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
         // make a base query and add additional filters/sorts as needed after
         var query = base.GetAllCreatedByQueryable(user);
@@ -82,7 +82,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
 
     
 
-    public async Task<Interview> GetInterview(AppUser user, int id)
+    public async Task<Interview> getInterview(AppUser user, int id)
     {
         var i = base._entities.Where(x => x.Id == id)
             .Include(x => x.Questions).FirstOrDefault();
@@ -95,7 +95,7 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         return i;
     }
 
-    public Interview GetChangedInterview(Interview newInterview, Interview oldInterview)
+    public Interview getChangedInterview(Interview newInterview, Interview oldInterview)
     {
         
         return base.updateObjectFields(newInterview, oldInterview);
@@ -104,5 +104,18 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
     public Task<bool> verifyPdfView(AppUser user, string filePath)
     {
         return _entities.AnyAsync(x => x.CreatedById == user.Id && x.ResumeLink.Contains(filePath));
+    }
+
+    public async Task<string>  getLatestResume(AppUser user)
+    {
+        var interview = await _entities.Where(x => x.CreatedById == user.Id && x.ResumeLink != null).OrderByDescending(x => x.CreatedDate).FirstOrDefaultAsync();
+        if (interview == null)
+        {
+            return null;
+        }
+        else
+        {
+            return interview.ResumeLink;
+        }
     }
 }

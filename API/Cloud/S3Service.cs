@@ -65,4 +65,28 @@ public class S3Service: IBlobStorageService
         File.Delete(filePath);
         return cloudKey;
     }
+    
+    public async Task<string> GeneratePreSignedUrlAsync(string folderName, string fileName, int expiryInMinutes = 10)
+    {
+        try
+        {
+            string keyName = $"{folderName}/{fileName}"; // Combine folder and filename
+
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = _bucketName,
+                Key = keyName,
+                Expires = DateTime.UtcNow.AddMinutes(expiryInMinutes),
+                Protocol = Protocol.HTTPS
+            };
+
+            string preSignedUrl = _amazonS3.GetPreSignedURL(request);
+            return preSignedUrl;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            Console.WriteLine($"Error generating pre-signed URL: {ex.Message}");
+            throw;
+        }
+    }
 }

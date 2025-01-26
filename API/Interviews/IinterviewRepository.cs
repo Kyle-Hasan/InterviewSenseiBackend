@@ -4,18 +4,20 @@ namespace API.Interviews;
 
 public interface IinterviewRepository
 {
-    Task Delete(Interview interview,AppUser user);
-    Task<Interview> Save(Interview interview, AppUser user);
-    Task<PagedInterviewResponse> GetInterviews(AppUser user, InterviewSearchParams interviewSearchParams);
+    Task delete(Interview interview,AppUser user);
+    Task<Interview> save(Interview interview, AppUser user);
+    Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams);
     
-   Task<Interview> GetInterview(AppUser user, int id);
+   Task<Interview> getInterview(AppUser user, int id);
    
    
    
-   Interview GetChangedInterview(Interview newInterview, Interview oldInterview);
+   Interview getChangedInterview(Interview newInterview, Interview oldInterview);
    
    Task<bool> verifyPdfView(AppUser user, string filePath);
-   
-   
-    
+    // get the link to the latest resume this used, if they have no resumes return null
+   Task<string> getLatestResume(AppUser user);
+
+
+
 }

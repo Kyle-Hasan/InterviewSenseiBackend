@@ -23,4 +23,14 @@ public interface IBlobStorageService
      * folderName: name of folder of where to store file
      */
     Task<string> UploadFileDeleteAsync(string filePath, string fileName , string folderName);
+    
+    /* returns: a signed url that lets you access the file until the expiry time,
+     * 
+     * 
+     * 
+     *  
+     * 
+     */
+
+    Task<string> GeneratePreSignedUrlAsync(string folderName, string fileName, int expiryInMinutes = 10);
 }

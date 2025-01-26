@@ -33,7 +33,11 @@ public interface IinterviewService
 
     Interview DtoToInterview(InterviewDTO interviewDTO);
 
-    Task<FileStream> ServeFile(string fileName, string filePath, string folderName, HttpContext httpContext);
+    Task<FileStream> serveFile(string fileName, string filePath, string folderName, HttpContext httpContext);
+    
+    // return the url and file name to the latest resume this user used, returning blank strings if they have no resumes uploaded.
+    // If we are using signed urls, return the s3 bucket url here
+    Task<ResumeUrlAndName> getLatestResume(AppUser user);
 
 
 

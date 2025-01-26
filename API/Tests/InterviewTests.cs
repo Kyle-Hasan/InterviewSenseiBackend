@@ -57,7 +57,7 @@ public class InterviewTests
 
         };
 
-        await interviewRepository.Save(interview, appUser);
+        await interviewRepository.save(interview, appUser);
         
         Response testResponse1 = new Response
         {
@@ -108,7 +108,7 @@ public class InterviewTests
         await questionRepository.saveQuestion(question1, appUser);
         await questionRepository.saveQuestion(question2, appUser);
 
-        var result =  await interviewRepository.GetInterview(appUser, 1);
+        var result =  await interviewRepository.getInterview(appUser, 1);
         
         Assert.NotNull(result);
         Assert.Equal(interview.Id, result.Id);
