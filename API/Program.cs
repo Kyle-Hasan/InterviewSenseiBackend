@@ -35,9 +35,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 bool useCloudStorage = builder.Configuration.GetValue<bool>("UseCloudStorage");
 bool useSignedUrl = builder.Configuration.GetValue<bool>("UseSignedUrl");
+string FFMPEGPath = builder.Configuration.GetValue<string>("FFMPEGPath");
 AppConfig.LoadConfiguration(builder.Configuration);
 builder.Services.AddSingleton<object>(useSignedUrl);
 builder.Services.AddSingleton<object>(useCloudStorage);
+builder.Services.AddSingleton<object>(FFMPEGPath);
+
 builder.Services.AddSignalR();
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {

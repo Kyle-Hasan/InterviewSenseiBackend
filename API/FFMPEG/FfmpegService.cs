@@ -9,7 +9,7 @@ namespace API.FFMPEG
     {
         public FfmpegService()
         {
-            GlobalFFOptions.Configure(options => options.BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin");
+            GlobalFFOptions.Configure(options => options.BinaryFolder = AppConfig.FFMPEGPath);
 
         }
         // this method converts mp4 video files to wav audio files since the whisper model on local doesnt accept mp4
