@@ -12,7 +12,11 @@ public class S3Service: IBlobStorageService
 
     public S3Service(IConfiguration config)
     {
-        var awsSettings  = config.GetSection("AWS").Get<AwsSettings>();
+        var awsSettings = new AwsSettings();
+        awsSettings.AccessKey = Environment.GetEnvironmentVariable("AWS_AccessKey");
+        awsSettings.SecretKey = Environment.GetEnvironmentVariable("AWS_SecretKey");
+        awsSettings.Region = Environment.GetEnvironmentVariable("AWS_Region");
+        awsSettings.BucketName = Environment.GetEnvironmentVariable("AWS_BucketName");
         var awsCredentials = new Amazon.Runtime.BasicAWSCredentials(awsSettings.AccessKey, awsSettings.SecretKey);
         _amazonS3 = new AmazonS3Client(awsCredentials,RegionEndpoint.GetBySystemName(awsSettings.Region));
         _bucketName = awsSettings.BucketName;

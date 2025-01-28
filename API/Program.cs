@@ -16,30 +16,40 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
+using DotNetEnv;
 
+
+// Determine the environment
+var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+// Load the corresponding .env file
+if (env == "Production")
+{
+    Env.Load("backend.env.production");
+}
+else
+{
+    Env.Load("backend.env.dev");
+}
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ??
-                       builder.Configuration.GetConnectionString("DefaultConnection");
+                       Environment.GetEnvironmentVariable("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-bool useCloudStorage = builder.Configuration.GetValue<bool>("UseCloudStorage");
-bool useSignedUrl = builder.Configuration.GetValue<bool>("UseSignedUrl");
-string FFMPEGPath = builder.Configuration.GetValue<string>("FFMPEGPath");
+
+
 AppConfig.LoadConfiguration(builder.Configuration);
-builder.Services.AddSingleton<object>(useSignedUrl);
-builder.Services.AddSingleton<object>(useCloudStorage);
-builder.Services.AddSingleton<object>(FFMPEGPath);
+
 
 builder.Services.AddSignalR();
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
@@ -53,7 +63,7 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+var secretKey = Encoding.UTF8.GetBytes(JwtSettings.SecretKey);
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

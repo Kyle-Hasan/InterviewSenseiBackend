@@ -6,6 +6,7 @@ using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace API.Interviews;
 
@@ -365,6 +366,15 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
             url = url,
             fileName = filename
         };
+
+    }
+    
+    // return a list of the resume file names for a user
+    public async Task<string[]> getAllResumes(AppUser user)
+    {
+        string[] fileNames = await interviewRepository.getAllResumes(user);
+        string searchPattern = "/Interview/getPdf/";
+        return fileNames.Select(x=> getStringAfterPattern(searchPattern,x)).ToArray();
 
     }
 }

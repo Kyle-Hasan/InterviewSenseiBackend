@@ -17,6 +17,7 @@ public interface IinterviewRepository
    Task<bool> verifyPdfView(AppUser user, string filePath);
     // get the link to the latest resume this used, if they have no resumes return null
    Task<string> getLatestResume(AppUser user);
+   Task<string[]> getAllResumes(AppUser user);
 
 
 

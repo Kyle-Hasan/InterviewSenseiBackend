@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 
 namespace API
 {
-    public class JwtSettings
+    public static class JwtSettings
     {
-        public required string SecretKey {get;set;}
-        public string? Issuer {get;set;} = null;
+        public static string SecretKey {get;set;} = Environment.GetEnvironmentVariable("JWT_SecretKey");
+        public static string? Issuer {get;set;} = Environment.GetEnvironmentVariable("JWT_Issuer");
 
-        public string? Audience {get;set;} = null;
+        public static string? Audience {get;set;} = Environment.GetEnvironmentVariable("JWT_Audience");
 
-        public int AccessTokenExpirationMinutes {get;set;}
+        public static string AccessTokenExpirationMinutes {get;set;} = Environment.GetEnvironmentVariable("JWT_AccessTokenExpirationMinutes");
 
-        public int RefreshTokenExpirationDays {get;set;}
+        public static string RefreshTokenExpirationDays {get;set;} = Environment.GetEnvironmentVariable("JWT_RefreshTokenExpirationDays");
+
+        
     }
 }

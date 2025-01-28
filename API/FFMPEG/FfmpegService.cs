@@ -9,7 +9,7 @@ namespace API.FFMPEG
     {
         public FfmpegService()
         {
-            GlobalFFOptions.Configure(options => options.BinaryFolder = AppConfig.FFMPEGPath);
+            GlobalFFOptions.Configure(options => options.BinaryFolder = Environment.GetEnvironmentVariable("FFMPEGPath"));
 
         }
         // this method converts mp4 video files to wav audio files since the whisper model on local doesnt accept mp4

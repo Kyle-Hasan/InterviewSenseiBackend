@@ -50,6 +50,10 @@
               "target": "Package",
               "version": "[3.7.412.4, )"
             },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "FFMpegCore": {
               "target": "Package",
               "version": "[5.1.0, )"

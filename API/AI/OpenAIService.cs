@@ -10,16 +10,16 @@ using OpenAI;
 
 public class OpenAIService : IOpenAIService
 {
-    private readonly IConfiguration _configuration;
+  
     private readonly string _apiKey;
     ChatClient _chatClient;
     AudioClient _audioClient;
     private string modelName = "ggml-base.bin";
 
-    public OpenAIService(IConfiguration configuration)
+    public OpenAIService()
     {
-        _configuration = configuration;
-        _apiKey = _configuration.GetValue<string>("OPENAI_API_KEY");
+       
+        _apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         _chatClient = new(model: "gpt-4o", apiKey: _apiKey);
         _audioClient = new("whisper-1", apiKey: _apiKey);
     }

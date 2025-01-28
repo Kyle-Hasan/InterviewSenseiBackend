@@ -12,3 +12,6 @@ Uploads/
 *.wav
 *.bin
 appsettings.*
+.env
+backend.env.dev
+backend.env.production

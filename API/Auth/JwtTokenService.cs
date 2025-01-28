@@ -9,26 +9,27 @@ using Microsoft.IdentityModel.Tokens;
 
 public class JwtTokenService : IJwtTokenService
 {
-    private readonly IConfiguration _config;
+    
 
-    public JwtTokenService(IConfiguration config) {
-        _config = config;
+    public JwtTokenService() {
+        
     }
 
-    public async Task<string> GenerateToken(AppUser user, bool refreshToken) {
+    public async Task<string> GenerateToken(AppUser user, bool refreshToken)
+    {
 
-        JwtSettings jwtSettings = _config.GetSection("JwtSettings").Get<JwtSettings>();
+        
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier,user.Id.ToString()),
             new(ClaimTypes.Name,user.UserName),
             new("tokenType", refreshToken ? "refresh" : "access")
         };
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
         var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha512);
 
-        DateTime expiration = refreshToken ? DateTime.Now.AddMinutes(jwtSettings.RefreshTokenExpirationDays) : 
-        DateTime.Now.AddMinutes(jwtSettings.AccessTokenExpirationMinutes);
+        DateTime expiration = refreshToken ? DateTime.Now.AddMinutes(int.Parse(JwtSettings.RefreshTokenExpirationDays)) : 
+        DateTime.Now.AddMinutes(int.Parse(JwtSettings.AccessTokenExpirationMinutes));
 
         var token = new JwtSecurityToken(
             
@@ -44,10 +45,10 @@ public class JwtTokenService : IJwtTokenService
             string token
             )
         {
-            JwtSettings jwtSettings = _config.GetSection("JwtSettings").Get<JwtSettings>();
+            
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false, 

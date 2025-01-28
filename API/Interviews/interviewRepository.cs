@@ -118,4 +118,11 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
             return interview.ResumeLink;
         }
     }
+
+    public async Task<string[]> getAllResumes(AppUser user)
+    {
+        var resumes = await _entities.Where(x => x.CreatedById == user.Id && x.ResumeLink !=null).OrderByDescending(x => x.CreatedDate)
+            .Select(x=> x.ResumeLink).ToArrayAsync();
+        return resumes;
+    }
 }
