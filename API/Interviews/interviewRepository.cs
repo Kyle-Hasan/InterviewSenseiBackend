@@ -118,11 +118,15 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
             return interview.ResumeLink;
         }
     }
-
-    public async Task<string[]> getAllResumes(AppUser user)
+    // only fills out url and date created, let the function calling handle logic for figuring out the actual file name
+    public async Task<ResumeUrlAndName[]> getAllResumes(AppUser user)
     {
+        
+        // get all unique resumes used by this user (sort once so the grouping always picks the latest one in group and then again to sort them all again)
         var resumes = await _entities.Where(x => x.CreatedById == user.Id && x.ResumeLink !=null).OrderByDescending(x => x.CreatedDate)
-            .Select(x=> x.ResumeLink).ToArrayAsync();
+            .Select(x => new ResumeUrlAndName {url = x.ResumeLink, date = DateOnly.FromDateTime(x.CreatedDate)}  )
+            .GroupBy(x=> x.url).Select(x=> x.First()).ToArrayAsync();
+        resumes = resumes.OrderByDescending(x=> x.date).ToArray();
         return resumes;
     }
 }

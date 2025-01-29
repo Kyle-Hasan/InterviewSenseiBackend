@@ -38,6 +38,11 @@ public interface IinterviewService
     // return the url and file name to the latest resume this user used, returning blank strings if they have no resumes uploaded.
     // If we are using signed urls, return the s3 bucket url here
     Task<ResumeUrlAndName> getLatestResume(AppUser user);
+// fills out the display name witout the guid we added
+    Task<ResumeUrlAndName[]> getAllResumes(AppUser user);
+    
+    
+    
 
 
 

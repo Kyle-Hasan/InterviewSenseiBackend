@@ -7,19 +7,23 @@ using iText.Kernel.Pdf.Canvas.Parser;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using API.Extensions;
 
 namespace API.Interviews;
 
-public class InterviewService(IOpenAIService openAiService,IinterviewRepository interviewRepository,IQuestionRepository questionRepository, IQuestionService questionService, IBlobStorageService blobStorageService): IinterviewService
+public class InterviewService(
+    IOpenAIService openAiService,
+    IinterviewRepository interviewRepository,
+    IQuestionRepository questionRepository,
+    IQuestionService questionService,
+    IBlobStorageService blobStorageService) : IinterviewService
 {
-   
-    
     private async Task<string> GetPdfTranscriptAsync(string pdfPath)
     {
         return await Task.Run(() =>
         {
             string result = "";
-            using(PdfReader reader = new PdfReader(pdfPath))
+            using (PdfReader reader = new PdfReader(pdfPath))
             using (PdfDocument pdfDoc = new PdfDocument(reader))
             {
                 for (int i = 1; i < pdfDoc.GetNumberOfPages(); i++)
@@ -27,21 +31,22 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
                     result += PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i));
                 }
             }
-            return result;  
+
+            return result;
         });
     }
 
-    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription, string resumeName )
+    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription, int numberOfBehavioral,
+        int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName)
     {
         string resume = "";
-        
-        
+
 
         if (!string.IsNullOrEmpty(resumePdfPath))
         {
             resume = await GetPdfTranscriptAsync(resumePdfPath);
         }
-        
+
         /* upload resume in the background to blob storage,delete old resume because we are done with it
          after reading it to avoid an error where 2 processes are using the same file
 
@@ -120,30 +125,33 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
         if (!string.IsNullOrEmpty(additionalDescription))
         {
-            prompt += " Please consider this additional description when you make the questions, assume this information has a very importance, be certain it is taken into account.  If asked to include specific questions, make your own call of whether to count as behavioral or technical but don't go over the user specified caps for either category ever. If you decide that the information is unrelated to other information, then put it under behavioral. \n" +
-                      additionalDescription;
+            prompt +=
+                " Please consider this additional description when you make the questions, assume this information has a very importance, be certain it is taken into account.  If asked to include specific questions, make your own call of whether to count as behavioral or technical but don't go over the user specified caps for either category ever. If you decide that the information is unrelated to other information, then put it under behavioral. \n" +
+                additionalDescription;
         }
-        
+
         string response = await openAiService.MakeRequest(prompt);
         string[] behavioralQuestions = new string[] { };
         string[] technicalQuestions = new string[] { };
         // split questions into categories and send back
-        string[] sections = response.Split(new string[] {"Behavioral Questions:", "Technical Questions:" },StringSplitOptions.RemoveEmptyEntries);
+        string[] sections = response.Split(new string[] { "Behavioral Questions:", "Technical Questions:" },
+            StringSplitOptions.RemoveEmptyEntries);
         if (numberOfBehavioral > 0)
         {
             behavioralQuestions = sections[0].Split("\n").Skip(1).Where(q => q.Length >= 4)
                 .Select(q => q.Trim().Substring(3)).ToArray();
         }
+
         if (numberOfTechnical > 0)
         {
             technicalQuestions = sections[1].Split("\n").Skip(1).Where(q => q.Length >= 4)
                 .Select(q => q.Trim().Substring(3)).ToArray();
         }
+
         // wait for resume upload in order to deal with errors there
         if (AppConfig.UseCloudStorage)
         {
             await cloudKey;
-            
         }
 
         return new GenerateQuestionsResponse
@@ -153,15 +161,19 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         };
     }
 
-    public async Task<Interview> GenerateInterview(AppUser user, string interviewName,string jobDescription,int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,string additionalDescription, string resumeName,string serverUrl)
+    public async Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription,
+        int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,
+        string additionalDescription, string resumeName, string serverUrl)
     {
         Interview interview = new Interview();
-        
-        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath, additionalDescription,resumeName);
+
+        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,
+            additionalDescription, resumeName);
         var technicalQuestions =
-            questions.technicalQuestions.Select(x => QuestionRepository.createQuestionFromString(x,"technical")).ToList();
+            questions.technicalQuestions.Select(x => QuestionRepository.createQuestionFromString(x, "technical"))
+                .ToList();
         var behavioralQuestions = questions.behavioralQuestions
-            .Select(x => QuestionRepository.createQuestionFromString(x,"behavioral")).ToList();
+            .Select(x => QuestionRepository.createQuestionFromString(x, "behavioral")).ToList();
         var questionList = new List<Question>();
         if (technicalQuestions.Any())
         {
@@ -194,18 +206,17 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interview.ResumeLink = serverUrl + "/" + resumeName;
         interview.secondsPerAnswer = secondsPerAnswer;
         interview.AdditionalDescription = additionalDescription;
-        
+
         var i = await createInterview(interview, user);
-        
+
         return i;
-
-
     }
 
-    public async Task  deleteInterview(Interview interview, AppUser user)
+    public async Task deleteInterview(Interview interview, AppUser user)
     {
-       await interviewRepository.delete(interview, user);
+        await interviewRepository.delete(interview, user);
     }
+
     // only update properties that changed
     public async Task<Interview> updateInterview(Interview interview, AppUser user)
     {
@@ -216,23 +227,20 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
     public async Task<Interview> createInterview(Interview interview, AppUser user)
     {
-       return await interviewRepository.save(interview, user);
+        return await interviewRepository.save(interview, user);
     }
 
     public async Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
         return await interviewRepository.getInterviews(user, interviewSearchParams);
-        
-        
-        
     }
 
-    public async Task<Interview> getInterview(int id,AppUser user)
+    public async Task<Interview> getInterview(int id, AppUser user)
     {
-        Interview i = await interviewRepository.getInterview(user,id);
+        Interview i = await interviewRepository.getInterview(user, id);
         return i;
     }
-    
+
     //verify methods check whether that user can view the file
 
     public async Task<bool> verifyVideoView(string fileName, AppUser user)
@@ -245,9 +253,9 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         return await interviewRepository.verifyPdfView(user, fileName);
     }
 
-    public async Task<InterviewDTO> getInterviewDto(int id,AppUser user)
+    public async Task<InterviewDTO> getInterviewDto(int id, AppUser user)
     {
-        Interview i = await getInterview(id,user);
+        Interview i = await getInterview(id, user);
         return interviewToDTO(i);
     }
 
@@ -269,14 +277,14 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
         interviewDTO.resumeLink = interview.ResumeLink;
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
-        interviewDTO.additionalDescription  = interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
+        interviewDTO.additionalDescription =
+            interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
 
         interviewDTO.secondsPerAnswer = interview.secondsPerAnswer;
         return interviewDTO;
-        
     }
 
-    public  Interview DtoToInterview(InterviewDTO interviewDTO)
+    public Interview DtoToInterview(InterviewDTO interviewDTO)
     {
         Interview interview = new Interview();
         interview.Id = interviewDTO.id;
@@ -288,53 +296,36 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
 
         if (interviewDTO.questions != null)
         {
-
             interview.Questions = interviewDTO.questions
                 .Select(x => questionRepository.convertQuestionToEntity(x)).ToList();
         }
-        
+
         return interview;
     }
 
-    public async Task<FileStream> serveFile(string fileName,string filePath, string folderName, HttpContext httpContext)
+    public async Task<FileStream> serveFile(string fileName, string filePath, string folderName,
+        HttpContext httpContext)
     {
-       
-       
         if (AppConfig.UseCloudStorage)
         {
             await blobStorageService.DownloadFileAsync(fileName, filePath, folderName);
         }
 
-        var stream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
-        
-        
+        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+
         if (AppConfig.UseCloudStorage)
         {
             httpContext.Response.OnCompleted(async () =>
             {
                 stream.Close();
                 System.IO.File.Delete(filePath);
-
             });
         }
+
         return stream;
     }
 
-    private string getStringAfterPattern(string searchPattern, string text)
-    {
-        
-        // gives start index of pattern
-        int index = text.IndexOf(searchPattern);
-        string result = "";
-
-        if (index != -1)
-        {
-            // add the length to skip over the search pattern
-            result = text.Substring(index + searchPattern.Length);
-                
-        }
-        return result;
-    }
 
     public async Task<ResumeUrlAndName> getLatestResume(AppUser user)
     {
@@ -347,34 +338,47 @@ public class InterviewService(IOpenAIService openAiService,IinterviewRepository 
                 fileName = ""
             };
         }
+
         // get every after /Interview/getPdf/ in the url to get actual file name and not anything in the server endpoint to get it
         string searchPattern = "/Interview/getPdf/";
         // gives start index of pattern
-        string filename = getStringAfterPattern(searchPattern, url);
+
+        string filename = url.GetStringAfterPattern(searchPattern);
         if (AppConfig.UseSignedUrl)
         {
-            url = await blobStorageService.GeneratePreSignedUrlAsync("resumes",filename);
-            
+            url = await blobStorageService.GeneratePreSignedUrlAsync("resumes", filename);
         }
-        
+
         // cut off guid part we added to file name now to
         // get the original name the user uploaded(we needed the guid part to fish it from storage)
-        filename = getStringAfterPattern("_", filename);
+
+        filename = filename.GetStringAfterPattern("_");
 
         return new ResumeUrlAndName
         {
             url = url,
             fileName = filename
         };
-
     }
-    
-    // return a list of the resume file names for a user
-    public async Task<string[]> getAllResumes(AppUser user)
-    {
-        string[] fileNames = await interviewRepository.getAllResumes(user);
-        string searchPattern = "/Interview/getPdf/";
-        return fileNames.Select(x=> getStringAfterPattern(searchPattern,x)).ToArray();
 
+    public ResumeUrlAndName AddResumeDisplayName(ResumeUrlAndName resume)
+    {
+        string searchPattern = "/Interview/getPdf/";
+        // gives start index of pattern
+        string filename = resume.url.GetStringAfterPattern(searchPattern);
+
+        // cut off guid part we added to file name now to
+        // get the original name the user uploaded(we needed the guid part to fish it from storage)
+        filename = filename.GetStringAfterPattern("_");
+        resume.fileName = filename;
+        return resume;
+    }
+
+    // return a list of the resume file names for a user
+    public async Task<ResumeUrlAndName[]> getAllResumes(AppUser user)
+    {
+        ResumeUrlAndName[] resumes = await interviewRepository.getAllResumes(user);
+
+        return resumes.Select(x => AddResumeDisplayName(x)).ToArray();
     }
 }
