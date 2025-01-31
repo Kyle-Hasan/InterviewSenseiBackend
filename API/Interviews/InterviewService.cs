@@ -52,7 +52,7 @@ public class InterviewService(
 
         */
         Task<string> cloudKey = null;
-        if (AppConfig.UseCloudStorage)
+        if (AppConfig.UseCloudStorage && !String.IsNullOrEmpty(resumeName) && !String.IsNullOrEmpty(resumePdfPath))
         {
             cloudKey = blobStorageService.UploadFileDeleteAsync(resumePdfPath, resumeName, "resumes");
         }
@@ -67,8 +67,8 @@ public class InterviewService(
         Candidate Resume:
         {resume}
 
-        Generate only {numberOfBehavioral} behavioral interview questions that evaluate soft skills and cultural fit.
-        Generate only {numberOfTechnical} technical interview questions that assess job-specific technical expertise.
+        Generate exactly {numberOfBehavioral} behavioral interview questions that evaluate soft skills and cultural fit, double check this.
+        Generate exactly {numberOfTechnical} technical interview questions that assess job-specific technical expertise, double check this.
 
         Follow these guidelines:
 
@@ -149,7 +149,7 @@ public class InterviewService(
         }
 
         // wait for resume upload in order to deal with errors there
-        if (AppConfig.UseCloudStorage)
+        if (AppConfig.UseCloudStorage && !String.IsNullOrEmpty(resumeName) && !String.IsNullOrEmpty(resumePdfPath))
         {
             await cloudKey;
         }
@@ -203,7 +203,11 @@ public class InterviewService(
         interview.Name = interviewName;
         interview.Questions = questionList;
         interview.JobDescription = jobDescription;
-        interview.ResumeLink = serverUrl + "/" + resumeName;
+        if (!string.IsNullOrEmpty(resumeName))
+        {
+            interview.ResumeLink = serverUrl + "/" + resumeName;
+        }
+
         interview.secondsPerAnswer = secondsPerAnswer;
         interview.AdditionalDescription = additionalDescription;
 

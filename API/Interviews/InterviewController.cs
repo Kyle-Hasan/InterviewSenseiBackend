@@ -58,7 +58,7 @@ public class InterviewController(
                 await blobStorageService.DownloadFileAsync(fileName, fileName, "resumes");
             }
         }
-        else if (generateQuestionsRequest.resume != null)
+        else if (generateQuestionsRequest.resume != null && generateQuestionsRequest.resume.ContentType == "application/pdf")
         {
             fileName = Guid.NewGuid().ToString() + "_" + generateQuestionsRequest.resume.FileName;
             filePath = Path.Combine("Uploads",
