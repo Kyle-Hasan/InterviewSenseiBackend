@@ -37,7 +37,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
             await ratingRequest.video.CopyToAsync(stream);
         }
         
-        string serverUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
+        string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
         var retVal = await responseService.rateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
         return retVal;

@@ -18,7 +18,13 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using DotNetEnv;
 
+var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
 
+// Ensure the folder exists
+if (!Directory.Exists(folderPath))
+{
+    Directory.CreateDirectory(folderPath);
+}
 // Determine the environment
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
@@ -138,7 +144,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(x=> x.SetIsOriginAllowed(origin => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+app.UseCors(x=> x.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000","https://localhost:3000","http://localhost:3000/"));
+
 
 
 

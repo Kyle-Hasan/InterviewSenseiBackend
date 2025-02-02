@@ -46,7 +46,7 @@ public class InterviewController(
 
         string filePath = "";
         string fileName = "";
-        string serverUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/Interview/getPdf";
+        string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getPdf";
         // existing resume url, should be on our server so to get its name just strip the server part
         if (generateQuestionsRequest.resumeUrl != null)
         {
