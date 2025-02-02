@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using API.Extensions;
-
+using System.Collections.Generic;
 namespace API.Interviews;
 
 public class InterviewService(
@@ -365,24 +365,34 @@ public class InterviewService(
         };
     }
 
-    public ResumeUrlAndName AddResumeDisplayName(ResumeUrlAndName resume)
+    public async Task FormatResume(ResumeUrlAndName resume)
     {
         string searchPattern = "/Interview/getPdf/";
         // gives start index of pattern
         string filename = resume.url.GetStringAfterPattern(searchPattern);
+        
+        // convert url to signed url for viewing
+        if (AppConfig.UseSignedUrl)
+        {
+            resume.url = await blobStorageService.GeneratePreSignedUrlAsync("resumes", filename);
+        }
 
         // cut off guid part we added to file name now to
         // get the original name the user uploaded(we needed the guid part to fish it from storage)
         filename = filename.GetStringAfterPattern("_");
         resume.fileName = filename;
-        return resume;
+       
     }
 
-    // return a list of the resume file names for a user
+    // return resumes url and names for a user
     public async Task<ResumeUrlAndName[]> getAllResumes(AppUser user)
     {
         ResumeUrlAndName[] resumes = await interviewRepository.getAllResumes(user);
-
-        return resumes.Select(x => AddResumeDisplayName(x)).ToArray();
+        
+        foreach (ResumeUrlAndName resume in resumes)
+        {
+            await FormatResume(resume);
+        }
+        return resumes;
     }
 }

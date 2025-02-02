@@ -8,7 +8,7 @@
     public static void LoadConfiguration(IConfiguration configuration)
     {
         UseCloudStorage = configuration.GetValue<object>("UseCloudStorage").ToString().ToLower().Equals("true");
-        UseSignedUrl = (bool)configuration.GetValue<object>("UseSignedUrl").ToString().ToLower().Equals("true");
+        UseSignedUrl = configuration.GetValue<object>("UseSignedUrl").ToString().ToLower().Equals("true");
         FFMPEGPath = configuration.GetValue<object>("FFMPEGPath").ToString();
     }
 }
