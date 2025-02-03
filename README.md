@@ -28,7 +28,7 @@ This repository contains the backend for **Interview Sensei**, an AI-powered int
 ### Installation  
 1. Clone the repository:  
    ```sh
-   git clone https://github.com/YOUR_GITHUB_USERNAME/interview-sensei-backend.git
+   git clone https://github.com/Kyle-Hasan/interview-sensei-backend.git
    cd interview-sensei-backend
    ```
 
