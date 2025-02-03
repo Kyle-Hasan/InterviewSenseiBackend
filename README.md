@@ -35,7 +35,7 @@ This repository contains the backend for **Interview Sensei**, an AI-powered int
 2. Set up environment variables:  
    Create a `.env` file with the following variables:  
    ```env
-     DefaultConnection=connectionstring;
+   DefaultConnection=connectionstring;
    FFMPEGPath=ffmpegpath
    OPENAI_API_KEY=key
    JWT_SecretKey=key
