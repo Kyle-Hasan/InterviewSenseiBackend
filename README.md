@@ -35,11 +35,20 @@ This repository contains the backend for **Interview Sensei**, an AI-powered int
 2. Set up environment variables:  
    Create a `.env` file with the following variables:  
    ```env
-   DATABASE_URL=your_postgres_connection_string
-   AWS_ACCESS_KEY_ID=your_aws_access_key
-   AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-   AWS_S3_BUCKET_NAME=your_s3_bucket_name
-   JWT_SECRET=your_jwt_secret
+     DefaultConnection=connectionstring;
+   FFMPEGPath=ffmpegpath
+   OPENAI_API_KEY=key
+   JWT_SecretKey=key
+   JWT_AccessTokenExpirationMinutes=number
+   JWT_RefreshTokenExpirationDays=number
+   JWT_Issuer=Issuer
+   JWT_Audience=Audience
+   AWS_AccessKey=key
+   AWS_SecretKey=key
+   AWS_Region=region
+   AWS_BucketName=bucket
+   UseCloudStorage=True
+   UseSignedUrl=True
    ```
 
 3. Run the application:  
