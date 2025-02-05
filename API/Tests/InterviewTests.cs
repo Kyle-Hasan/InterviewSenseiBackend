@@ -35,7 +35,7 @@ public class InterviewTests
 
 
 
-        IinterviewRepository interviewRepository = new interviewRepository(context, mockInterviewHub.Object);
+        IinterviewRepository interviewRepository = new interviewRepository(context, null);
         IResponseRepository responseRepository = new ResponseRepository(context);
         IQuestionRepository questionRepository = new QuestionRepository(context, responseRepository);
 
@@ -114,16 +114,9 @@ public class InterviewTests
         Assert.Equal(interview.Id, result.Id);
         Assert.Equal(interview.CreatedById, result.CreatedById);
         Assert.Equal(interview.JobDescription, result.JobDescription);
+        // could change depending on if we use cloud or not, for testing turn it off in the .env
         Assert.Equal(interview.ResumeLink, result.ResumeLink);
         Assert.Equal(interview.AdditionalDescription, result.AdditionalDescription);
         
-
-
-
-
-
-
-
-
     }
 }

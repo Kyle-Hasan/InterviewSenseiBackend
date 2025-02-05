@@ -15,3 +15,5 @@ appsettings.*
 .env
 backend.env.dev
 backend.env.production
+*.mp4
+*.pdf
