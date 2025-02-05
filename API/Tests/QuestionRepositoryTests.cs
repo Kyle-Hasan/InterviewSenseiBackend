@@ -114,7 +114,7 @@ namespace API.Tests;
             { 
                 Id = 20, 
                 Body = "Body 20", 
-                Type = "TypeA", 
+                Type = "Behavioral",
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id, 
                 Interview = interview 
@@ -123,7 +123,7 @@ namespace API.Tests;
             { 
                 Id = 21, 
                 Body = "Body 21", 
-                Type = "TypeB", 
+                Type = "Technical",
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id, 
                 Interview = interview 
