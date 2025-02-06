@@ -50,8 +50,18 @@ public class InterviewController(
         // existing resume url, should be on our server so to get its name just strip the server part
         if (generateQuestionsRequest.resumeUrl != null)
         {
-            fileName = generateQuestionsRequest.resumeUrl.GetStringAfterPattern("/api/Interview/getPdf/");
+            if (!AppConfig.UseCloudStorage)
+            {
+                fileName = generateQuestionsRequest.resumeUrl.GetStringAfterPattern("/api/Interview/getPdf/");
+                
+            }
+            else
+            {
+                fileName = generateQuestionsRequest.resumeUrl.GetStringAfterPattern("/resumes/");
+                fileName = fileName.GetStringBeforePattern("?");
+            }
             filePath = Path.Combine("Uploads", fileName);
+            
             // download onto local file system if cloud storage is being used
             if (AppConfig.UseCloudStorage)
             {

@@ -11,4 +11,10 @@ public static class StringExtensions
         }
         return text;
     }
+    
+    public static string GetStringBeforePattern(this string text, string searchPattern)
+    {
+        int index = text.IndexOf(searchPattern, StringComparison.Ordinal);
+        return index != -1 ? text.Substring(0, index) : text;
+    }
 }

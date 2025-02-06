@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using API.Extensions;
 using System.Collections.Generic;
+using System.Text;
+
 namespace API.Interviews;
 
 public class InterviewService(
@@ -20,21 +22,26 @@ public class InterviewService(
 {
     private async Task<string> GetPdfTranscriptAsync(string pdfPath)
     {
-        return await Task.Run(() =>
+        return await Task.FromResult(GetPdfText(pdfPath));
+    }
+
+    private string GetPdfText(string pdfPath)
+    {
+        using (PdfReader reader = new PdfReader(pdfPath))
+        using (PdfDocument pdfDoc = new PdfDocument(reader))
         {
-            string result = "";
-            using (PdfReader reader = new PdfReader(pdfPath))
-            using (PdfDocument pdfDoc = new PdfDocument(reader))
+            int pageCount = pdfDoc.GetNumberOfPages();
+            StringBuilder result = new StringBuilder();
+
+            for (int i = 1; i <= pageCount; i++) // Ensure all pages are included
             {
-                for (int i = 1; i < pdfDoc.GetNumberOfPages(); i++)
-                {
-                    result += PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i));
-                }
+                result.Append(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i)));
             }
 
-            return result;
-        });
+            return result.ToString();
+        }
     }
+
 
     public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription, int numberOfBehavioral,
         int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName)
