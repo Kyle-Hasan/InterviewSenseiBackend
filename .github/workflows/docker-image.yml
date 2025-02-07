@@ -33,11 +33,20 @@ jobs:
         run: |
           docker push $DOCKERHUB_USERNAME/$DOCKER_REPO:backend
 
+      - name: Notify Backend Webhook on EC2
+        env:
+          EC2_WEBHOOK_URL: ${{ secrets.EC2_URL }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: |
+          curl -X POST "$EC2_WEBHOOK_URL/webhook/backend" \
+               -H "Content-Type: application/json" \
+               -d '{"repository": "${{ secrets.DOCKER_REPO }}", "tag": "backend", "secret": "'$WEBHOOK_SECRET'"}'
+
       - name: Send Email on Failure
         if: failure()
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com 
+          server_address: smtp.gmail.com
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
@@ -45,3 +54,4 @@ jobs:
           to: "kylehasan1@gmail.com"
           from: "GitHub Actions"
           body: "The Docker build for the backend has failed. Check GitHub Actions logs for details."
+
