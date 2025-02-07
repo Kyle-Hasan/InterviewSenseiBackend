@@ -35,7 +35,7 @@ jobs:
 
       - name: Notify Backend Webhook on EC2
         env:
-          EC2_WEBHOOK_URL: ${{ secrets.EC2_URL }}
+          EC2_URL: ${{ secrets.EC2_URL }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: |
           curl -X POST "$EC2_WEBHOOK_URL/webhook/backend" \
