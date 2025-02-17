@@ -11,7 +11,7 @@ using OpenAI;
 public class OpenAIService : IOpenAIService
 {
   
-    private readonly string _apiKey;
+    protected readonly string _apiKey;
     ChatClient _chatClient;
     AudioClient _audioClient;
     private string modelName = "ggml-base.bin";
@@ -42,7 +42,7 @@ public class OpenAIService : IOpenAIService
     }
 
 
-    public async Task<string> MakeRequest(String question)
+    public virtual async Task<string> MakeRequest(String question)
     {
         ChatCompletionOptions options = new()
         {

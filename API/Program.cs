@@ -109,7 +109,7 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddScoped<IJwtTokenService,JwtTokenService>();
-builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<IOpenAIService, GeminiService>();
 builder.Services.AddScoped<IinterviewRepository, interviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
