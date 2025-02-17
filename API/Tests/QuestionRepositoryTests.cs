@@ -157,10 +157,10 @@ namespace API.Tests;
             await _context.SaveChangesAsync();
             // Setup the responseRepository mock to simulate updateAnswer.
             var dummyResponse = new Response { Id = 200 };
-            _responseRepositoryMock.Setup(r => r.updateAnswer("New Answer", "New Feedback", "video.mp4", "http://server", 30, _testUser))
+            _responseRepositoryMock.Setup(r => r.updateAnswer("New Answer", "New Feedback p","New feedback negative","Example response", "video.mp4", "http://server", 30, _testUser))
                                   .ReturnsAsync(dummyResponse);
             // Act
-            var updated = await _repository.updateAnswer(question, "New Answer", "New Feedback", "video.mp4", "http://server", _testUser);
+            var updated = await _repository.updateAnswer(question, "New Answer", "New Feedback p","New feedback negative","Example response", "video.mp4", "http://server", _testUser);
             // Assert: Verify that the dummy response was added.
             Assert.Contains(dummyResponse, updated.Responses);
             // Also, ensure the question was saved (i.e. exists in the database).
@@ -230,7 +230,8 @@ namespace API.Tests;
             { 
                 id = 300, 
                 answer = "Ans", 
-                feedback = "FB", 
+                negativeFeedback = "NFB", positiveFeedback = "PFB",
+                exampleResponse = "Response Example",
                 videoLink = "L", 
                 questionId = 60 
             };

@@ -18,8 +18,8 @@ namespace API.Tests;
             int questionId = 10;
             var responses = new List<Response>
             {
-                new Response { Id = 1, Answer = "A1", Feedback = "F1", VideoLink = "L1", QuestionId = questionId },
-                new Response { Id = 2, Answer = "A2", Feedback = "F2", VideoLink = "L2", QuestionId = questionId }
+                new Response { Id = 1, Answer = "A1", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "L1", QuestionId = questionId },
+                new Response { Id = 2, Answer = "A2", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "L2", QuestionId = questionId }
             };
             repoMock.Setup(r => r.getResponsesQuestion(questionId, testUser))
                     .ReturnsAsync(responses);
@@ -41,7 +41,8 @@ namespace API.Tests;
             { 
                 Id = 5, 
                 Answer = "Test Answer", 
-                Feedback = "Test Feedback", 
+                NegativeFeedback = "negative",PositiveFeedback = "positive",
+                ExampleResponse = "example response",
                 VideoLink = "TestLink", 
                 QuestionId = 99 
             };
@@ -52,7 +53,9 @@ namespace API.Tests;
                     {
                         id = response.Id,
                         answer = response.Answer,
-                        feedback = response.Feedback,
+                        negativeFeedback = "negative",
+                        positiveFeedback = "positive",
+                        exampleResponse = "example response",
                         videoLink = response.VideoLink,
                         questionId = response.QuestionId
                     });
@@ -63,7 +66,7 @@ namespace API.Tests;
             // Assert
             Assert.Equal(5, dto.id);
             Assert.Equal("Test Answer", dto.answer);
-            Assert.Equal("Test Feedback", dto.feedback);
+            
             Assert.Equal("TestLink", dto.videoLink);
             Assert.Equal(99, dto.questionId);
         }

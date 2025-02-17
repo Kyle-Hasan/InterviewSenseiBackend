@@ -23,14 +23,16 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         await base.Delete(response, user);
     }
 
-    public async Task<Response> updateAnswer(string answer, string feedback, string videoName, string serverUrl, int questionId, AppUser user)
+    public async Task<Response> updateAnswer(string answer, string positiveFeedback,string negativeFeedback, string sampleResponse, string videoName, string serverUrl, int questionId, AppUser user)
     {
-        Response reponse = new Response();
-        reponse.Answer = answer;
-        reponse.Feedback = feedback;
-        reponse.VideoLink = serverUrl + "/" + videoName;
-        reponse.QuestionId = questionId;
-       return await this.saveResponse(reponse, user);
+        Response response = new Response();
+        response.Answer = answer;
+        response.PositiveFeedback = positiveFeedback;
+        response.NegativeFeedback = negativeFeedback;
+        response.ExampleResponse = sampleResponse;
+        response.VideoLink = serverUrl + "/" + videoName;
+        response.QuestionId = questionId;
+       return await this.saveResponse(response, user);
     }
 
     public async Task<Response> getResponseById(int id)
@@ -49,7 +51,9 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         {
             id = response.Id,
             answer = response.Answer,
-            feedback = response.Feedback,
+            negativeFeedback = response.NegativeFeedback, 
+            positiveFeedback = response.PositiveFeedback,
+            exampleResponse = response.ExampleResponse,
             videoLink = response.VideoLink,
             questionId = response.QuestionId,
 
@@ -62,7 +66,9 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         {
             Id = response.id,
             Answer = response.answer,
-            Feedback = response.feedback,
+            NegativeFeedback = response.negativeFeedback,
+            PositiveFeedback = response.positiveFeedback,
+            ExampleResponse = response.exampleResponse,
             VideoLink = response.videoLink,
             QuestionId = response.questionId,
         };

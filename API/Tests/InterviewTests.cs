@@ -63,7 +63,9 @@ public class InterviewTests
         {
             
             Answer = "This is a test",
-            Feedback = "This is a feedback",
+            NegativeFeedback = "NFB", 
+            PositiveFeedback = "PFB",
+            ExampleResponse = "Response Example",
             VideoLink = "This is a video",
         };
 
@@ -71,7 +73,9 @@ public class InterviewTests
         {
             
             Answer = "This is a test2",
-            Feedback = "This is a feedback2",
+            NegativeFeedback = "NFB", 
+            PositiveFeedback = "PFB",
+            ExampleResponse = "Response Example",
             VideoLink = "This is a video2",
         };
 
@@ -79,7 +83,9 @@ public class InterviewTests
         {
             
             Answer = "This is a test3",
-            Feedback = "This is a feedback3",
+            NegativeFeedback = "NFB", 
+            PositiveFeedback = "PFB",
+            ExampleResponse = "Response Example",
             VideoLink = "This is a video3",
         };
 

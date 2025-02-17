@@ -52,7 +52,9 @@ namespace API.Tests;
                             {
                                 id = r.Id,
                                 answer = $"Response {r.Id}",
-                                feedback = "Feedback",
+                                negativeFeedback= "Positive Feedback",
+                                positiveFeedback = "Negative Feedback",
+                                exampleResponse = "Example Response",
                                 videoLink = "Link",
                                 questionId = 2
                             });
@@ -98,7 +100,7 @@ namespace API.Tests;
 
             // For this test, we assume no responses (or they are not needed).
             responseRepoMock.Setup(r => r.convertToDto(It.IsAny<Response>()))
-                            .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", feedback = "FB", videoLink = "L", questionId = 0 });
+                            .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", negativeFeedback = "NFB", positiveFeedback = "PFB",exampleResponse = "Response Example", videoLink = "L", questionId = 0 });
 
             // Act
             var dtos = service.ConvertToDtos(interview.Questions, interview);
@@ -144,7 +146,7 @@ namespace API.Tests;
 
             // Setup the response repository conversion (if any responses exist; here questions have empty responses).
             responseRepoMock.Setup(r => r.convertToDto(It.IsAny<Response>()))
-                            .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", feedback = "FB", videoLink = "L", questionId = 0 });
+                            .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", negativeFeedback = "NFB", positiveFeedback = "PFB",exampleResponse = "Response Example", videoLink = "L", questionId = 0 });
 
             // Act
             var dtos = await service.GetQuestionsByInterviewId(100, testUser);

@@ -7,7 +7,11 @@ public class Response: BaseEntity
 {
     public string Answer { get; set; }
     
-    public string Feedback {get;set;}
+    public string PositiveFeedback {get;set;}
+    
+    public string NegativeFeedback {get;set;}
+    
+    public string ExampleResponse {get;set;}
     
     public string VideoLink { get; set; }
     

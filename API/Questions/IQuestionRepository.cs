@@ -7,7 +7,7 @@ public interface IQuestionRepository
     Task<Question> saveQuestion(Question question,AppUser user);
     Task deleteQuestion(Question question, AppUser user);
 
-    Task<Question> updateAnswer(Question question, string answer, string feedback, string videoName,string serverUrl, AppUser user);
+    Task<Question> updateAnswer(Question question, string answer, string positiveFeedback,string negativeFeedback,string exampleResponse, string videoName,string serverUrl, AppUser user);
 
     Task<Question> getQuestionById(int id,AppUser user);
     

@@ -38,11 +38,11 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
     }
 
 
-    public async Task<Question> updateAnswer(Question question, string answer,string feedback, string videoName, string serverUrl, AppUser user)
+    public async Task<Question> updateAnswer(Question question, string answer,string positiveFeedback,string negativeFeedback,string exampleResponse, string videoName, string serverUrl, AppUser user)
     {
         
         
-        var newResponse = await this.responseRepository.updateAnswer(answer,feedback, videoName,serverUrl,question.Id, user);
+        var newResponse = await this.responseRepository.updateAnswer(answer,positiveFeedback,negativeFeedback,exampleResponse, videoName,serverUrl,question.Id, user);
         question.Responses.Add(newResponse);
         return await base.Save(question, user);
     }

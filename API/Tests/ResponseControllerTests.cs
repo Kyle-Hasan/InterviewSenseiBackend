@@ -71,8 +71,8 @@ namespace API.Tests;
             // Create a list of dummy Response entities using the provided properties.
             var responses = new List<Response>
             {
-                new Response { Id = 1, Answer = "Response1", Feedback = "Feedback1", VideoLink = "Link1", QuestionId = questionId },
-                new Response { Id = 2, Answer = "Response2", Feedback = "Feedback2", VideoLink = "Link2", QuestionId = questionId }
+                new Response { Id = 1, Answer = "Response1", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "Link1", QuestionId = questionId },
+                new Response { Id = 2, Answer = "Response2", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "Link2", QuestionId = questionId }
             };
 
             // Setup the repository mock to return our dummy list when getResponsesQuestion is called.
@@ -87,7 +87,9 @@ namespace API.Tests;
                 { 
                     id = resp.Id, 
                     answer = resp.Answer, 
-                    feedback = resp.Feedback, 
+                    negativeFeedback = "negative",
+                    positiveFeedback = "positive",
+                    exampleResponse = "example response" ,
                     videoLink = resp.VideoLink, 
                     questionId = resp.QuestionId 
                 });
@@ -153,7 +155,9 @@ namespace API.Tests;
             {
                 id = 10,
                 answer = "Rated Answer",
-                feedback = "Test Feedback",
+                negativeFeedback = "negative",
+                positiveFeedback = "positive",
+                exampleResponse = "example response",
                 videoLink = "RatedVideoLink",
                 questionId = 123
             };
@@ -174,7 +178,7 @@ namespace API.Tests;
             var okResult = Assert.IsType<ResponseDto>(result.Value);
             Assert.Equal(dummyResponseDto.id, okResult.id);
             Assert.Equal(dummyResponseDto.answer, okResult.answer);
-            Assert.Equal(dummyResponseDto.feedback, okResult.feedback);
+            Assert.Equal(dummyResponseDto.exampleResponse, okResult.exampleResponse);
             Assert.Equal(dummyResponseDto.videoLink, okResult.videoLink);
             Assert.Equal(dummyResponseDto.questionId, okResult.questionId);
 

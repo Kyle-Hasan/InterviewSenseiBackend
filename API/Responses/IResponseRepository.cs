@@ -8,7 +8,7 @@ public interface IResponseRepository
     Task<Response> saveResponse(Response response,AppUser user);
     Task deleteResponse(Response response, AppUser user);
 
-    Task<Response> updateAnswer(string answer, string feedback, string videoName,string serverUrl, int questionId, AppUser user);
+    Task<Response> updateAnswer(string answer, string positiveFeedback,string negativeFeedback, string sampleResponse, string videoName, string serverUrl, int questionId, AppUser user);
 
     Task<Response> getResponseById(int id);
     
