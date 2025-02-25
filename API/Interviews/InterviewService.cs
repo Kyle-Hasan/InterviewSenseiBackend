@@ -43,7 +43,7 @@ public class InterviewService(
     }
 
 
-    public async Task<GenerateQuestionsResponse> generateQuestions(string jobDescription, int numberOfBehavioral,
+    public async Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription, int numberOfBehavioral,
         int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName)
     {
         string resume = "";
@@ -174,7 +174,7 @@ public class InterviewService(
     {
         Interview interview = new Interview();
 
-        var questions = await generateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,
+        var questions = await GenerateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,
             additionalDescription, resumeName);
         var technicalQuestions =
             questions.technicalQuestions.Select(x => QuestionRepository.createQuestionFromString(x, "technical"))
@@ -223,54 +223,54 @@ public class InterviewService(
         return i;
     }
 
-    public async Task deleteInterview(Interview interview, AppUser user)
+    public async Task DeleteInterview(Interview interview, AppUser user)
     {
-        await interviewRepository.delete(interview, user);
+        await interviewRepository.Delete(interview, user);
     }
 
     // only update properties that changed
-    public async Task<Interview> updateInterview(Interview interview, AppUser user)
+    public async Task<Interview> UpdateInterview(Interview interview, AppUser user)
     {
-        Interview oldInterview = await getInterview(interview.Id, user);
-        Interview toUpdated = interviewRepository.getChangedInterview(interview, oldInterview);
-        return await interviewRepository.save(toUpdated, user);
+        Interview oldInterview = await GetInterview(interview.Id, user);
+        Interview toUpdated = interviewRepository.GetChangedInterview(interview, oldInterview);
+        return await interviewRepository.Save(toUpdated, user);
     }
 
     public async Task<Interview> createInterview(Interview interview, AppUser user)
     {
-        return await interviewRepository.save(interview, user);
+        return await interviewRepository.Save(interview, user);
     }
 
-    public async Task<PagedInterviewResponse> getInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
+    public async Task<PagedInterviewResponse> GetInterviews(AppUser user, InterviewSearchParams interviewSearchParams)
     {
-        return await interviewRepository.getInterviews(user, interviewSearchParams);
+        return await interviewRepository.GetInterviews(user, interviewSearchParams);
     }
 
-    public async Task<Interview> getInterview(int id, AppUser user)
+    public async Task<Interview> GetInterview(int id, AppUser user)
     {
-        Interview i = await interviewRepository.getInterview(user, id);
+        Interview i = await interviewRepository.GetInterview(user, id);
         return i;
     }
 
     //verify methods check whether that user can view the file
 
-    public async Task<bool> verifyVideoView(string fileName, AppUser user)
+    public async Task<bool> VerifyVideoView(string fileName, AppUser user)
     {
-        return await questionRepository.verifyVideoView(fileName, user);
+        return await questionRepository.VerifyVideoView(fileName, user);
     }
 
-    public async Task<bool> verifyPdfView(string fileName, AppUser user)
+    public async Task<bool> VerifyPdfView(string fileName, AppUser user)
     {
-        return await interviewRepository.verifyPdfView(user, fileName);
+        return await interviewRepository.VerifyPdfView(user, fileName);
     }
 
-    public async Task<InterviewDTO> getInterviewDto(int id, AppUser user)
+    public async Task<InterviewDTO> GetInterviewDto(int id, AppUser user)
     {
-        Interview i = await getInterview(id, user);
-        return interviewToDTO(i);
+        Interview i = await GetInterview(id, user);
+        return InterviewToDTO(i);
     }
 
-    public InterviewDTO interviewToDTO(Interview interview)
+    public InterviewDTO InterviewToDTO(Interview interview)
     {
         InterviewDTO interviewDTO = new InterviewDTO();
         if (interview.Questions != null)
@@ -308,13 +308,13 @@ public class InterviewService(
         if (interviewDTO.questions != null)
         {
             interview.Questions = interviewDTO.questions
-                .Select(x => questionRepository.convertQuestionToEntity(x)).ToList();
+                .Select(x => questionRepository.ConvertQuestionToEntity(x)).ToList();
         }
 
         return interview;
     }
 
-    public async Task<FileStream> serveFile(string fileName, string filePath, string folderName,
+    public async Task<FileStream> ServeFile(string fileName, string filePath, string folderName,
         HttpContext httpContext)
     {
         if (AppConfig.UseCloudStorage)
@@ -338,9 +338,9 @@ public class InterviewService(
     }
 
 
-    public async Task<ResumeUrlAndName> getLatestResume(AppUser user)
+    public async Task<ResumeUrlAndName> GetLatestResume(AppUser user)
     {
-        string url = await interviewRepository.getLatestResume(user);
+        string url = await interviewRepository.GetLatestResume(user);
         if (url == null)
         {
             return new ResumeUrlAndName
@@ -392,9 +392,9 @@ public class InterviewService(
     }
 
     // return resumes url and names for a user
-    public async Task<ResumeUrlAndName[]> getAllResumes(AppUser user)
+    public async Task<ResumeUrlAndName[]> GetAllResumes(AppUser user)
     {
-        ResumeUrlAndName[] resumes = await interviewRepository.getAllResumes(user);
+        ResumeUrlAndName[] resumes = await interviewRepository.GetAllResumes(user);
         
         foreach (ResumeUrlAndName resume in resumes)
         {

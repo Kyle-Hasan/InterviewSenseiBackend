@@ -70,7 +70,7 @@ namespace API.Interviews.Tests
             await _context.SaveChangesAsync();
 
             // Act: call delete.
-            await _repository.delete(interview, _testUser);
+            await _repository.Delete(interview, _testUser);
 
             // Assert: verify the interview is removed.
             var exists = await _context.Set<Interview>().AnyAsync(i => i.Id == interview.Id);
@@ -94,7 +94,7 @@ namespace API.Interviews.Tests
             };
 
             // Act: call save.
-            var savedInterview = await _repository.save(interview, _testUser);
+            var savedInterview = await _repository.Save(interview, _testUser);
 
             // Assert: the interview should now exist.
             var exists = await _context.Set<Interview>().AnyAsync(i => i.Id == savedInterview.Id);
@@ -130,7 +130,7 @@ namespace API.Interviews.Tests
             };
 
             // Act.
-            var pagedResponse = await _repository.getInterviews(_testUser, searchParams);
+            var pagedResponse = await _repository.GetInterviews(_testUser, searchParams);
 
             // Assert.
             // "Alpha" and "Gamma" contain "a" (if case sensitive, adjust accordingly).
@@ -155,7 +155,7 @@ namespace API.Interviews.Tests
             await _context.SaveChangesAsync();
 
             // Act.
-            var result = await _repository.getInterview(_testUser, 10);
+            var result = await _repository.GetInterview(_testUser, 10);
 
             // Assert.
             Assert.NotNull(result);
@@ -177,7 +177,7 @@ namespace API.Interviews.Tests
 
             // Act & Assert.
             await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-                await _repository.getInterview(_testUser, 11));
+                await _repository.GetInterview(_testUser, 11));
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace API.Interviews.Tests
             var newInterview = new Interview { Id = 20, Name = "New Name", ResumeLink = "new.pdf" };
 
             // Act.
-            var result = _repository.getChangedInterview(newInterview, oldInterview);
+            var result = _repository.GetChangedInterview(newInterview, oldInterview);
 
             // Assert: assuming that updateObjectFields copies new properties.
             Assert.Equal("New Name", result.Name);
@@ -209,7 +209,7 @@ namespace API.Interviews.Tests
             await _context.SaveChangesAsync();
 
             // Act.
-            var result = await _repository.verifyPdfView(_testUser, "resume.pdf");
+            var result = await _repository.VerifyPdfView(_testUser, "resume.pdf");
 
             // Assert.
             Assert.True(result);
@@ -237,7 +237,7 @@ namespace API.Interviews.Tests
             await _context.SaveChangesAsync();
 
             // Act.
-            var latest = await _repository.getLatestResume(_testUser);
+            var latest = await _repository.GetLatestResume(_testUser);
 
             // Assert.
             Assert.Equal("link2", latest);
@@ -272,7 +272,7 @@ namespace API.Interviews.Tests
             await _context.SaveChangesAsync();
 
             // Act.
-            var resumes = await _repository.getAllResumes(_testUser);
+            var resumes = await _repository.GetAllResumes(_testUser);
 
             // Assert:
             // There should be two unique resumes.

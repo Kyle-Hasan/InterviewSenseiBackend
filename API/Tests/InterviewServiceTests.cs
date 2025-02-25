@@ -87,7 +87,7 @@ Technical Questions:
                 .ReturnsAsync(aiResponse);
 
             // Act: Call generateQuestions.
-            var result = await _service.generateQuestions("Job Description", 2, 2, tempPdf, "Additional details", "resume.pdf");
+            var result = await _service.GenerateQuestions("Job Description", 2, 2, tempPdf, "Additional details", "resume.pdf");
 
             // Assert:
             // We expect exactly two behavioral and two technical questions.
@@ -128,7 +128,7 @@ Technical Questions:
                 .ReturnsAsync(aiResponse);
 
             _interviewRepositoryMock
-                .Setup(r => r.save(It.IsAny<Interview>(), _testUser))
+                .Setup(r => r.Save(It.IsAny<Interview>(), _testUser))
                 .ReturnsAsync((Interview i, AppUser user) => { i.Id = 101; return i; });
 
             // Act: Generate the interview.
@@ -154,11 +154,11 @@ Technical Questions:
             // the GUID portion so that only the original file name remains.
             string resumeUrl = "http://example.com/Interview/getPdf/guid_resume.pdf";
             _interviewRepositoryMock
-                .Setup(r => r.getLatestResume(_testUser))
+                .Setup(r => r.GetLatestResume(_testUser))
                 .ReturnsAsync(resumeUrl);
 
             // Act: Retrieve the latest resume.
-            var resume = await _service.getLatestResume(_testUser);
+            var resume = await _service.GetLatestResume(_testUser);
 
             // Assert:
             // Verify that the file name has been extracted correctly.
@@ -177,7 +177,7 @@ Technical Questions:
             var context = new DefaultHttpContext();
 
             // Act: Call serveFile.
-            var stream = await _service.serveFile("file.txt", tempFile, "folder", context);
+            var stream = await _service.ServeFile("file.txt", tempFile, "folder", context);
 
             // Assert: Check that the stream is not null.
             Assert.NotNull(stream);

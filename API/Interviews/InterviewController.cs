@@ -16,7 +16,7 @@ public class InterviewController(
     IBlobStorageService blobStorageService) : BaseController(userManager)
 {
     [HttpPost("generateQuestions")]
-    public async Task<ActionResult<GenerateQuestionsResponse>> getQuestions(
+    public async Task<ActionResult<GenerateQuestionsResponse>> GetQuestions(
         [FromForm] GenerateInterviewRequest generateQuestionsRequest)
     {
         var fileName = Guid.NewGuid().ToString() + "-" + generateQuestionsRequest.resume.FileName;
@@ -26,13 +26,13 @@ public class InterviewController(
             await generateQuestionsRequest.resume.CopyToAsync(stream);
         }
 
-        return await interviewService.generateQuestions(generateQuestionsRequest.jobDescription,
+        return await interviewService.GenerateQuestions(generateQuestionsRequest.jobDescription,
             generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical, filePath,
             generateQuestionsRequest.additionalDescription, fileName);
     }
 
     [HttpPost("generateInterview")]
-    public async Task<ActionResult<InterviewDTO>> generateInterview(
+    public async Task<ActionResult<InterviewDTO>> GenerateInterview(
         [FromForm] GenerateInterviewRequest generateQuestionsRequest)
     {
         if (generateQuestionsRequest.numberOfBehavioral + generateQuestionsRequest.numberOfTechnical == 0)
@@ -88,45 +88,45 @@ public class InterviewController(
             generateQuestionsRequest.secondsPerAnswer, filePath, generateQuestionsRequest.additionalDescription,
             fileName, serverUrl);
        
-        return interviewService.interviewToDTO(i);
+        return interviewService.InterviewToDTO(i);
     }
 
 
     [HttpDelete("{id}")]
-    public async Task delete(int id)
+    public async Task Delete(int id)
     {
         var user = await base.GetCurrentUser();
-        var interview = await interviewService.getInterview(id, user);
+        var interview = await interviewService.GetInterview(id, user);
 
-        await interviewService.deleteInterview(interview, user);
+        await interviewService.DeleteInterview(interview, user);
     }
 
     [HttpPut("")]
-    public async Task<InterviewDTO> update([FromBody] InterviewDTO interviewDTO)
+    public async Task<InterviewDTO> Update([FromBody] InterviewDTO interviewDTO)
     {
         var interview = interviewService.DtoToInterview(interviewDTO);
         var user = await base.GetCurrentUser();
-        var updated = await interviewService.updateInterview(interview, user);
-        return interviewService.interviewToDTO(updated);
+        var updated = await interviewService.UpdateInterview(interview, user);
+        return interviewService.InterviewToDTO(updated);
     }
 
     [HttpGet("{id}")]
-    public async Task<InterviewDTO> getInterview(int id)
+    public async Task<InterviewDTO> GetInterview(int id)
     {
         var user = await base.GetCurrentUser();
-        return await interviewService.getInterviewDto(id, user);
+        return await interviewService.GetInterviewDto(id, user);
     }
 
     [HttpGet("interviewList")]
-    public async Task<List<InterviewDTO>> getInterviewList(
+    public async Task<List<InterviewDTO>> GetInterviewList(
         [FromQuery] InterviewSearchParams interviewSearchParamsParams)
     {
         var user = await base.GetCurrentUser();
         PagedInterviewResponse pagedInterviewResponse =
-            await interviewService.getInterviews(user, interviewSearchParamsParams);
+            await interviewService.GetInterviews(user, interviewSearchParamsParams);
         Response.AddPaginationHeader(pagedInterviewResponse.total, interviewSearchParamsParams.startIndex,
             interviewSearchParamsParams.pageSize);
-        return pagedInterviewResponse.interviews.Select(x => interviewService.interviewToDTO(x)).ToList();
+        return pagedInterviewResponse.interviews.Select(x => interviewService.InterviewToDTO(x)).ToList();
     }
 
     // get video file or signed url to video file in blob storage
@@ -135,7 +135,7 @@ public class InterviewController(
     {
         var user = await base.GetCurrentUser();
         var videoPath = Path.Combine("Uploads", fileName);
-        bool canView = await interviewService.verifyVideoView(fileName, user);
+        bool canView = await interviewService.VerifyVideoView(fileName, user);
         if (!canView)
         {
             return Unauthorized();
@@ -143,7 +143,7 @@ public class InterviewController(
 
         if (!AppConfig.UseSignedUrl)
         {
-            var stream = await interviewService.serveFile(fileName, videoPath, "videos", HttpContext);
+            var stream = await interviewService.ServeFile(fileName, videoPath, "videos", HttpContext);
             var mimeType = "video/webm";
             var response = File(stream, mimeType, enableRangeProcessing: true);
             return response;
@@ -156,11 +156,11 @@ public class InterviewController(
 
     // get pdf file or signed url to pdf file in blob storage
     [HttpGet("getPdf/{fileName}")]
-    public async Task<IActionResult> getResume(string fileName)
+    public async Task<IActionResult> GetResume(string fileName)
     {
         var user = await base.GetCurrentUser();
         // security check
-        bool canView = await interviewService.verifyPdfView(fileName, user);
+        bool canView = await interviewService.VerifyPdfView(fileName, user);
         if (!canView)
         {
             return Unauthorized();
@@ -171,7 +171,7 @@ public class InterviewController(
         {
             var pdfPath = Path.Combine("Uploads", fileName);
 
-            var stream = await interviewService.serveFile(fileName, pdfPath, "resumes", HttpContext);
+            var stream = await interviewService.ServeFile(fileName, pdfPath, "resumes", HttpContext);
 
             var mimeType = "application/pdf";
             var response = File(stream, mimeType, enableRangeProcessing: true);
@@ -186,17 +186,17 @@ public class InterviewController(
     }
 
     [HttpGet("getLatestResume")]
-    public async Task<ResumeUrlAndName> getLatestResume()
+    public async Task<ResumeUrlAndName> GetLatestResume()
     {
         var user = await base.GetCurrentUser();
-        return await interviewService.getLatestResume(user);
+        return await interviewService.GetLatestResume(user);
     }
 
     [HttpGet("getAllResumes")]
-    public async Task<ResumeUrlAndName[]> getAllResumes()
+    public async Task<ResumeUrlAndName[]> GetAllResumes()
     {
         var user = await base.GetCurrentUser();
-        var resumes = await interviewService.getAllResumes(user);
+        var resumes = await interviewService.GetAllResumes(user);
         return resumes;
     }
 }

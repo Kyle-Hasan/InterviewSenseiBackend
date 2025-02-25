@@ -95,7 +95,7 @@ namespace API.Tests;
                 });
 
             // Act: Call the GET endpoint.
-            var result = await _controller.getResponses(questionId);
+            var result = await _controller.GetResponses(questionId);
 
             // Assert:
             // Verify that we received two ResponseDto objects with the expected properties.
@@ -119,7 +119,7 @@ namespace API.Tests;
             };
 
             // Act: Call the POST endpoint.
-            var result = await _controller.getRating(ratingRequest);
+            var result = await _controller.GetRating(ratingRequest);
 
             // Assert:
             // The controller should return a BadRequest with the message "no video provided".
@@ -162,7 +162,7 @@ namespace API.Tests;
                 questionId = 123
             };
             _responseServiceMock
-                .Setup(s => s.rateAnswer(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), _testUser))
+                .Setup(s => s.RateAnswer(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), _testUser))
                 .ReturnsAsync(dummyResponseDto);
 
             // Ensure that the "Uploads" folder exists because the controller writes the video there.
@@ -171,7 +171,7 @@ namespace API.Tests;
                 Directory.CreateDirectory(uploadsDir);
 
             // Act: Call the POST endpoint.
-            var result = await _controller.getRating(ratingRequest);
+            var result = await _controller.GetRating(ratingRequest);
 
             // Assert:
             // Verify that the returned ActionResult contains the expected ResponseDto.

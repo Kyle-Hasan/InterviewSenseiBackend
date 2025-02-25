@@ -14,7 +14,7 @@ public class OpenAIService : IOpenAIService
     protected readonly string _apiKey;
     ChatClient _chatClient;
     AudioClient _audioClient;
-    private string modelName = "ggml-base.bin";
+    private string _modelName = "ggml-base.bin";
 
     public OpenAIService()
     {
@@ -62,10 +62,10 @@ public class OpenAIService : IOpenAIService
         // gives a wav file,which is needed since mp4 video files not accepted by local whisper modal
         string audioFilePath = await FfmpegService.extractAudioFile(videoPath);
         // download whisper model if it isnt already downloaded on local file system
-        if (!File.Exists(modelName))
+        if (!File.Exists(_modelName))
         {
             using var modelStream = await WhisperGgmlDownloader.GetGgmlModelAsync(GgmlType.Base);
-            using var fileWriter = File.OpenWrite(modelName);
+            using var fileWriter = File.OpenWrite(_modelName);
             await modelStream.CopyToAsync(fileWriter);
         }
         

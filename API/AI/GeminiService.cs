@@ -10,12 +10,12 @@ public class GeminiService: OpenAIService
     private readonly string _geminiUrl;
     private readonly string _geminiAPIKey;
     private readonly HttpClient _client;
-    public GeminiService(): base()
+    public GeminiService(HttpClient httpClient): base()
     {
-      
+        _client = httpClient;
         _geminiAPIKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
         _geminiUrl = Environment.GetEnvironmentVariable("GEMINI_ENDPOINT") + _geminiAPIKey;
-        _client = new HttpClient();
+        
        
     }
     public override async Task<string>  MakeRequest(String question) {

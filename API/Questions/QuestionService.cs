@@ -8,7 +8,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
 {
     public async Task<QuestionPageDto> GetQuestionAsync(int questionId,AppUser user)
     {
-        Question q = await questionRepository.getQuestionByIdWithInterview(questionId,user);
+        Question q = await questionRepository.GetQuestionByIdWithInterview(questionId,user);
         
         Interview interview = q.Interview;
         // order by id so that the same order is always sent back
@@ -76,7 +76,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
 
     public async Task<List<QuestionPageDto>> GetQuestionsByInterviewId(int interviewId, AppUser user)
     {
-        Interview interview = await interviewRepository.getInterview(user,interviewId);
+        Interview interview = await interviewRepository.GetInterview(user,interviewId);
         return  ConvertToDtos(interview.Questions, interview);
         
         

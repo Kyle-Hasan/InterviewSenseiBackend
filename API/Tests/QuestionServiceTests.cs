@@ -43,7 +43,7 @@ namespace API.Tests;
 
             // Set up the question repository so that getQuestionByIdWithInterview returns q2.
             var testUser = new AppUser { Id = 10, UserName = "dummy" };
-            questionRepoMock.Setup(r => r.getQuestionByIdWithInterview(2, testUser))
+            questionRepoMock.Setup(r => r.GetQuestionByIdWithInterview(2, testUser))
                             .ReturnsAsync(q2);
 
             // Setup the response repository so that convertToDto returns a predictable ResponseDto.
@@ -141,7 +141,7 @@ namespace API.Tests;
             var testUser = new AppUser { Id = 50, UserName = "test" };
 
             // Set up the interview repository so that getInterview returns our dummy interview.
-            interviewRepoMock.Setup(r => r.getInterview(testUser, 100))
+            interviewRepoMock.Setup(r => r.GetInterview(testUser, 100))
                              .ReturnsAsync(interview);
 
             // Setup the response repository conversion (if any responses exist; here questions have empty responses).

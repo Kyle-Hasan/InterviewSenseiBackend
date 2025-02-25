@@ -94,7 +94,7 @@ namespace API.Interviews.Tests
                 technicalQuestions = new string[] { "Technical Q1", "Technical Q2" }
             };
 
-            _interviewServiceMock.Setup(s => s.generateQuestions(
+            _interviewServiceMock.Setup(s => s.GenerateQuestions(
                 request.jobDescription,
                 request.numberOfBehavioral,
                 request.numberOfTechnical,
@@ -104,7 +104,7 @@ namespace API.Interviews.Tests
             )).ReturnsAsync(dummyGenerateResponse);
 
             // Act
-            var actionResult = await _controller.getQuestions(request);
+            var actionResult = await _controller.GetQuestions(request);
             var result = actionResult.Value;
 
             // Assert
@@ -173,11 +173,11 @@ namespace API.Interviews.Tests
                 additionalDescription = dummyInterview.AdditionalDescription,
                 questions = new List<QuestionPageDto>()
             };
-            _interviewServiceMock.Setup(s => s.interviewToDTO(dummyInterview))
+            _interviewServiceMock.Setup(s => s.InterviewToDTO(dummyInterview))
                                   .Returns(dummyInterviewDTO);
 
             // Act
-            var actionResult = await _controller.generateInterview(request);
+            var actionResult = await _controller.GenerateInterview(request);
             var resultDTO = actionResult.Value;
 
             // Assert
@@ -193,16 +193,16 @@ namespace API.Interviews.Tests
             // Arrange
             int interviewId = 123;
             var dummyInterview = new Interview { Id = interviewId };
-            _interviewServiceMock.Setup(s => s.getInterview(interviewId, _testUser))
+            _interviewServiceMock.Setup(s => s.GetInterview(interviewId, _testUser))
                                   .ReturnsAsync(dummyInterview);
-            _interviewServiceMock.Setup(s => s.deleteInterview(dummyInterview, _testUser))
+            _interviewServiceMock.Setup(s => s.DeleteInterview(dummyInterview, _testUser))
                                   .Returns(Task.CompletedTask);
 
             // Act
-            await _controller.delete(interviewId);
+            await _controller.Delete(interviewId);
 
             // Assert
-            _interviewServiceMock.Verify(s => s.deleteInterview(dummyInterview, _testUser), Times.Once);
+            _interviewServiceMock.Verify(s => s.DeleteInterview(dummyInterview, _testUser), Times.Once);
         }
 
         // PUT: update
@@ -223,13 +223,13 @@ namespace API.Interviews.Tests
 
             var interviewEntity = new Interview { Id = interviewDTO.id, Name = interviewDTO.name };
             _interviewServiceMock.Setup(s => s.DtoToInterview(interviewDTO)).Returns(interviewEntity);
-            _interviewServiceMock.Setup(s => s.updateInterview(interviewEntity, _testUser))
+            _interviewServiceMock.Setup(s => s.UpdateInterview(interviewEntity, _testUser))
                                   .ReturnsAsync(interviewEntity);
-            _interviewServiceMock.Setup(s => s.interviewToDTO(interviewEntity))
+            _interviewServiceMock.Setup(s => s.InterviewToDTO(interviewEntity))
                                   .Returns(interviewDTO);
 
             // Act
-            var resultDTO = await _controller.update(interviewDTO);
+            var resultDTO = await _controller.Update(interviewDTO);
 
             // Assert
             Assert.NotNull(resultDTO);
@@ -244,11 +244,11 @@ namespace API.Interviews.Tests
             // Arrange
             int interviewId = 123;
             var dummyInterviewDTO = new InterviewDTO { id = interviewId, name = "Test Interview" };
-            _interviewServiceMock.Setup(s => s.getInterviewDto(interviewId, _testUser))
+            _interviewServiceMock.Setup(s => s.GetInterviewDto(interviewId, _testUser))
                                   .ReturnsAsync(dummyInterviewDTO);
 
             // Act
-            var resultDTO = await _controller.getInterview(interviewId);
+            var resultDTO = await _controller.GetInterview(interviewId);
 
             // Assert
             Assert.NotNull(resultDTO);
@@ -277,13 +277,13 @@ namespace API.Interviews.Tests
             };
             var searchParams = new InterviewSearchParams { startIndex = 0, pageSize = 10 };
 
-            _interviewServiceMock.Setup(s => s.getInterviews(_testUser, searchParams))
+            _interviewServiceMock.Setup(s => s.GetInterviews(_testUser, searchParams))
                                   .ReturnsAsync(pagedResponse);
-            _interviewServiceMock.Setup(s => s.interviewToDTO(dummyInterviews[0])).Returns(dummyDTOs[0]);
-            _interviewServiceMock.Setup(s => s.interviewToDTO(dummyInterviews[1])).Returns(dummyDTOs[1]);
+            _interviewServiceMock.Setup(s => s.InterviewToDTO(dummyInterviews[0])).Returns(dummyDTOs[0]);
+            _interviewServiceMock.Setup(s => s.InterviewToDTO(dummyInterviews[1])).Returns(dummyDTOs[1]);
 
             // Act
-            var resultDTOs = await _controller.getInterviewList(searchParams);
+            var resultDTOs = await _controller.GetInterviewList(searchParams);
 
             // Assert
             Assert.NotNull(resultDTOs);
@@ -298,7 +298,7 @@ namespace API.Interviews.Tests
         {
             // Arrange
             string fileName = "video1.webm";
-            _interviewServiceMock.Setup(s => s.verifyVideoView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyVideoView(fileName, _testUser))
                                   .ReturnsAsync(false);
 
             // Act
@@ -315,7 +315,7 @@ namespace API.Interviews.Tests
             // Arrange
             string fileName = "test1.mp4";  
             
-            _interviewServiceMock.Setup(s => s.verifyPdfView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyPdfView(fileName, _testUser))
                 .ReturnsAsync(true);
 
             string uploadsDir = "Uploads";
@@ -331,7 +331,7 @@ namespace API.Interviews.Tests
 
             // Open a stream for the copied file.
             var fileStream = File.OpenRead(filePath);
-            _interviewServiceMock.Setup(s => s.serveFile(fileName, filePath, "videos", It.IsAny<HttpContext>()))
+            _interviewServiceMock.Setup(s => s.ServeFile(fileName, filePath, "videos", It.IsAny<HttpContext>()))
                 .ReturnsAsync(fileStream);
 
 
@@ -353,7 +353,7 @@ namespace API.Interviews.Tests
             // Arrange
             string fileName = "video1.webm";
         
-            _interviewServiceMock.Setup(s => s.verifyVideoView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyVideoView(fileName, _testUser))
                                   .ReturnsAsync(true);
             _blobStorageServiceMock.Setup(s => s.GeneratePreSignedUrlAsync("videos", fileName, 10))
                                    .ReturnsAsync("http://signedurl/video1.webm");
@@ -372,11 +372,11 @@ namespace API.Interviews.Tests
         {
             // Arrange
             string fileName = "resume.pdf";
-            _interviewServiceMock.Setup(s => s.verifyPdfView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyPdfView(fileName, _testUser))
                                   .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.getResume(fileName);
+            var result = await _controller.GetResume(fileName);
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result);
@@ -388,7 +388,7 @@ namespace API.Interviews.Tests
             // Arrange
             string fileName = "test.pdf";  // Use test.pdf instead of resume.pdf.
           
-            _interviewServiceMock.Setup(s => s.verifyPdfView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyPdfView(fileName, _testUser))
                 .ReturnsAsync(true);
 
             string uploadsDir = "Uploads";
@@ -404,11 +404,11 @@ namespace API.Interviews.Tests
 
             // Open a stream for the copied file.
             var fileStream = File.OpenRead(filePath);
-            _interviewServiceMock.Setup(s => s.serveFile(fileName, filePath, "resumes", It.IsAny<HttpContext>()))
+            _interviewServiceMock.Setup(s => s.ServeFile(fileName, filePath, "resumes", It.IsAny<HttpContext>()))
                 .ReturnsAsync(fileStream);
 
             // Act
-            var result = await _controller.getResume(fileName);
+            var result = await _controller.GetResume(fileName);
 
             // Assert
             var fileResult = Assert.IsType<FileStreamResult>(result);
@@ -425,13 +425,13 @@ namespace API.Interviews.Tests
             // Arrange
             string fileName = "resume.pdf";
        
-            _interviewServiceMock.Setup(s => s.verifyPdfView(fileName, _testUser))
+            _interviewServiceMock.Setup(s => s.VerifyPdfView(fileName, _testUser))
                                   .ReturnsAsync(true);
             _blobStorageServiceMock.Setup(s => s.GeneratePreSignedUrlAsync("resumes", fileName, 10))
                                    .ReturnsAsync("http://signedurl/resume.pdf");
 
             // Act
-            var result = await _controller.getResume(fileName);
+            var result = await _controller.GetResume(fileName);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -444,11 +444,11 @@ namespace API.Interviews.Tests
         {
             // Arrange
             var expected = new ResumeUrlAndName { url = "http://example.com/resume.pdf", fileName = "resume.pdf" };
-            _interviewServiceMock.Setup(s => s.getLatestResume(_testUser))
+            _interviewServiceMock.Setup(s => s.GetLatestResume(_testUser))
                                   .ReturnsAsync(expected);
 
             // Act
-            var result = await _controller.getLatestResume();
+            var result = await _controller.GetLatestResume();
 
             // Assert
             Assert.NotNull(result);
@@ -466,11 +466,11 @@ namespace API.Interviews.Tests
                 new ResumeUrlAndName { url = "http://example.com/resume1.pdf", fileName = "resume1.pdf" },
                 new ResumeUrlAndName { url = "http://example.com/resume2.pdf", fileName = "resume2.pdf" }
             };
-            _interviewServiceMock.Setup(s => s.getAllResumes(_testUser))
+            _interviewServiceMock.Setup(s => s.GetAllResumes(_testUser))
                                   .ReturnsAsync(expected);
 
             // Act
-            var result = await _controller.getAllResumes();
+            var result = await _controller.GetAllResumes();
 
             // Assert
             Assert.NotNull(result);

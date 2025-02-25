@@ -57,7 +57,7 @@ public class InterviewTests
 
         };
 
-        await interviewRepository.save(interview, appUser);
+        await interviewRepository.Save(interview, appUser);
         
         Response testResponse1 = new Response
         {
@@ -89,9 +89,9 @@ public class InterviewTests
             VideoLink = "This is a video3",
         };
 
-        await responseRepository.saveResponse(testResponse1, appUser);
-        await responseRepository.saveResponse(testResponse2, appUser);
-        await responseRepository.saveResponse(testResponse3, appUser);
+        await responseRepository.SaveResponse(testResponse1, appUser);
+        await responseRepository.SaveResponse(testResponse2, appUser);
+        await responseRepository.SaveResponse(testResponse3, appUser);
         
         Question question1 = new Question
         {
@@ -114,7 +114,7 @@ public class InterviewTests
         await questionRepository.saveQuestion(question1, appUser);
         await questionRepository.saveQuestion(question2, appUser);
 
-        var result =  await interviewRepository.getInterview(appUser, 1);
+        var result =  await interviewRepository.GetInterview(appUser, 1);
         
         Assert.NotNull(result);
         Assert.Equal(interview.Id, result.Id);

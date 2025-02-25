@@ -9,7 +9,7 @@ namespace API.Responses;
 public class ResponseService(IOpenAIService openAiService,IResponseRepository responseRepository, IQuestionRepository questionRepository, IBlobStorageService blobStorageService): IResponseService
 {
     private readonly string _splitToken = "@u5W$";
-    public async Task<ResponseDto> rateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
+    public async Task<ResponseDto> RateAnswer(int questionId, string videoPath,string videoName, string serverUrl,AppUser user)
     {
         /* save video cloud in the background and delete one saved on server (cloud key is the same as video name for now so dont need to do anything with it)
          Don't delete video on server just yet to avoid the unlikely race condition it deletes the video before transcribing
@@ -22,7 +22,7 @@ public class ResponseService(IOpenAIService openAiService,IResponseRepository re
 
         // transcribe api, find the question being answered and then ask chat gpt to rate the answer
         string transcript =  await openAiService.TranscribeAudioAPI(videoPath);
-        Question question = await questionRepository.getQuestionById(questionId,user);
+        Question question = await questionRepository.GetQuestionById(questionId,user);
    
 
         // response format outlined, split token used to easily split positive and negative feedback(used on frontend).
@@ -40,7 +40,7 @@ public class ResponseService(IOpenAIService openAiService,IResponseRepository re
         
         string feedback = await openAiService.MakeRequest(prompt);
         string[] split = feedback.Split(_splitToken);
-        var response = await responseRepository.updateAnswer( transcript, split[1],split[2],split[3], videoName,serverUrl,question.Id,user);
+        var response = await responseRepository.UpdateAnswer( transcript, split[1],split[2],split[3], videoName,serverUrl,question.Id,user);
         // make sure video is uploaded before we leave this function so if an error happens we can deal with it
         if (AppConfig.UseCloudStorage)
         {

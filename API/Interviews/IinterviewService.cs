@@ -11,35 +11,34 @@ public interface IinterviewService
     Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
         int numberOfTechnical, int secondsPerAnswer, string resumePdfPath, string additionalDescription, string resumeName,string serverUrl);
 
-    Task<GenerateQuestionsResponse> generateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName );
+    Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName );
     
-    Task deleteInterview(Interview interview, AppUser user);
+    Task DeleteInterview(Interview interview, AppUser user);
     
-    Task<Interview> updateInterview(Interview interview, AppUser user);
+    Task<Interview> UpdateInterview(Interview interview, AppUser user);
     
-    Task<Interview> createInterview(Interview interview, AppUser user);
     
-    Task<PagedInterviewResponse> getInterviews(AppUser user,InterviewSearchParams interviewSearchParamsParams);
+    Task<PagedInterviewResponse> GetInterviews(AppUser user,InterviewSearchParams interviewSearchParamsParams);
 
-    Task<InterviewDTO> getInterviewDto(int id,AppUser user);
+    Task<InterviewDTO> GetInterviewDto(int id,AppUser user);
     
-    Task<Interview> getInterview(int id,AppUser user);
+    Task<Interview> GetInterview(int id,AppUser user);
     
-    Task<bool> verifyVideoView(string fileName, AppUser user);
+    Task<bool> VerifyVideoView(string fileName, AppUser user);
     
-    Task<bool> verifyPdfView(string fileName, AppUser user);
+    Task<bool> VerifyPdfView(string fileName, AppUser user);
 
-    InterviewDTO interviewToDTO(Interview interview);
+    InterviewDTO InterviewToDTO(Interview interview);
 
     Interview DtoToInterview(InterviewDTO interviewDTO);
 
-    Task<FileStream> serveFile(string fileName, string filePath, string folderName, HttpContext httpContext);
+    Task<FileStream> ServeFile(string fileName, string filePath, string folderName, HttpContext httpContext);
     
     // return the url and file name to the latest resume this user used, returning blank strings if they have no resumes uploaded.
     // If we are using signed urls, return the s3 bucket url here
-    Task<ResumeUrlAndName> getLatestResume(AppUser user);
+    Task<ResumeUrlAndName> GetLatestResume(AppUser user);
 // fills out the display name witout the guid we added
-    Task<ResumeUrlAndName[]> getAllResumes(AppUser user);
+    Task<ResumeUrlAndName[]> GetAllResumes(AppUser user);
     
     
     

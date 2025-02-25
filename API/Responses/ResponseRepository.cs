@@ -13,17 +13,17 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
     {
     }
 
-    public async Task<Response> saveResponse(Response response, AppUser user)
+    public async Task<Response> SaveResponse(Response response, AppUser user)
     {
         return await base.Save(response, user);
     }
 
-    public async Task deleteResponse(Response response, AppUser user)
+    public async Task DeleteResponse(Response response, AppUser user)
     {
         await base.Delete(response, user);
     }
 
-    public async Task<Response> updateAnswer(string answer, string positiveFeedback,string negativeFeedback, string sampleResponse, string videoName, string serverUrl, int questionId, AppUser user)
+    public async Task<Response> UpdateAnswer(string answer, string positiveFeedback,string negativeFeedback, string sampleResponse, string videoName, string serverUrl, int questionId, AppUser user)
     {
         Response response = new Response();
         response.Answer = answer;
@@ -32,7 +32,7 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         response.ExampleResponse = sampleResponse;
         response.VideoLink = serverUrl + "/" + videoName;
         response.QuestionId = questionId;
-       return await this.saveResponse(response, user);
+       return await this.SaveResponse(response, user);
     }
 
     public async Task<Response> getResponseById(int id)

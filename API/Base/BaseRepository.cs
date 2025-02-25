@@ -14,14 +14,14 @@ public abstract class BaseRepository<T> where T : BaseEntity
         this._entities = _context.Set<T>();
     }
     
-    public async Task Delete(T entity,AppUser user)
+    public virtual async Task Delete(T entity,AppUser user)
     {
         _entities.Remove(entity);
         
         await SaveChanges(user);
     }
 
-    public async Task<T> Save(T entity,AppUser user)
+    public virtual async Task<T> Save(T entity,AppUser user)
     {
         
         if (entity.Id == 0)

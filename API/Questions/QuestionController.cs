@@ -12,14 +12,14 @@ public class QuestionController(IQuestionService questionService,IinterviewRepos
 {
     
     [HttpGet("{questionId}")]
-    public async Task<QuestionPageDto> getQuestion(int questionId)
+    public async Task<QuestionPageDto> GetQuestion(int questionId)
     {
         AppUser user = await base.GetCurrentUser();
         return await questionService.GetQuestionAsync(questionId,user);
     }
 
     [HttpGet("byInterview")]
-    public async Task<IEnumerable<QuestionPageDto>> getInterviewQuestions([FromQuery] int interviewId)
+    public async Task<IEnumerable<QuestionPageDto>> GetInterviewQuestions([FromQuery] int interviewId)
     {
         AppUser user = await base.GetCurrentUser();
         return await questionService.GetQuestionsByInterviewId(interviewId, user);

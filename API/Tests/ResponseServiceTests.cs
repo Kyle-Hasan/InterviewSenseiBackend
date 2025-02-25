@@ -48,11 +48,11 @@ namespace API.Tests;
                 questionId = questionId
             };
 
-            serviceMock.Setup(s => s.rateAnswer(questionId, filePath, videoName, serverUrl, testUser))
+            serviceMock.Setup(s => s.RateAnswer(questionId, filePath, videoName, serverUrl, testUser))
                        .ReturnsAsync(expectedDto);
 
             // Act
-            var dto = await serviceMock.Object.rateAnswer(questionId, filePath, videoName, serverUrl, testUser);
+            var dto = await serviceMock.Object.RateAnswer(questionId, filePath, videoName, serverUrl, testUser);
 
             // Assert
             Assert.Equal(100, dto.id);

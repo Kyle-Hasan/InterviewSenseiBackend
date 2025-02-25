@@ -118,7 +118,7 @@ builder.Services.AddScoped<IResponseService,ResponseService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
 
-
+builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 
 
 builder.Services.AddAuthorization();

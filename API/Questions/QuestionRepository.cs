@@ -20,7 +20,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
        return await base.Save(question,user);
     }
 
-    public async Task<Question> getQuestionById(int id,AppUser user)
+    public async Task<Question> GetQuestionById(int id,AppUser user)
     {
         var question =  await base.getById(id);
         if (question.CreatedById != user.Id)
@@ -30,7 +30,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         return question;
     }
 
-    public async Task<Question> getQuestionByIdWithInterview(int id, AppUser user)
+    public async Task<Question> GetQuestionByIdWithInterview(int id, AppUser user)
     {
        return  _entities.Include(x=> x.Interview).ThenInclude(x=> x.Questions).Include(x=> x.Responses)
             .FirstOrDefault(x=> x.Id == id && x.CreatedById == user.Id);
@@ -42,7 +42,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
     {
         
         
-        var newResponse = await this.responseRepository.updateAnswer(answer,positiveFeedback,negativeFeedback,exampleResponse, videoName,serverUrl,question.Id, user);
+        var newResponse = await this.responseRepository.UpdateAnswer(answer,positiveFeedback,negativeFeedback,exampleResponse, videoName,serverUrl,question.Id, user);
         question.Responses.Add(newResponse);
         return await base.Save(question, user);
     }
@@ -64,12 +64,12 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         };
     }
 
-    public async Task<bool> verifyVideoView(string fileName, AppUser user)
+    public async Task<bool> VerifyVideoView(string fileName, AppUser user)
     {
        return await this.responseRepository.verifyVideoView(fileName, user);
     }
 
-    public Question convertQuestionToEntity(QuestionDTO questionDTO)
+    public Question ConvertQuestionToEntity(QuestionDTO questionDTO)
     {
         return new Question
         {

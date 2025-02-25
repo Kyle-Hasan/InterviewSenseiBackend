@@ -76,7 +76,7 @@ namespace API.Tests;
             _context.Set<Question>().Add(question);
             await _context.SaveChangesAsync();
             // Act
-            var result = await _repository.getQuestionById(10, _testUser);
+            var result = await _repository.GetQuestionById(10, _testUser);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(10, result.Id);
@@ -97,7 +97,7 @@ namespace API.Tests;
             _context.Set<Question>().Add(question);
             await _context.SaveChangesAsync();
             // Act & Assert
-            await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _repository.getQuestionById(11, _testUser));
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _repository.GetQuestionById(11, _testUser));
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace API.Tests;
             _context.Set<Question>().AddRange(q1, q2);
             await _context.SaveChangesAsync();
             // Act: Retrieve q2 with its interview.
-            var result = await _repository.getQuestionByIdWithInterview(21, _testUser);
+            var result = await _repository.GetQuestionByIdWithInterview(21, _testUser);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(21, result.Id);
@@ -157,7 +157,7 @@ namespace API.Tests;
             await _context.SaveChangesAsync();
             // Setup the responseRepository mock to simulate updateAnswer.
             var dummyResponse = new Response { Id = 200 };
-            _responseRepositoryMock.Setup(r => r.updateAnswer("New Answer", "New Feedback p","New feedback negative","Example response", "video.mp4", "http://server", 30, _testUser))
+            _responseRepositoryMock.Setup(r => r.UpdateAnswer("New Answer", "New Feedback p","New feedback negative","Example response", "video.mp4", "http://server", 30, _testUser))
                                   .ReturnsAsync(dummyResponse);
             // Act
             var updated = await _repository.updateAnswer(question, "New Answer", "New Feedback p","New feedback negative","Example response", "video.mp4", "http://server", _testUser);
@@ -217,7 +217,7 @@ namespace API.Tests;
             _responseRepositoryMock.Setup(r => r.verifyVideoView("video.mp4", _testUser))
                                   .ReturnsAsync(true);
             // Act
-            var result = await _repository.verifyVideoView("video.mp4", _testUser);
+            var result = await _repository.VerifyVideoView("video.mp4", _testUser);
             // Assert
             Assert.True(result);
         }
@@ -247,7 +247,7 @@ namespace API.Tests;
             _responseRepositoryMock.Setup(r => r.dtoToResponse(responseDto))
                                   .Returns(dummyResponse);
             // Act
-            var question = _repository.convertQuestionToEntity(questionDTO);
+            var question = _repository.ConvertQuestionToEntity(questionDTO);
             // Assert
             Assert.Equal(70, question.Id);
             Assert.Equal("DTO Body", question.Body);

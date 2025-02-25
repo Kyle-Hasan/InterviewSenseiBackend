@@ -12,7 +12,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
 {
     
     [HttpGet("byQuestion")]
-    public async Task<List<ResponseDto>> getResponses([FromQuery] int questionId)
+    public async Task<List<ResponseDto>> GetResponses([FromQuery] int questionId)
     {
         var user = await base.GetCurrentUser();
         var responses = await responseRepository.getResponsesQuestion(questionId,user);
@@ -21,7 +21,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
     
     [HttpPost("rateAnswer")]
     [RequestSizeLimit(100_000_000)]
-    public async Task<ActionResult<ResponseDto>> getRating([FromForm]RatingRequestDTO ratingRequest)
+    public async Task<ActionResult<ResponseDto>> GetRating([FromForm]RatingRequestDTO ratingRequest)
     {
         var user = await base.GetCurrentUser();
         if (ratingRequest.video == null || ratingRequest.video.Length == 0)
@@ -39,7 +39,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
         
         string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
-        var retVal = await responseService.rateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
+        var retVal = await responseService.RateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
         return retVal;
 
 

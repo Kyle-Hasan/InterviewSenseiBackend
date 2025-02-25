@@ -12,5 +12,5 @@ public interface IResponseService
      * serverUrl: url prefix for this server
      * user: user making request
      */
-    Task<ResponseDto> rateAnswer(int questionId, string videoPath, string videoName, string serverUrl, AppUser user);
+    Task<ResponseDto> RateAnswer(int questionId, string videoPath, string videoName, string serverUrl, AppUser user);
 }
