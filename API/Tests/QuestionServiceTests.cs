@@ -27,7 +27,7 @@ namespace API.Tests;
             var interview = new Interview
             {
                 Id = 1,
-                secondsPerAnswer = 30,
+                SecondsPerAnswer = 30,
                 Questions = new List<Question>()
             };
 
@@ -91,7 +91,7 @@ namespace API.Tests;
             var interview = new Interview
             {
                 Id = 5,
-                secondsPerAnswer = 45,
+                SecondsPerAnswer = 45,
                 Questions = new List<Question>()
             };
             var q1 = new Question { Id = 10, Body = "Q1", Type = "Type1", Responses = new List<Response>(), Interview = interview };
@@ -130,7 +130,7 @@ namespace API.Tests;
             var interview = new Interview
             {
                 Id = 100,
-                secondsPerAnswer = 60,
+                SecondsPerAnswer = 60,
                 Questions = new List<Question>()
             };
             var q1 = new Question { Id = 1, Body = "First", Type = "A", Responses = new List<Response>(), Interview = interview };

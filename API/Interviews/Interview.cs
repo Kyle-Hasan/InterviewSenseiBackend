@@ -14,11 +14,11 @@ public class Interview:BaseEntity
     
     public string JobDescription { get; set; }
     
-    public int secondsPerAnswer { get; set; }
+    public int SecondsPerAnswer { get; set; }
     
     public string? AdditionalDescription { get; set; }
     
-    public bool isInteractive { get; set; } = false;
+    public bool IsInteractive { get; set; } = false;
     
     public virtual List<Message> Messages { get; set; }
     

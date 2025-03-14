@@ -107,7 +107,7 @@ namespace API.Tests;
             var interview = new Interview 
             { 
                 Id = 100, 
-                secondsPerAnswer = 30, 
+                SecondsPerAnswer = 30, 
                 Questions = new List<Question>() 
             };
             var q1 = new Question 

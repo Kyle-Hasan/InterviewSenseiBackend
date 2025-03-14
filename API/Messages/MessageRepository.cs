@@ -17,4 +17,9 @@ public class MessageRepository: BaseRepository<Message>, IMessageRepository
         return base._entities.Where(r => r.InterviewId == interviewId && r.CreatedById == user.Id ).ToList();
 
     }
+
+    public async Task<Message> CreateMessage(Message message,AppUser user)
+    {
+        return await base.Save(message,user);
+    }
 }

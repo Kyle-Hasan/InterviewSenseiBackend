@@ -7,6 +7,7 @@ using API.Auth;
 using API.AWS;
 using API.Data;
 using API.Interviews;
+using API.Messages;
 using API.PDF;
 using API.Questions;
 using API.Responses;
@@ -119,6 +120,8 @@ builder.Services.AddScoped<IResponseService,ResponseService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
 builder.Services.AddScoped<IPDFService, PDFService>();
+builder.Services.AddScoped<IMessageRepository,MessageRepository>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 

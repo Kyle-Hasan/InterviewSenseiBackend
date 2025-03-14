@@ -55,7 +55,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
             dto.nextQuestionId = -1;
         }
         dto.interviewId = interview.Id;
-        dto.secondsPerAnswer = interview.secondsPerAnswer;
+        dto.secondsPerAnswer = interview.SecondsPerAnswer;
         return dto;
     } 
 

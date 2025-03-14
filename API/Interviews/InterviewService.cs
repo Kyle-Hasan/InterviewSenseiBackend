@@ -10,6 +10,7 @@ using System.Linq;
 using API.Extensions;
 using System.Collections.Generic;
 using System.Text;
+using API.Messages;
 using API.PDF;
 
 namespace API.Interviews;
@@ -20,7 +21,8 @@ public class InterviewService(
     IQuestionRepository questionRepository,
     IQuestionService questionService,
     IBlobStorageService blobStorageService,
-    IPDFService pdfService) : IinterviewService
+    IPDFService pdfService,
+    IMessageService messageService) : IinterviewService
 {
     
 
@@ -150,12 +152,9 @@ public class InterviewService(
         };
     }
 
-    public async Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription,
-        int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,
-        string additionalDescription, string resumeName, string serverUrl)
-    {
-        Interview interview = new Interview();
 
+    private async Task<List<Question>>  CreateNonInteractiveInterviewQuestions(string jobDescription, int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription,string resumeName)
+    {
         var questions = await GenerateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,
             additionalDescription, resumeName);
         var technicalQuestions =
@@ -173,6 +172,21 @@ public class InterviewService(
         {
             questionList.AddRange(behavioralQuestions);
         }
+        return questionList;
+    }
+    public async Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription,
+        int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,
+        string additionalDescription, string resumeName, string serverUrl, bool isLive)
+    {
+        Interview interview = new Interview();
+
+        if (!isLive)
+        {
+            var questionList = await CreateNonInteractiveInterviewQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,additionalDescription, resumeName);
+            interview.Questions = questionList;
+        }
+
+       
 
         if (string.IsNullOrEmpty(jobDescription))
         {
@@ -190,15 +204,16 @@ public class InterviewService(
         }
 
         interview.Name = interviewName;
-        interview.Questions = questionList;
+       
         interview.JobDescription = jobDescription;
         if (!string.IsNullOrEmpty(resumeName))
         {
             interview.ResumeLink = serverUrl + "/" + resumeName;
         }
 
-        interview.secondsPerAnswer = secondsPerAnswer;
+        interview.SecondsPerAnswer = secondsPerAnswer;
         interview.AdditionalDescription = additionalDescription;
+        interview.IsInteractive = isLive;
 
         var i = await createInterview(interview, user);
 
@@ -273,7 +288,7 @@ public class InterviewService(
         interviewDTO.additionalDescription =
             interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
 
-        interviewDTO.secondsPerAnswer = interview.secondsPerAnswer;
+        interviewDTO.secondsPerAnswer = interview.SecondsPerAnswer;
         return interviewDTO;
     }
 
@@ -284,7 +299,7 @@ public class InterviewService(
         interview.Name = interviewDTO.name;
         interview.JobDescription = interviewDTO.jobDescription;
         interview.ResumeLink = interviewDTO.resumeLink;
-        interview.secondsPerAnswer = interviewDTO.secondsPerAnswer;
+        interview.SecondsPerAnswer = interviewDTO.secondsPerAnswer;
         interview.AdditionalDescription = interviewDTO.additionalDescription;
 
         if (interviewDTO.questions != null)

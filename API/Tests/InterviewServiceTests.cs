@@ -1,4 +1,7 @@
-﻿namespace API.Tests;
+﻿using API.Messages;
+using API.PDF;
+
+namespace API.Tests;
 using API.AI;
 using API.AWS;
 using API.Interviews;
@@ -26,6 +29,8 @@ using API.Users;
         private readonly Mock<IQuestionRepository> _questionRepositoryMock;
         private readonly Mock<IQuestionService> _questionServiceMock;
         private readonly Mock<IBlobStorageService> _blobStorageServiceMock;
+        private readonly Mock<IPDFService> _pdfServiceMock;
+        private readonly Mock<IMessageService> _messageServiceMock;
         private readonly InterviewService _service;
         private readonly AppUser _testUser;
 
@@ -37,6 +42,8 @@ using API.Users;
             _questionRepositoryMock = new Mock<IQuestionRepository>();
             _questionServiceMock = new Mock<IQuestionService>();
             _blobStorageServiceMock = new Mock<IBlobStorageService>();
+            _messageServiceMock = new Mock<IMessageService>();
+            _pdfServiceMock = new Mock<IPDFService>();
 
             // Create an instance of InterviewService using the mocked dependencies.
             _service = new InterviewService(
@@ -44,7 +51,9 @@ using API.Users;
                 _interviewRepositoryMock.Object,
                 _questionRepositoryMock.Object,
                 _questionServiceMock.Object,
-                _blobStorageServiceMock.Object);
+                _blobStorageServiceMock.Object,
+                _pdfServiceMock.Object,
+                _messageServiceMock.Object);
 
             // Create a test user instance.
             _testUser = new AppUser { Id = 1, UserName = "testuser" };
@@ -108,7 +117,7 @@ Technical Questions:
             // An empty interview name is not allowed. We verify that the method
             // throws a BadHttpRequestException in that case.
             await Assert.ThrowsAsync<BadHttpRequestException>(async () =>
-                await _service.GenerateInterview(_testUser, "", "Job Description", 1, 1, 30, "", "", "resume.pdf", "http://server"));
+                await _service.GenerateInterview(_testUser, "", "Job Description", 1, 1, 30, "", "", "resume.pdf", "http://server",false));
         }
 
         // Test for GenerateInterview method to ensure it returns an Interview with the expected properties.
@@ -132,7 +141,7 @@ Technical Questions:
                 .ReturnsAsync((Interview i, AppUser user) => { i.Id = 101; return i; });
 
             // Act: Generate the interview.
-            var interview = await _service.GenerateInterview(_testUser, "Interview Test", "Job Description", 1, 1, 45, "", "Additional info", "resume.pdf", "http://server");
+            var interview = await _service.GenerateInterview(_testUser, "Interview Test", "Job Description", 1, 1, 45, "", "Additional info", "resume.pdf", "http://server",false);
 
             // Assert:
             // Check that all properties are correctly set.
@@ -140,7 +149,7 @@ Technical Questions:
             Assert.Equal("Job Description", interview.JobDescription);
             Assert.Equal(2, interview.Questions.Count); // one behavioral + one technical
             Assert.Equal("http://server/resume.pdf", interview.ResumeLink);
-            Assert.Equal(45, interview.secondsPerAnswer);
+            Assert.Equal(45, interview.SecondsPerAnswer);
             Assert.Equal("Additional info", interview.AdditionalDescription);
             Assert.Equal(101, interview.Id);
         }

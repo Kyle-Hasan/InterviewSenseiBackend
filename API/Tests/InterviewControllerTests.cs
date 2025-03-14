@@ -144,7 +144,7 @@ namespace API.Interviews.Tests
                 Id = 123,
                 Name = request.name,
                 JobDescription = request.jobDescription,
-                secondsPerAnswer = request.secondsPerAnswer,
+                SecondsPerAnswer = request.secondsPerAnswer,
                 AdditionalDescription = request.additionalDescription,
                 ResumeLink = "http://localhost/api/Interview/getPdf/dummy.pdf",
                 Questions = new List<Question>() // omitted for simplicity.
@@ -160,7 +160,8 @@ namespace API.Interviews.Tests
                 It.IsAny<string>(), // filePath computed by controller
                 request.additionalDescription,
                 It.IsAny<string>(), // fileName computed by controller
-                It.IsAny<string>()  // serverUrl computed by controller
+                It.IsAny<string>(), 
+                false// serverUrl computed by controller
             )).ReturnsAsync(dummyInterview);
 
             var dummyInterviewDTO = new InterviewDTO
@@ -169,7 +170,7 @@ namespace API.Interviews.Tests
                 name = dummyInterview.Name,
                 jobDescription = dummyInterview.JobDescription,
                 resumeLink = dummyInterview.ResumeLink,
-                secondsPerAnswer = dummyInterview.secondsPerAnswer,
+                secondsPerAnswer = dummyInterview.SecondsPerAnswer,
                 additionalDescription = dummyInterview.AdditionalDescription,
                 questions = new List<QuestionPageDto>()
             };

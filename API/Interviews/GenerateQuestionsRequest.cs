@@ -18,4 +18,6 @@ public class GenerateInterviewRequest
     public int secondsPerAnswer { get; set; }
     
     public string name { get; set; }
+
+    public bool isLive { get; set; } = false;
 }

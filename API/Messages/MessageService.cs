@@ -13,26 +13,12 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
 {
     
     private IDictionary<int,CachedMessageAndResume> _idToMessage = new Dictionary<int, CachedMessageAndResume>();
-    // add user message to interview, return ai response while making sure this message belongs to this user
-    public async Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId)
+
+
+    private async Task<MessageResponse> GetAIResponse(Interview interview, CachedMessageAndResume context, string userTranscript, AppUser user)
     {
-        // make sure this interview actually belongs to this user.
-        // (we get interview to update any in memory caches that may exist, lazy loading prevents lots of joins so this shouldn't be too slow)
-        Interview interview = await interviewRepository.GetInterview(user,interviewId);
-        if (interview == null)
-        {
-            throw new UnauthorizedAccessException();
-        }
-
-        string userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
-
-        bool messagesExist = _idToMessage.TryGetValue(interviewId, out CachedMessageAndResume context);
-        if (!messagesExist)
-        {
-            string resumeUrl = interview.ResumeLink;
-            string resumeText=  await pdfService.GetPdfTranscriptAsync(resumeUrl);
-            context = new CachedMessageAndResume(new List<Message>(),resumeText);
-        }
+        
+        
         
         StringBuilder builder = new StringBuilder();
 
@@ -47,12 +33,79 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
         
         string aiResponse = await openAIService.MakeRequest(prompt);
 
-        return new MessageResponse();
+        Message newAIMessage = new Message
+        {
+            Content = aiResponse,
+            Interview = interview,
+            InterviewId = interview.Id,
+            FromAI = true
+        };
+        // save and add to cache without waiting for db
+        messageRepository.CreateMessage(newAIMessage,user);
+        context.Messages.Add(newAIMessage);
 
 
 
+        MessageResponse response = new MessageResponse
+        {
+            aiResponse = aiResponse,
+            interviewId = interview.Id,
+            userMessage = userTranscript
+        };
 
 
+
+        return response;
+    }
+    // add user message to interview, return ai response while making sure this message belongs to this user
+    public async Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId)
+    {
+        // make sure this interview actually belongs to this user.
+        // (we get interview to update any in memory caches that may exist, lazy loading prevents lots of joins so this shouldn't be too slow)
+        Interview interview = await interviewRepository.GetInterview(user,interviewId);
+        if (interview == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        string userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
+
+        Message userMessage = new Message()
+        {
+            Content = userTranscript,
+            Interview = interview,
+            InterviewId = interviewId,
+            FromAI = false
+        };
+        // get the cached context for this conversation if it exists, if not make a new one
+        bool messagesExist = _idToMessage.TryGetValue(interview.Id, out CachedMessageAndResume context);
+        if (!messagesExist)
+        {
+            string resumeUrl = interview.ResumeLink;
+            string resumeText=  await pdfService.GetPdfTranscriptAsync(resumeUrl);
+            context = new CachedMessageAndResume(new List<Message>(),resumeText);
+        }
+        
+        context.Messages.Add(userMessage);
+        
+        var response = await GetAIResponse(interview, context,userTranscript, user);
+        
+        return response;
+
+    }
+
+    public async Task<string> GetInitialInterviewMessage(AppUser user, int interviewId)
+    {
+        Interview interview = await interviewRepository.GetInterview(user,interviewId);
+        if (interview == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+        string resumeUrl = interview.ResumeLink;
+        string resumeText=  await pdfService.GetPdfTranscriptAsync(resumeUrl);
+        var context = new CachedMessageAndResume(new List<Message>(),resumeText);
+        var response =  await GetAIResponse(interview, context, "", user);
+        return response.aiResponse;
     }
     
     private string GetInterviewPrompt(string messages, string? jobDescription, string? userResume)

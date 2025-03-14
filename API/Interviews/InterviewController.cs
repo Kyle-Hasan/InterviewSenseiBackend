@@ -33,13 +33,13 @@ public class InterviewController(
 
     [HttpPost("generateInterview")]
     public async Task<ActionResult<InterviewDTO>> GenerateInterview(
-        [FromForm] GenerateInterviewRequest generateQuestionsRequest)
+        [FromForm] GenerateInterviewRequest generateInterviewRequest)
     {
-        if (generateQuestionsRequest.numberOfBehavioral + generateQuestionsRequest.numberOfTechnical == 0)
+        if (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0)
         {
             return BadRequest();
         }
-        else if (generateQuestionsRequest.secondsPerAnswer < 10 || generateQuestionsRequest.numberOfBehavioral > 300)
+        else if (generateInterviewRequest.secondsPerAnswer < 10 || generateInterviewRequest.numberOfBehavioral > 300)
         {
             return BadRequest();
         }
@@ -48,16 +48,16 @@ public class InterviewController(
         string fileName = "";
         string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getPdf";
         // existing resume url, should be on our server so to get its name just strip the server part
-        if (generateQuestionsRequest.resumeUrl != null)
+        if (generateInterviewRequest.resumeUrl != null)
         {
             if (!AppConfig.UseCloudStorage)
             {
-                fileName = generateQuestionsRequest.resumeUrl.GetStringAfterPattern("/api/Interview/getPdf/");
+                fileName = generateInterviewRequest.resumeUrl.GetStringAfterPattern("/api/Interview/getPdf/");
                 
             }
             else
             {
-                fileName = generateQuestionsRequest.resumeUrl.GetStringAfterPattern("/resumes/");
+                fileName = generateInterviewRequest.resumeUrl.GetStringAfterPattern("/resumes/");
                 fileName = fileName.GetStringBeforePattern("?");
             }
             filePath = Path.Combine("Uploads", fileName);
@@ -68,25 +68,25 @@ public class InterviewController(
                 await blobStorageService.DownloadFileAsync(fileName, filePath, "resumes");
             }
         }
-        else if (generateQuestionsRequest.resume != null && generateQuestionsRequest.resume.ContentType == "application/pdf")
+        else if (generateInterviewRequest.resume != null && generateInterviewRequest.resume.ContentType == "application/pdf")
         {
-            fileName = Guid.NewGuid().ToString() + "_" + generateQuestionsRequest.resume.FileName;
+            fileName = Guid.NewGuid().ToString() + "_" + generateInterviewRequest.resume.FileName;
             filePath = Path.Combine("Uploads",
                 fileName);
             using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
             {
-                await generateQuestionsRequest.resume.CopyToAsync(stream);
+                await generateInterviewRequest.resume.CopyToAsync(stream);
             }
         }
         
 
         var user = await base.GetCurrentUser();
 
-        var i = await interviewService.GenerateInterview(user, generateQuestionsRequest.name,
-            generateQuestionsRequest.jobDescription,
-            generateQuestionsRequest.numberOfBehavioral, generateQuestionsRequest.numberOfTechnical,
-            generateQuestionsRequest.secondsPerAnswer, filePath, generateQuestionsRequest.additionalDescription,
-            fileName, serverUrl);
+        var i = await interviewService.GenerateInterview(user, generateInterviewRequest.name,
+            generateInterviewRequest.jobDescription,
+            generateInterviewRequest.numberOfBehavioral, generateInterviewRequest.numberOfTechnical,
+            generateInterviewRequest.secondsPerAnswer, filePath, generateInterviewRequest.additionalDescription,
+            fileName, serverUrl,generateInterviewRequest.isLive);
        
         return interviewService.InterviewToDTO(i);
     }
