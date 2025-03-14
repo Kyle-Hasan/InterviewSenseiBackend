@@ -7,6 +7,7 @@ using API.Auth;
 using API.AWS;
 using API.Data;
 using API.Interviews;
+using API.PDF;
 using API.Questions;
 using API.Responses;
 using API.Users;
@@ -110,13 +111,14 @@ builder.Services.AddAuthentication(options => {
 
 builder.Services.AddScoped<IJwtTokenService,JwtTokenService>();
 builder.Services.AddScoped<IOpenAIService, GeminiService>();
-builder.Services.AddScoped<IinterviewRepository, interviewRepository>();
+builder.Services.AddScoped<IinterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IResponseRepository,ResponseRepository>();
 builder.Services.AddScoped<IResponseService,ResponseService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
+builder.Services.AddScoped<IPDFService, PDFService>();
 
 builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 

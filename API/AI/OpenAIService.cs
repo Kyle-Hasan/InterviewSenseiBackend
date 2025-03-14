@@ -24,12 +24,20 @@ public class OpenAIService : IOpenAIService
         _audioClient = new("whisper-1", apiKey: _apiKey);
     }
 
-    public async Task<string> TranscribeAudioAPI(String videoPath)
+    public async Task<string> TranscribeAudioAPI(string filePath, bool videoPath = true)
     {
         
-        string absolutePath = Path.GetFullPath(videoPath);
+        string absolutePath = Path.GetFullPath(filePath);
+
+        string audioFile = filePath;
         
-        string audioFile = await FfmpegService.extractAudioFile(absolutePath);
+        // only extract the audio if it isnt already an audio file
+       
+        if (videoPath)
+        {
+            audioFile = await FfmpegService.extractAudioFile(absolutePath);
+        }
+        
         AudioTranscriptionOptions options = new()
         {
             ResponseFormat = AudioTranscriptionFormat.Verbose,
@@ -37,12 +45,13 @@ public class OpenAIService : IOpenAIService
         };
         AudioTranscription transcription = _audioClient.TranscribeAudio(audioFile, options);
         
+
         System.IO.File.Delete(audioFile);
         return transcription.Text;
     }
 
 
-    public virtual async Task<string> MakeRequest(String question)
+    public virtual async Task<string> MakeRequest(string question)
     {
         ChatCompletionOptions options = new()
         {
@@ -57,10 +66,18 @@ public class OpenAIService : IOpenAIService
         return completion.Content[0].Text;
     }
 
-    public async Task<String> TranscribeAudio(string videoPath)
+    public async Task<String> TranscribeAudio(string filePath, bool videoFile = true)
     {
-        // gives a wav file,which is needed since mp4 video files not accepted by local whisper modal
-        string audioFilePath = await FfmpegService.extractAudioFile(videoPath);
+
+
+        string audioFilePath = filePath;
+
+        if (videoFile)
+        {
+            // gives a wav file,which is needed since mp4 video files not accepted by local whisper modal
+            audioFilePath = await FfmpegService.extractAudioFile(filePath);
+        }
+
         // download whisper model if it isnt already downloaded on local file system
         if (!File.Exists(_modelName))
         {

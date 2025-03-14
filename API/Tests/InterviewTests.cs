@@ -35,7 +35,7 @@ public class InterviewTests
 
 
 
-        IinterviewRepository interviewRepository = new interviewRepository(context, null);
+        IinterviewRepository interviewRepository = new InterviewRepository(context, null);
         IResponseRepository responseRepository = new ResponseRepository(context);
         IQuestionRepository questionRepository = new QuestionRepository(context, responseRepository);
 

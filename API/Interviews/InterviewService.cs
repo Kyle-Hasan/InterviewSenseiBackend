@@ -10,6 +10,7 @@ using System.Linq;
 using API.Extensions;
 using System.Collections.Generic;
 using System.Text;
+using API.PDF;
 
 namespace API.Interviews;
 
@@ -18,29 +19,10 @@ public class InterviewService(
     IinterviewRepository interviewRepository,
     IQuestionRepository questionRepository,
     IQuestionService questionService,
-    IBlobStorageService blobStorageService) : IinterviewService
+    IBlobStorageService blobStorageService,
+    IPDFService pdfService) : IinterviewService
 {
-    private async Task<string> GetPdfTranscriptAsync(string pdfPath)
-    {
-        return await Task.FromResult(GetPdfText(pdfPath));
-    }
-
-    private string GetPdfText(string pdfPath)
-    {
-        using (PdfReader reader = new PdfReader(pdfPath))
-        using (PdfDocument pdfDoc = new PdfDocument(reader))
-        {
-            int pageCount = pdfDoc.GetNumberOfPages();
-            StringBuilder result = new StringBuilder();
-
-            for (int i = 1; i <= pageCount; i++) // Ensure all pages are included
-            {
-                result.Append(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i)));
-            }
-
-            return result.ToString();
-        }
-    }
+    
 
 
     public async Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription, int numberOfBehavioral,
@@ -51,7 +33,7 @@ public class InterviewService(
 
         if (!string.IsNullOrEmpty(resumePdfPath))
         {
-            resume = await GetPdfTranscriptAsync(resumePdfPath);
+            resume = await pdfService.GetPdfTranscriptAsync(resumePdfPath);
         }
 
         /* upload resume in the background to blob storage,delete old resume because we are done with it

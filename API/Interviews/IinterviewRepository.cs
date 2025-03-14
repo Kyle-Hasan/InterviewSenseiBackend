@@ -19,6 +19,8 @@ public interface IinterviewRepository
    Task<string> GetLatestResume(AppUser user);
    // only fills out url and date created, let the function calling handle logic for figuring out the display name
    Task<ResumeUrlAndName[]> GetAllResumes(AppUser user);
+   
+ 
 
 
 

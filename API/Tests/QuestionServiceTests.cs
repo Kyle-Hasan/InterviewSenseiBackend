@@ -47,7 +47,7 @@ namespace API.Tests;
                             .ReturnsAsync(q2);
 
             // Setup the response repository so that convertToDto returns a predictable ResponseDto.
-            responseRepoMock.Setup(r => r.convertToDto(It.IsAny<Response>()))
+            responseRepoMock.Setup(r => r.ConvertToDto(It.IsAny<Response>()))
                             .Returns((Response r) => new ResponseDto
                             {
                                 id = r.Id,
@@ -99,7 +99,7 @@ namespace API.Tests;
             interview.Questions.AddRange(new[] { q1, q2 });
 
             // For this test, we assume no responses (or they are not needed).
-            responseRepoMock.Setup(r => r.convertToDto(It.IsAny<Response>()))
+            responseRepoMock.Setup(r => r.ConvertToDto(It.IsAny<Response>()))
                             .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", negativeFeedback = "NFB", positiveFeedback = "PFB",exampleResponse = "Response Example", videoLink = "L", questionId = 0 });
 
             // Act
@@ -145,7 +145,7 @@ namespace API.Tests;
                              .ReturnsAsync(interview);
 
             // Setup the response repository conversion (if any responses exist; here questions have empty responses).
-            responseRepoMock.Setup(r => r.convertToDto(It.IsAny<Response>()))
+            responseRepoMock.Setup(r => r.ConvertToDto(It.IsAny<Response>()))
                             .Returns((Response r) => new ResponseDto { id = r.Id, answer = "Resp", negativeFeedback = "NFB", positiveFeedback = "PFB",exampleResponse = "Response Example", videoLink = "L", questionId = 0 });
 
             // Act

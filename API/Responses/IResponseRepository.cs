@@ -12,11 +12,11 @@ public interface IResponseRepository
 
     Task<Response> getResponseById(int id);
     
-    Task<bool> verifyVideoView(string filename,AppUser user);
+    Task<bool> VerifyVideoView(string filename,AppUser user);
     
-    ResponseDto convertToDto(Response response);
-    Response dtoToResponse(ResponseDto response);
+    ResponseDto ConvertToDto(Response response);
+    Response DtoToResponse(ResponseDto response);
     
-    Task<List<Response>> getResponsesQuestion(int questionId,AppUser user);
+    Task<List<Response>> GetResponsesQuestion(int questionId,AppUser user);
 
 }

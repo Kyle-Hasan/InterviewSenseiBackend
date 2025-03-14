@@ -214,7 +214,7 @@ namespace API.Tests;
         public async Task VerifyVideoView_ReturnsValueFromResponseRepository()
         {
             // Arrange: Setup the mock to return true.
-            _responseRepositoryMock.Setup(r => r.verifyVideoView("video.mp4", _testUser))
+            _responseRepositoryMock.Setup(r => r.VerifyVideoView("video.mp4", _testUser))
                                   .ReturnsAsync(true);
             // Act
             var result = await _repository.VerifyVideoView("video.mp4", _testUser);
@@ -244,7 +244,7 @@ namespace API.Tests;
             };
             // Setup the mock to convert the responseDto to a Response.
             var dummyResponse = new Response { Id = 300 };
-            _responseRepositoryMock.Setup(r => r.dtoToResponse(responseDto))
+            _responseRepositoryMock.Setup(r => r.DtoToResponse(responseDto))
                                   .Returns(dummyResponse);
             // Act
             var question = _repository.ConvertQuestionToEntity(questionDTO);

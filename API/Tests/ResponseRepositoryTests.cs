@@ -21,14 +21,14 @@ namespace API.Tests;
                 new Response { Id = 1, Answer = "A1", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "L1", QuestionId = questionId },
                 new Response { Id = 2, Answer = "A2", NegativeFeedback = "negative",PositiveFeedback = "positive",ExampleResponse = "example response", VideoLink = "L2", QuestionId = questionId }
             };
-            repoMock.Setup(r => r.getResponsesQuestion(questionId, testUser))
+            repoMock.Setup(r => r.GetResponsesQuestion(questionId, testUser))
                     .ReturnsAsync(responses);
 
             // Act
-            var result = await repoMock.Object.getResponsesQuestion(questionId, testUser);
+            var result = await repoMock.Object.GetResponsesQuestion(questionId, testUser);
 
             // Assert
-            repoMock.Verify(r => r.getResponsesQuestion(questionId, testUser), Times.Once);
+            repoMock.Verify(r => r.GetResponsesQuestion(questionId, testUser), Times.Once);
             Assert.Equal(2, result.Count);
         }
 
@@ -48,7 +48,7 @@ namespace API.Tests;
             };
 
             // Set up the mock so that convertToDto returns a ResponseDto with mapped properties.
-            repoMock.Setup(r => r.convertToDto(response))
+            repoMock.Setup(r => r.ConvertToDto(response))
                     .Returns(new ResponseDto
                     {
                         id = response.Id,
@@ -61,7 +61,7 @@ namespace API.Tests;
                     });
 
             // Act
-            var dto = repoMock.Object.convertToDto(response);
+            var dto = repoMock.Object.ConvertToDto(response);
 
             // Assert
             Assert.Equal(5, dto.id);

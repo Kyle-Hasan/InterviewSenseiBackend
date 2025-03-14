@@ -34,7 +34,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
         int length = interview.Questions.Count;
         QuestionPageDto dto = new QuestionPageDto();
         dto.body = q.Body;
-        dto.responses = q.Responses.Select(x => responseRepository.convertToDto(x)).ToList();
+        dto.responses = q.Responses.Select(x => responseRepository.ConvertToDto(x)).ToList();
         dto.id = q.Id;
         dto.type = q.Type;
         if (index > 0)
@@ -77,7 +77,12 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
     public async Task<List<QuestionPageDto>> GetQuestionsByInterviewId(int interviewId, AppUser user)
     {
         Interview interview = await interviewRepository.GetInterview(user,interviewId);
-        return  ConvertToDtos(interview.Questions, interview);
+        if (interview == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+        List<Question> questions = interview.Questions;
+        return  ConvertToDtos(questions, interview);
         
         
     }

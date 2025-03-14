@@ -40,12 +40,12 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         return await base.getById(id);
     }
 
-    public async Task<bool> verifyVideoView(string filename, AppUser user)
+    public async Task<bool> VerifyVideoView(string filename, AppUser user)
     {
         return await base._entities.AnyAsync(q => q.VideoLink.Contains(filename) && q.CreatedById == user.Id);
     }
 
-    public ResponseDto convertToDto(Response response)
+    public ResponseDto ConvertToDto(Response response)
     {
         return new ResponseDto
         {
@@ -60,7 +60,7 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         };
     }
 
-    public Response dtoToResponse(ResponseDto response)
+    public Response DtoToResponse(ResponseDto response)
     {
         return new Response
         {
@@ -74,7 +74,7 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         };
     }
 
-    public async Task<List<Response>> getResponsesQuestion(int questionId, AppUser user)
+    public async Task<List<Response>> GetResponsesQuestion(int questionId, AppUser user)
     {
         return base._entities.Where(r => r.QuestionId == questionId && r.CreatedById == user.Id ).ToList();
     }

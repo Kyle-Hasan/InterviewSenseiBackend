@@ -15,7 +15,7 @@ public class Response: BaseEntity
     
     public string VideoLink { get; set; }
     
-    public Question Question { get; set; }
+    public virtual Question Question { get; set; }
     public int QuestionId { get; set; }
     
    

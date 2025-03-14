@@ -21,7 +21,7 @@ namespace API.Interviews.Tests
     public class InterviewRepositoryTests : IDisposable
     {
         private readonly AppDbContext _context;
-        private readonly interviewRepository _repository;
+        private readonly InterviewRepository _repository;
         private readonly Mock<IHubContext<InterviewHub>> _hubContextMock;
         private readonly Mock<IClientProxy> _clientProxyMock;
         private readonly AppUser _testUser;
@@ -47,7 +47,7 @@ namespace API.Interviews.Tests
             _hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
 
             // Create the repository.
-            _repository = new interviewRepository(_context, _hubContextMock.Object);
+            _repository = new InterviewRepository(_context, _hubContextMock.Object);
         }
 
         public void Dispose()

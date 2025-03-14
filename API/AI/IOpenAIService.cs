@@ -2,11 +2,11 @@
 
 public interface IOpenAIService
 {
-    Task<string> TranscribeAudioAPI(String videoPath);
+    Task<string> TranscribeAudioAPI(string filePath, bool videoFile = true);
     
-    Task <string> TranscribeAudio(String videoPath);
+    Task <string> TranscribeAudio(string filePath, bool videoFile = true);
 
-    Task<string> MakeRequest(String question);
+    Task<string> MakeRequest(string question);
     
     
 }

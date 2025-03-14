@@ -1,7 +1,9 @@
 
 using API.Base;
 using API.Extensions;
+using API.InteractiveInterviewFeedback;
 using API.Interviews;
+using API.Messages;
 using API.Questions;
 using API.Responses;
 using API.Users;
@@ -37,6 +39,8 @@ namespace API.Data
 
 
             builder.AddBaseEntity<Response>();
+            builder.AddBaseEntity<Message>();
+            builder.AddBaseEntity<InterviewFeedback>();
             
             
             
@@ -47,7 +51,24 @@ namespace API.Data
                 .WithOne(q => q.Interview)
                 .HasForeignKey(q => q.InterviewId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade)
+                ;
+            builder.Entity<Interview>()
+                .HasMany(i => i.Messages)
+                .WithOne(q => q.Interview)
+                .HasForeignKey(q => q.InterviewId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.Entity<Interview>()
+                .HasOne(i=> i.Feedback)
+                .WithOne(f => f.Interview)
+                .HasForeignKey<InterviewFeedback>(f => f.InterviewId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            
+            
             
 
 

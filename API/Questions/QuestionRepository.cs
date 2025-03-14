@@ -66,7 +66,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
 
     public async Task<bool> VerifyVideoView(string fileName, AppUser user)
     {
-       return await this.responseRepository.verifyVideoView(fileName, user);
+       return await this.responseRepository.VerifyVideoView(fileName, user);
     }
 
     public Question ConvertQuestionToEntity(QuestionDTO questionDTO)
@@ -77,7 +77,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
            
             Body = questionDTO.body,
             
-            Responses = questionDTO.responses.Select(x=> this.responseRepository.dtoToResponse(x)).ToList()
+            Responses = questionDTO.responses.Select(x=> this.responseRepository.DtoToResponse(x)).ToList()
 
         };
     }

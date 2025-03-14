@@ -15,8 +15,8 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
     public async Task<List<ResponseDto>> GetResponses([FromQuery] int questionId)
     {
         var user = await base.GetCurrentUser();
-        var responses = await responseRepository.getResponsesQuestion(questionId,user);
-        return responses.Select(responseRepository.convertToDto).ToList();
+        var responses = await responseRepository.GetResponsesQuestion(questionId,user);
+        return responses.Select(responseRepository.ConvertToDto).ToList();
     }
     
     [HttpPost("rateAnswer")]

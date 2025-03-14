@@ -77,12 +77,12 @@ namespace API.Tests;
 
             // Setup the repository mock to return our dummy list when getResponsesQuestion is called.
             _responseRepositoryMock
-                .Setup(r => r.getResponsesQuestion(questionId, _testUser))
+                .Setup(r => r.GetResponsesQuestion(questionId, _testUser))
                 .ReturnsAsync(responses);
 
             // Setup the conversion function so that each Response is converted to a ResponseDto.
             _responseRepositoryMock
-                .Setup(r => r.convertToDto(It.IsAny<Response>()))
+                .Setup(r => r.ConvertToDto(It.IsAny<Response>()))
                 .Returns<Response>(resp => new ResponseDto 
                 { 
                     id = resp.Id, 

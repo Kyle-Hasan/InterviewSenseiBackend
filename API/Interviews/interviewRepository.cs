@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Interviews;
 
-public class interviewRepository: BaseRepository<Interview>, IinterviewRepository
+public class InterviewRepository: BaseRepository<Interview>, IinterviewRepository
 {
     private readonly IHubContext<InterviewHub> _hubContext;
-    public interviewRepository(AppDbContext _context, IHubContext<InterviewHub> hubContext): base(_context)
+    public InterviewRepository(AppDbContext _context, IHubContext<InterviewHub> hubContext): base(_context)
     {
         _hubContext = hubContext;
     }
@@ -129,4 +129,6 @@ public class interviewRepository: BaseRepository<Interview>, IinterviewRepositor
         resumes = resumes.OrderByDescending(x=> x.date).ToArray();
         return resumes;
     }
+
+   
 }
