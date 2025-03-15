@@ -122,7 +122,8 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
 builder.Services.AddScoped<IPDFService, PDFService>();
 builder.Services.AddScoped<IMessageRepository,MessageRepository>();
-// add singleton to preserve hashmap
+builder.Services.AddScoped<IinterviewFeedbackService, InterviewFeedbackService>();
+
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IdToMessage>();
 builder.Services.AddScoped<IinterviewFeedbackRepository,InterviewFeedbackRepository>();

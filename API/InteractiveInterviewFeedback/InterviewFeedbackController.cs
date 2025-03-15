@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.InteractiveInterviewFeedback;
 
-public class MessageController(
+public class InterviewFeedbackController(
     IinterviewFeedbackService interviewFeedbackService,
     UserManager<AppUser> userManager
 ) : BaseController(userManager)
 {
 
-    [HttpPost("endInterview")]
+    [HttpGet]
+    [Route("endInterview/{interviewId}")]
     
-    public async Task<InterviewFeedback> PostMessage([FromBody] int interviewId)
+    public async Task<InterviewFeedback> EndInterview(int interviewId)
     {
         var user = await base.GetCurrentUser();
 

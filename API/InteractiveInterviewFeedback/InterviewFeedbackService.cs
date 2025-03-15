@@ -28,8 +28,8 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
         string prompt = GetInterviewFeedbackPrompt(messages, interview.AdditionalDescription, context.ResumeText);
         
         string json = await openAiService.MakeRequest(prompt);
-
-        InterviewFeedbackJSON feedbackJson = ParseFeedback(json);
+        string cleanJson = json.Replace("```json", "").Replace("```", "").Trim();
+        InterviewFeedbackJSON feedbackJson = ParseFeedback(cleanJson);
 
         InterviewFeedback feedback = new InterviewFeedback
         {
@@ -79,7 +79,7 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
                 
                     The feedback should be clear, professional, and useful for the candidate’s improvement.
                 
-                    Return the result in JSON format only, with no explanations or extra text.
+                    Return the result in JSON format only, with no explanations or extra text. DO NOT INCLUDE ANY FORMATTING, ONLY JSON OBJECT, no ```json formatting, assume i only need the object.
                 """;
     }
     

@@ -63,7 +63,17 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
         }
 
         string userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
-
+        
+        // fire and forget
+        Task deletionTask = Task.Run(() => File.Delete(audioFilePath));
+        deletionTask.ContinueWith(task =>
+        {
+            // This code runs only if an exception occurs.
+            foreach (var ex in task.Exception.InnerExceptions)
+            {
+                Console.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }, TaskContinuationOptions.OnlyOnFaulted);
         Message userMessage = new Message()
         {
             Content = userTranscript,
@@ -128,12 +138,15 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
             : "This is the first question of the interview. Start with a relevant opening question.";
 
         return $"""
-                    You are conducting a live mock interview.
+                    You are conducting a live mock interview. Imagine you are role playing as the interviewer and make the conversation flow naturally.
                 
+                    Job Description:
                     {jobDescriptionSection}
                 
+                    Candidate Resume:
                     {userResumeSection}
                 
+                    Conversation Context (please consider these current messages in detail, generate next question based on what has already been said for natural flow, prioritize last AI and user interaction the most, if you don't understand what the user is saying, point that out):
                     {messagesSection}
                 
                     Based on the conversation so far, generate the next interview question that:
@@ -142,12 +155,13 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
                     - Progresses naturally from the previous questions.
                     - Varies between behavioral, technical, and situational questions depending on the flow of the interview.
                     - Is clear, professional, and challenging enough to assess the candidate's suitability for the role.
-                    
-                    - Also consider the this additional info(if avaliable) ONLY if its relevant to interviews
+                
+                    Also consider this additional info (if available and relevant to interviews):
                     {additionalDescription}
                 
                     Return only the next interview question without any explanations or formatting.
                 """;
+
     }
     
     
