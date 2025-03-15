@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using System.Text.Json;
 using API.AI;
+using API.InteractiveInterviewFeedback;
 using API.Interviews;
 using API.PDF;
 using API.Responses;
@@ -9,27 +11,19 @@ using API.Users;
 
 namespace API.Messages;
 
-public class MessageService(IOpenAIService openAIService, IMessageRepository messageRepository, IinterviewRepository interviewRepository, IPDFService pdfService): IMessageService
+public class MessageService(IOpenAIService openAIService, IMessageRepository messageRepository, IinterviewRepository interviewRepository, IPDFService pdfService, IdToMessage idToMessage): IMessageService
 {
     
-    private IDictionary<int,CachedMessageAndResume> _idToMessage = new Dictionary<int, CachedMessageAndResume>();
 
 
     private async Task<MessageResponse> GetAIResponse(Interview interview, CachedMessageAndResume context, string userTranscript, AppUser user)
     {
         
-        
-        
-        StringBuilder builder = new StringBuilder();
-
-        foreach (Message message in context.Messages)
-        {
-            builder.AppendLine(message.Content);
-        }
+        string messagesString = idToMessage.ConvertMessagesToString(context.Messages);
         
         string jobDescription = interview.JobDescription;
         
-        string prompt = GetInterviewPrompt(builder.ToString(), jobDescription,context.ResumeText);
+        string prompt = GetInterviewPrompt(messagesString, jobDescription,context.ResumeText,interview.AdditionalDescription);
         
         string aiResponse = await openAIService.MakeRequest(prompt);
 
@@ -44,8 +38,7 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
         messageRepository.CreateMessage(newAIMessage,user);
         context.Messages.Add(newAIMessage);
 
-
-
+        
         MessageResponse response = new MessageResponse
         {
             aiResponse = aiResponse,
@@ -57,6 +50,7 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
 
         return response;
     }
+    
     // add user message to interview, return ai response while making sure this message belongs to this user
     public async Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId)
     {
@@ -77,13 +71,12 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
             InterviewId = interviewId,
             FromAI = false
         };
-        // get the cached context for this conversation if it exists, if not make a new one
-        bool messagesExist = _idToMessage.TryGetValue(interview.Id, out CachedMessageAndResume context);
+        // get the cached context for this conversation if it exists, if not make on
+        bool messagesExist = idToMessage.map.TryGetValue(interview.Id, out CachedMessageAndResume context);
         if (!messagesExist)
         {
-            string resumeUrl = interview.ResumeLink;
-            string resumeText=  await pdfService.GetPdfTranscriptAsync(resumeUrl);
-            context = new CachedMessageAndResume(new List<Message>(),resumeText);
+            context = await InitalizeCachedMessageAndResume(interview);
+            idToMessage.map.Add(interview.Id, context);
         }
         
         context.Messages.Add(userMessage);
@@ -101,14 +94,26 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
         {
             throw new UnauthorizedAccessException();
         }
-        string resumeUrl = interview.ResumeLink;
-        string resumeText=  await pdfService.GetPdfTranscriptAsync(resumeUrl);
-        var context = new CachedMessageAndResume(new List<Message>(),resumeText);
+        var context = await InitalizeCachedMessageAndResume(interview);
+        idToMessage.map.Add(interview.Id, context);
         var response =  await GetAIResponse(interview, context, "", user);
         return response.aiResponse;
     }
+
+    private async Task<CachedMessageAndResume> InitalizeCachedMessageAndResume(Interview interview)
+    {
+        string resumeUrl = interview.ResumeLink;
+        var fileTuple = await pdfService.DownloadPdf(resumeUrl);
+        string resumeText=  await pdfService.GetPdfTranscriptAsync(fileTuple.FilePath);
+        var context = new CachedMessageAndResume(new List<Message>(),resumeText);
+        return context;
+    }
+
     
-    private string GetInterviewPrompt(string messages, string? jobDescription, string? userResume)
+
+    
+
+    private string GetInterviewPrompt(string messages, string? jobDescription, string? userResume, string additionalDescription)
     {
         string jobDescriptionSection = !string.IsNullOrWhiteSpace(jobDescription)
             ? $"**Job Description:**\n{jobDescription}"
@@ -137,10 +142,15 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
                     - Progresses naturally from the previous questions.
                     - Varies between behavioral, technical, and situational questions depending on the flow of the interview.
                     - Is clear, professional, and challenging enough to assess the candidate's suitability for the role.
+                    
+                    - Also consider the this additional info(if avaliable) ONLY if its relevant to interviews
+                    {additionalDescription}
                 
                     Return only the next interview question without any explanations or formatting.
                 """;
     }
+    
+    
 
    
 }

@@ -1,4 +1,5 @@
 ﻿using API.Base;
+using API.InteractiveInterviewFeedback;
 using API.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,18 +32,19 @@ public class MessageController(
 
         var messageResponse = await messageService.ProcessUserMessage(user, filePath, message.interviewId);
         
-        // dont need this, so delete it
-        System.IO.File.Delete(filePath);
+        
         
         return messageResponse;
     }
 
-    [HttpPost]
-    [Route("initalizeInterview")]
-    public async Task<ActionResult<string>> InitalizeInterview([FromBody] int interviewId)
+    [HttpGet]
+    [Route("initalizeInterview/{interviewId}")]
+    public async Task<ActionResult<string>> InitalizeInterview(int interviewId)
     {
         var user = await base.GetCurrentUser();
         var response = await messageService.GetInitialInterviewMessage(user, interviewId);
         return response;
     }
+
+    
 }

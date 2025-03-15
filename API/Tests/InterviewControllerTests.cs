@@ -18,7 +18,8 @@ using API.Responses;
 using API.Users;                 
 using API.AWS;                   
 using API.Base;                  
-using API.Extensions;            
+using API.Extensions;
+using API.PDF;
 
 namespace API.Interviews.Tests
 {
@@ -31,6 +32,7 @@ namespace API.Interviews.Tests
         private readonly Mock<IinterviewService> _interviewServiceMock;
         private readonly Mock<IBlobStorageService> _blobStorageServiceMock;
         private readonly Mock<UserManager<AppUser>> _userManagerMock;
+        private readonly Mock<IPDFService> _pdfServiceMock;
         private readonly InterviewController _controller;
         private readonly AppUser _testUser;
 
@@ -42,6 +44,7 @@ namespace API.Interviews.Tests
             // Create mocks.
             _interviewServiceMock = new Mock<IinterviewService>();
             _blobStorageServiceMock = new Mock<IBlobStorageService>();
+            _pdfServiceMock = new Mock<IPDFService>();
 
             var store = new Mock<IUserStore<AppUser>>();
             _userManagerMock = new Mock<UserManager<AppUser>>(store.Object, null, null, null, null, null, null, null, null);
@@ -52,7 +55,8 @@ namespace API.Interviews.Tests
             _controller = new InterviewController(
                 _interviewServiceMock.Object,
                 _userManagerMock.Object,
-                _blobStorageServiceMock.Object);
+                _blobStorageServiceMock.Object,
+                _pdfServiceMock.Object);
 
             // Set a fake HttpContext.
             var httpContext = new DefaultHttpContext();

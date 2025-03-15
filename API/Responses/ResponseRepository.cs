@@ -37,7 +37,7 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
 
     public async Task<Response> getResponseById(int id)
     {
-        return await base.getById(id);
+        return await base.GetById(id);
     }
 
     public async Task<bool> VerifyVideoView(string filename, AppUser user)

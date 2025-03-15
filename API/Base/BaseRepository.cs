@@ -54,7 +54,7 @@ public abstract class BaseRepository<T> where T : BaseEntity
         return results;
     }
 
-    public async Task<T> getById(int id)
+    public async Task<T> GetById(int id)
     {
         return await _entities.FindAsync(id);
     }

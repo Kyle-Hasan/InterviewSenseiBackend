@@ -1,5 +1,6 @@
 ﻿
 
+using API.InteractiveInterviewFeedback;
 using API.Users;
 
 namespace API.Messages;
@@ -10,4 +11,6 @@ public interface IMessageService
     Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId);
 
     Task<string> GetInitialInterviewMessage(AppUser user, int interviewId);
+    
+ 
 }

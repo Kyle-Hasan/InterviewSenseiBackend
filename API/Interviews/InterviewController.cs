@@ -7,13 +7,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using API.PDF;
+
 namespace API.Interviews;
 
 [Authorize]
 public class InterviewController(
     IinterviewService interviewService,
     UserManager<AppUser> userManager,
-    IBlobStorageService blobStorageService) : BaseController(userManager)
+    IBlobStorageService blobStorageService,
+    IPDFService pdfService) : BaseController(userManager)
 {
     [HttpPost("generateQuestions")]
     public async Task<ActionResult<GenerateQuestionsResponse>> GetQuestions(
@@ -35,11 +38,11 @@ public class InterviewController(
     public async Task<ActionResult<InterviewDTO>> GenerateInterview(
         [FromForm] GenerateInterviewRequest generateInterviewRequest)
     {
-        if (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0)
+        if (!generateInterviewRequest.isLive && (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0))
         {
             return BadRequest();
         }
-        else if (generateInterviewRequest.secondsPerAnswer < 10 || generateInterviewRequest.numberOfBehavioral > 300)
+        else if (!generateInterviewRequest.isLive && (generateInterviewRequest.secondsPerAnswer < 10 || generateInterviewRequest.numberOfBehavioral > 300))
         {
             return BadRequest();
         }
@@ -50,33 +53,18 @@ public class InterviewController(
         // existing resume url, should be on our server so to get its name just strip the server part
         if (generateInterviewRequest.resumeUrl != null)
         {
-            if (!AppConfig.UseCloudStorage)
-            {
-                fileName = generateInterviewRequest.resumeUrl.GetStringAfterPattern("/api/Interview/getPdf/");
-                
-            }
-            else
-            {
-                fileName = generateInterviewRequest.resumeUrl.GetStringAfterPattern("/resumes/");
-                fileName = fileName.GetStringBeforePattern("?");
-            }
-            filePath = Path.Combine("Uploads", fileName);
             
-            // download onto local file system if cloud storage is being used
-            if (AppConfig.UseCloudStorage)
-            {
-                await blobStorageService.DownloadFileAsync(fileName, filePath, "resumes");
-            }
+            var fileTuple = await pdfService.DownloadPdf(generateInterviewRequest.resumeUrl);
+            filePath = fileTuple.FilePath;
+            fileName = fileTuple.FileName;
         }
+        // new resume uploaded directly(only when no signed urls)
         else if (generateInterviewRequest.resume != null && generateInterviewRequest.resume.ContentType == "application/pdf")
         {
-            fileName = Guid.NewGuid().ToString() + "_" + generateInterviewRequest.resume.FileName;
-            filePath = Path.Combine("Uploads",
-                fileName);
-            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
-            {
-                await generateInterviewRequest.resume.CopyToAsync(stream);
-            }
+            var fileTuple = await pdfService.CreateNewPDF(generateInterviewRequest.resume);
+            fileName = fileTuple.FileName;
+            filePath = fileTuple.FilePath;
+            
         }
         
 

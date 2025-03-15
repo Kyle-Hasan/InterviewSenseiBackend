@@ -1,10 +1,12 @@
 ﻿using System.Text;
+using API.AWS;
+using API.Extensions;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 
 namespace API.PDF;
 
-public class PDFService: IPDFService
+public class PDFService(IBlobStorageService blobStorageService): IPDFService 
 {
     public async Task<string> GetPdfTranscriptAsync(string pdfPath)
     {
@@ -27,4 +29,45 @@ public class PDFService: IPDFService
             return result.ToString();
         }
     }
+    
+    
+  
+    public async Task<(string FileName, string FilePath)> DownloadPdf(string pdfUrl)
+    {
+        string fileName = "";
+        string filePath = "";
+
+        if (!AppConfig.UseCloudStorage)
+        {
+            fileName = pdfUrl.GetStringAfterPattern("/api/Interview/getPdf/");
+        }
+        else
+        {
+            fileName = pdfUrl.GetStringAfterPattern("/resumes/");
+            fileName = fileName.GetStringBeforePattern("?");
+        }
+
+        filePath = Path.Combine("Uploads", fileName);
+
+        // download onto local file system if cloud storage is being used
+        if (AppConfig.UseCloudStorage)
+        {
+            await blobStorageService.DownloadFileAsync(fileName, filePath, "resumes");
+        }
+
+        return (fileName, filePath);
+    }
+
+    public async Task<(string FileName, string FilePath)> CreateNewPDF(IFormFile file)
+    {
+        string fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+        string filePath = Path.Combine("Uploads",
+            fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
+        {
+            await file.CopyToAsync(stream);
+        }
+        return (fileName, filePath);
+    }
+
 }

@@ -22,7 +22,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
 
     public async Task<Question> GetQuestionById(int id,AppUser user)
     {
-        var question =  await base.getById(id);
+        var question =  await base.GetById(id);
         if (question.CreatedById != user.Id)
         {
             throw new UnauthorizedAccessException();

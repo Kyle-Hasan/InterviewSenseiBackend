@@ -6,6 +6,7 @@ using API.AI;
 using API.Auth;
 using API.AWS;
 using API.Data;
+using API.InteractiveInterviewFeedback;
 using API.Interviews;
 using API.Messages;
 using API.PDF;
@@ -121,7 +122,10 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
 builder.Services.AddScoped<IPDFService, PDFService>();
 builder.Services.AddScoped<IMessageRepository,MessageRepository>();
+// add singleton to preserve hashmap
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddSingleton<IdToMessage>();
+builder.Services.AddScoped<IinterviewFeedbackRepository,InterviewFeedbackRepository>();
 
 builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 
