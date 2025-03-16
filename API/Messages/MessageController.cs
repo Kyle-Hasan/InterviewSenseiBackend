@@ -39,7 +39,7 @@ public class MessageController(
 
     [HttpGet]
     [Route("initalizeInterview/{interviewId}")]
-    public async Task<ActionResult<string>> InitalizeInterview(int interviewId)
+    public async Task<ActionResult<MessageDto>> InitalizeInterview(int interviewId)
     {
         var user = await base.GetCurrentUser();
         var response = await messageService.GetInitialInterviewMessage(user, interviewId);

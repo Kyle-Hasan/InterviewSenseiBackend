@@ -97,7 +97,7 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
 
     }
 
-    public async Task<string> GetInitialInterviewMessage(AppUser user, int interviewId)
+    public async Task<MessageDto> GetInitialInterviewMessage(AppUser user, int interviewId)
     {
         Interview interview = await interviewRepository.GetInterview(user,interviewId);
         if (interview == null)
@@ -105,9 +105,18 @@ public class MessageService(IOpenAIService openAIService, IMessageRepository mes
             throw new UnauthorizedAccessException();
         }
         var context = await InitalizeCachedMessageAndResume(interview);
-        idToMessage.map.Add(interview.Id, context);
+        if (!idToMessage.map.ContainsKey(interview.Id))
+        {
+            idToMessage.map.Add(interview.Id, context);
+        }
+
         var response =  await GetAIResponse(interview, context, "", user);
-        return response.aiResponse;
+        return new MessageDto()
+        {
+            content = response.aiResponse,
+            interviewId = interview.Id,
+            fromAI = true
+        };
     }
 
     private async Task<CachedMessageAndResume> InitalizeCachedMessageAndResume(Interview interview)

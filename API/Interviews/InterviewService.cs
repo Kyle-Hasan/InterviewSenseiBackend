@@ -213,7 +213,7 @@ public class InterviewService(
 
         interview.SecondsPerAnswer = secondsPerAnswer;
         interview.AdditionalDescription = additionalDescription;
-        interview.IsInteractive = isLive;
+        interview.IsLive = isLive;
 
         var i = await createInterview(interview, user);
 
@@ -287,6 +287,7 @@ public class InterviewService(
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
         interviewDTO.additionalDescription =
             interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
+        interviewDTO.isLive = interview.IsLive;
 
         interviewDTO.secondsPerAnswer = interview.SecondsPerAnswer;
         return interviewDTO;
