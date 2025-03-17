@@ -53,6 +53,11 @@ var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ?
                        Environment.GetEnvironmentVariable("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 2000000000; // 2,000,000,000 bytes (~2GB)
+});
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 
@@ -112,7 +117,7 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddScoped<IJwtTokenService,JwtTokenService>();
-builder.Services.AddScoped<IOpenAIService, GeminiService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 builder.Services.AddScoped<IinterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
@@ -128,7 +133,7 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IdToMessage>();
 builder.Services.AddScoped<IinterviewFeedbackRepository,InterviewFeedbackRepository>();
 
-builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
+//builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 
 
 builder.Services.AddAuthorization();

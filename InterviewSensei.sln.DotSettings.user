@@ -40,14 +40,5 @@
   &lt;Assembly Path="C:\Users\kyleh\.nuget\packages\ffmpegcore\5.1.0\lib\netstandard2.0\FFMpegCore.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d5a6bc93_002D13f4_002D4d00_002D8c12_002D8ac3033d386e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="InterviewTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::59C52429-26AE-4050-BB27-3E6DBFEE16CB::net9.0::API.Tests.InterviewTests&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::59C52429-26AE-4050-BB27-3E6DBFEE16CB::net9.0::API.Tests.InterviewServiceTests.GenerateQuestions_WithResume_Returns_Correct_Questions&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::59C52429-26AE-4050-BB27-3E6DBFEE16CB::net9.0::JwtServiceTests.JwtTokenServiceTests.ValidateRefreshToken_Returns_MinusOne_For_AccessToken&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::59C52429-26AE-4050-BB27-3E6DBFEE16CB::net9.0::API.Questions.Tests.ResponseControllerTests.GetRating_WithVideo_ReturnsExpectedResponseDto&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::59C52429-26AE-4050-BB27-3E6DBFEE16CB::net9.0::API.Interviews.Tests.InterviewControllerTests.GetPdf_ReturnsFileResult_WhenNotUsingSignedUrl&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-    &lt;ProjectFile&gt;59C52429-26AE-4050-BB27-3E6DBFEE16CB/d:Tests/f:JwtServiceTests.cs&lt;/ProjectFile&gt;&#xD;
-  &lt;/Or&gt;&#xD;
+  &lt;ProjectFolder&gt;59C52429-26AE-4050-BB27-3E6DBFEE16CB/d:Tests&lt;/ProjectFolder&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -14,18 +14,19 @@ public class MessageController(
 
     [HttpPost]
     [Route("addMessage")]
+    [RequestSizeLimit(2000000000)]
     public async Task<ActionResult<MessageResponse>> AddMessage([FromForm] CreateUserMessageDto message)
     {
         var user = await base.GetCurrentUser();
         if (message.audio == null || message.audio.Length == 0)
         {
-            return BadRequest("no video provided");
+            return BadRequest("no audio provided");
         }
         // give audio new random name to be saved into system
         string audioName = Guid.NewGuid().ToString() + "_" + message.audio.FileName;
         var filePath=  Path.Combine("Uploads", audioName);
 
-        using (var stream = new FileStream(filePath, FileMode.Create,FileAccess.ReadWrite))
+        await using (var stream = new FileStream(filePath, FileMode.Create,FileAccess.ReadWrite))
         {
             await message.audio.CopyToAsync(stream);
         }

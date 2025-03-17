@@ -5,7 +5,7 @@ namespace API.Messages;
 
 public class IdToMessage
 {
-    public IDictionary<int,CachedMessageAndResume> map = new ConcurrentDictionary<int, CachedMessageAndResume>();
+    public ConcurrentDictionary<int,CachedMessageAndResume> map = new ConcurrentDictionary<int, CachedMessageAndResume>();
     
     public string ConvertMessagesToString(List<Message> messages)
     {

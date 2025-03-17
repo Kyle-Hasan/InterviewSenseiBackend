@@ -42,7 +42,7 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
 
         await interviewRepository.Save(interview,user);
         
-        idToMessage.map.Remove(interview.Id);
+       idToMessage.map.TryRemove(interview.Id, out _);
         
         return feedback;
 
