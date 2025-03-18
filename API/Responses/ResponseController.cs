@@ -14,8 +14,8 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
     [HttpGet("byQuestion")]
     public async Task<List<ResponseDto>> GetResponses([FromQuery] int questionId)
     {
-        var user = await base.GetCurrentUser();
-        var responses = await responseRepository.GetResponsesQuestion(questionId,user);
+       
+        var responses = await responseRepository.GetResponsesQuestion(questionId,CurrentUser);
         return responses.Select(responseRepository.ConvertToDto).ToList();
     }
     
@@ -23,7 +23,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
     [RequestSizeLimit(100_000_000)]
     public async Task<ActionResult<ResponseDto>> GetRating([FromForm]RatingRequestDTO ratingRequest)
     {
-        var user = await base.GetCurrentUser();
+        
         if (ratingRequest.video == null || ratingRequest.video.Length == 0)
         {
             return BadRequest("no video provided");
@@ -39,7 +39,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
         
         string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
-        var retVal = await responseService.RateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,user);
+        var retVal = await responseService.RateAnswer(int.Parse(ratingRequest.questionId), filePath,videoName,serverUrl,CurrentUser);
         return retVal;
 
 

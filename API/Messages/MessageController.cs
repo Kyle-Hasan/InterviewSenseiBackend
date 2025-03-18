@@ -17,7 +17,7 @@ public class MessageController(
     [RequestSizeLimit(2000000000)]
     public async Task<ActionResult<MessageResponse>> AddMessage([FromForm] CreateUserMessageDto message)
     {
-        var user = await base.GetCurrentUser();
+        
         if (message.audio == null || message.audio.Length == 0)
         {
             return BadRequest("no audio provided");
@@ -31,7 +31,7 @@ public class MessageController(
             await message.audio.CopyToAsync(stream);
         }
 
-        var messageResponse = await messageService.ProcessUserMessage(user, filePath, message.interviewId);
+        var messageResponse = await messageService.ProcessUserMessage(CurrentUser, filePath, message.interviewId);
         
         
         
@@ -42,8 +42,8 @@ public class MessageController(
     [Route("initalizeInterview/{interviewId}")]
     public async Task<ActionResult<MessageDto>> InitalizeInterview(int interviewId)
     {
-        var user = await base.GetCurrentUser();
-        var response = await messageService.GetInitialInterviewMessage(user, interviewId);
+       
+        var response = await messageService.GetInitialInterviewMessage(CurrentUser, interviewId);
         return response;
     }
 

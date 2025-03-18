@@ -121,14 +121,10 @@ public class MessageService : IMessageService
         
         var aiResponse = await GetAIResponse(interview, context, "", user);
         var response = await SaveMessages(user,interview,null, aiResponse,context);
-        return new MessageDto()
-        {
-            content = aiResponse.Content,
-            interviewId = interview.Id,
-            fromAI = true,
-            id = aiResponse.Id
-        };
+        return IMessageService.ConvertToMessageDto(aiResponse);
     }
+
+  
 
     public async Task<List<Message>> GetMessagesInterview(int interviewId, AppUser user)
     {
@@ -163,6 +159,9 @@ public class MessageService : IMessageService
         return $"""
                 You are conducting a live mock interview. Imagine you are role playing as the interviewer and make the conversation flow naturally.
                 You are not just asking a list of questions, this is a conversation so please take the conversation context very seriously.
+                As an interviewer, you are strict and never give the candidate the benefit of the doubt.
+                You try to ask questions to assess their fit with the role and try your hardest to expose any issues with the candidate's answers by
+                asking difficult/thorough follow up questions.
                 The idea of this role play is getting more experience with follow up questions, so focus on that as well while also incorporating other questions.
                 Make your replies to user messages flow naturally.
             

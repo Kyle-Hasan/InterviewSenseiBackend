@@ -10,6 +10,7 @@ using System.Linq;
 using API.Extensions;
 using System.Collections.Generic;
 using System.Text;
+using API.InteractiveInterviewFeedback;
 using API.Messages;
 using API.PDF;
 
@@ -403,5 +404,24 @@ public class InterviewService(
             await FormatResume(resume);
         }
         return resumes;
+    }
+
+    public async Task<FeedbackAndTranscript> GetFeedbackAndMessages(AppUser user, int interviewId)
+    {
+        var feedbackAndMessages = await interviewRepository.GetFeedbackAndMessages(user, interviewId);
+        FeedbackAndTranscript feedbackAndTranscript = new FeedbackAndTranscript();
+        InterviewFeedbackDTO interviewFeedbackDTO = new InterviewFeedbackDTO()
+        {
+            negativeFeedback = feedbackAndMessages.feedback.NegativeFeedback,
+            positiveFeedback = feedbackAndMessages.feedback.PostiveFeedback,
+            id = feedbackAndMessages.feedback.Id,
+        };
+
+        List<MessageDto> messageDtos = feedbackAndMessages.messages.Select(x => IMessageService.ConvertToMessageDto(x)).ToList();
+
+        feedbackAndTranscript.feedback = interviewFeedbackDTO;
+        feedbackAndTranscript.messages = messageDtos;
+        
+        return feedbackAndTranscript;
     }
 }

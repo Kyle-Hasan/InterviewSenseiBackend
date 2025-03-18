@@ -13,6 +13,19 @@ public interface IMessageService
     Task<MessageDto> GetInitialInterviewMessage(AppUser user, int interviewId);
     
     Task<List<Message>> GetMessagesInterview(int interviewId, AppUser user);
+
+    static MessageDto ConvertToMessageDto(Message message)
+    {
+       
+            return new MessageDto()
+            {
+                content = message.Content,
+                interviewId = message.Id,
+                fromAI = message.FromAI,
+                id = message.Id
+            };
+        
+    }
     
  
 }

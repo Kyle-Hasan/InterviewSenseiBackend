@@ -1,4 +1,6 @@
-﻿using API.Users;
+﻿using API.InteractiveInterviewFeedback;
+using API.Messages;
+using API.Users;
 
 namespace API.Interviews;
 
@@ -19,8 +21,10 @@ public interface IinterviewRepository
    Task<string> GetLatestResume(AppUser user);
    // only fills out url and date created, let the function calling handle logic for figuring out the display name
    Task<ResumeUrlAndName[]> GetAllResumes(AppUser user);
-   
- 
+
+   Task<(InterviewFeedback feedback, List<Message> messages)>GetFeedbackAndMessages(AppUser user, int id);
+
+
 
 
 

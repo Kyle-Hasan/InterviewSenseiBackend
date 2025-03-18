@@ -40,6 +40,8 @@ public interface IinterviewService
 // fills out the display name witout the guid we added
     Task<ResumeUrlAndName[]> GetAllResumes(AppUser user);
     
+    Task<FeedbackAndTranscript> GetFeedbackAndMessages(AppUser user, int interviewId);
+    
     
     
 

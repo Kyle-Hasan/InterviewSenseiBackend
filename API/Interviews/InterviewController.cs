@@ -73,9 +73,9 @@ public class InterviewController(
         }
 
 
-        var user = await base.GetCurrentUser();
+      
 
-        var i = await interviewService.GenerateInterview(user, generateInterviewRequest.name,
+        var i = await interviewService.GenerateInterview(CurrentUser, generateInterviewRequest.name,
             generateInterviewRequest.jobDescription,
             generateInterviewRequest.numberOfBehavioral, generateInterviewRequest.numberOfTechnical,
             generateInterviewRequest.secondsPerAnswer, filePath, generateInterviewRequest.additionalDescription,
@@ -88,35 +88,34 @@ public class InterviewController(
     [HttpDelete("{id}")]
     public async Task Delete(int id)
     {
-        var user = await base.GetCurrentUser();
-        var interview = await interviewService.GetInterview(id, user);
+        
+        var interview = await interviewService.GetInterview(id, CurrentUser);
 
-        await interviewService.DeleteInterview(interview, user);
+        await interviewService.DeleteInterview(interview, CurrentUser);
     }
 
     [HttpPut("")]
     public async Task<InterviewDTO> Update([FromBody] InterviewDTO interviewDTO)
     {
         var interview = interviewService.DtoToInterview(interviewDTO);
-        var user = await base.GetCurrentUser();
-        var updated = await interviewService.UpdateInterview(interview, user);
+       
+        var updated = await interviewService.UpdateInterview(interview, CurrentUser);
         return interviewService.InterviewToDTO(updated);
     }
 
     [HttpGet("{id}")]
     public async Task<InterviewDTO> GetInterview(int id)
     {
-        var user = await base.GetCurrentUser();
-        return await interviewService.GetInterviewDto(id, user);
+        
+        return await interviewService.GetInterviewDto(id, CurrentUser);
     }
 
     [HttpGet("interviewList")]
     public async Task<List<InterviewDTO>> GetInterviewList(
         [FromQuery] InterviewSearchParams interviewSearchParamsParams)
     {
-        var user = await base.GetCurrentUser();
         PagedInterviewResponse pagedInterviewResponse =
-            await interviewService.GetInterviews(user, interviewSearchParamsParams);
+            await interviewService.GetInterviews(CurrentUser, interviewSearchParamsParams);
         Response.AddPaginationHeader(pagedInterviewResponse.total, interviewSearchParamsParams.startIndex,
             interviewSearchParamsParams.pageSize);
         return pagedInterviewResponse.interviews.Select(x => interviewService.InterviewToDTO(x)).ToList();
@@ -126,9 +125,9 @@ public class InterviewController(
     [HttpGet("getVideo/{fileName}")]
     public async Task<IActionResult> GetVideo(string fileName)
     {
-        var user = await base.GetCurrentUser();
+        
         var videoPath = Path.Combine("Uploads", fileName);
-        bool canView = await interviewService.VerifyVideoView(fileName, user);
+        bool canView = await interviewService.VerifyVideoView(fileName, CurrentUser);
         if (!canView)
         {
             return Unauthorized();
@@ -151,9 +150,9 @@ public class InterviewController(
     [HttpGet("getPdf/{fileName}")]
     public async Task<IActionResult> GetResume(string fileName)
     {
-        var user = await base.GetCurrentUser();
+      
         // security check
-        bool canView = await interviewService.VerifyPdfView(fileName, user);
+        bool canView = await interviewService.VerifyPdfView(fileName, CurrentUser);
         if (!canView)
         {
             return Unauthorized();
@@ -181,15 +180,15 @@ public class InterviewController(
     [HttpGet("getLatestResume")]
     public async Task<ResumeUrlAndName> GetLatestResume()
     {
-        var user = await base.GetCurrentUser();
-        return await interviewService.GetLatestResume(user);
+        
+        return await interviewService.GetLatestResume(CurrentUser);
     }
 
     [HttpGet("getAllResumes")]
     public async Task<ResumeUrlAndName[]> GetAllResumes()
     {
-        var user = await base.GetCurrentUser();
-        var resumes = await interviewService.GetAllResumes(user);
+       
+        var resumes = await interviewService.GetAllResumes(CurrentUser);
         return resumes;
     }
 
@@ -198,17 +197,18 @@ public class InterviewController(
 
     public async Task<InterviewFeedbackDTO> EndInterview([FromForm] InterviewEndRequest request)
     {
-        var user = await base.GetCurrentUser();
-        
         string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
 
         if (request.video == null)
         {
             throw new BadHttpRequestException("No video provided");
         }
-
-
-        return await interviewFeedbackService.EndInterview(user, request.interviewId,request.video,serverUrl);
+        return await interviewFeedbackService.EndInterview(CurrentUser, request.interviewId,request.video,serverUrl);
     }
 
+    [HttpGet("getFeedbackAndMessages")]
+    public async Task<FeedbackAndTranscript> GetFeedbackAndMessages([FromQuery] int interviewId)
+    {
+        return await interviewService.GetFeedbackAndMessages(CurrentUser,interviewId);
+    }
 }

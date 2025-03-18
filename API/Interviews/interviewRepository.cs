@@ -1,5 +1,7 @@
 ﻿using API.Base;
 using API.Data;
+using API.InteractiveInterviewFeedback;
+using API.Messages;
 using API.Users;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -130,5 +132,19 @@ public class InterviewRepository: BaseRepository<Interview>, IinterviewRepositor
         return resumes;
     }
 
-   
+    public async Task<(InterviewFeedback feedback, List<Message> messages)> GetFeedbackAndMessages(AppUser user, int id)
+    {
+        var interview = await _entities
+            .Where(x => x.Id == id && x.CreatedById == user.Id)
+            .Include(x => x.Feedback)
+            .Include(x => x.Messages)
+            .FirstOrDefaultAsync();
+
+        if (interview == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        return (feedback: interview.Feedback, messages: interview.Messages);
+    }
 }

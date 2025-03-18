@@ -18,8 +18,8 @@ public class InterviewFeedbackController(
     [Route("feedbackByInterviewId/{interviewId}")]
     public async Task<InterviewFeedbackDTO> FeedbackByInterviewId(int interviewId)
     {
-        var user = await base.GetCurrentUser();
-        var feedback = await interviewFeedbackService.GetInterviewFeedback(user, interviewId);
+       
+        var feedback = await interviewFeedbackService.GetInterviewFeedback(CurrentUser, interviewId);
         return feedback;
     }
     
