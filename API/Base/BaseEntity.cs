@@ -11,7 +11,7 @@ public abstract class BaseEntity
     [Required]
     public DateTime ModifiedDate { get; set; }
     [Required]
-    public AppUser CreatedBy { get; set; }
+    public virtual AppUser CreatedBy { get; set; }
     [Required]
     public int CreatedById { get; set; }
     

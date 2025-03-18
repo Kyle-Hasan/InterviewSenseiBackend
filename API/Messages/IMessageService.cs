@@ -12,5 +12,7 @@ public interface IMessageService
 
     Task<MessageDto> GetInitialInterviewMessage(AppUser user, int interviewId);
     
+    Task<List<Message>> GetMessagesInterview(int interviewId, AppUser user);
+    
  
 }

@@ -9,7 +9,7 @@ using API.Users;
 namespace API.InteractiveInterviewFeedback;
 
 public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewRepository interviewRepository, IinterviewFeedbackRepository feedbackRepository,IOpenAIService openAiService, 
-    IBlobStorageService blobStorageService, IFileService fileService): IinterviewFeedbackService
+    IBlobStorageService blobStorageService, IFileService fileService, IMessageService messageService): IinterviewFeedbackService
 {
     public async Task<InterviewFeedbackDTO> EndInterview(AppUser user, int interviewId, IFormFile videoFile, string serverUrl)
     {
@@ -64,12 +64,18 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
     private async Task<InterviewFeedback> CreateFeedback(AppUser user, Interview interview)
     {
         idToMessage.map.TryGetValue(interview.Id, out CachedMessageAndResume context);
+        List<Message> messagesList = new List<Message>();
         if (context == null)
         {
-            throw new BadHttpRequestException("interview not found");
+            // get messages through db instead
+            messagesList = await messageService.GetMessagesInterview(interview.Id,user);
+        }
+        else
+        {
+            messagesList.AddRange(context.Messages);
         }
         
-        string messages = idToMessage.ConvertMessagesToString(context.Messages);
+        string messages = idToMessage.ConvertMessagesToString(messagesList);
         
         string prompt = GetInterviewFeedbackPrompt(messages, interview.JobDescription);
         

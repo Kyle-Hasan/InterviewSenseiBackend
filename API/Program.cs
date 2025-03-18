@@ -52,7 +52,10 @@ builder.Configuration
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ??
                        Environment.GetEnvironmentVariable("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options
+        .UseLazyLoadingProxies()
+        .UseNpgsql(connectionString)
+);
 
 builder.WebHost.ConfigureKestrel(options =>
 {

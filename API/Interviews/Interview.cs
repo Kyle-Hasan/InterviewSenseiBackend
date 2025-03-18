@@ -8,7 +8,7 @@ namespace API.Interviews;
 public class Interview:BaseEntity
 {
     public string Name { get; set; }
-    public virtual List<Question> Questions { get; set; }
+    public virtual List<Question> Questions { get; set; } = new List<Question>();
     
     public string ResumeLink { get; set; }
     
@@ -20,7 +20,7 @@ public class Interview:BaseEntity
     
     public bool IsLive { get; set; } = false;
     
-    public virtual List<Message> Messages { get; set; }
+    public virtual List<Message> Messages { get; set; } = new List<Message>();
     
     public virtual InterviewFeedback Feedback { get; set; }
     

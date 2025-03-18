@@ -32,7 +32,7 @@ public class MessageService : IMessageService
         this.idToMessage = idToMessage;
     }
 
-    private async Task<MessageResponse> GetAIResponse(Interview interview, CachedMessageAndResume context, string userTranscript, AppUser user)
+    private async Task<Message> GetAIResponse(Interview interview, CachedMessageAndResume context, string userTranscript, AppUser user)
     {
         // Convert cached messages to a string
         string messagesString = idToMessage.ConvertMessagesToString(context.Messages);
@@ -50,16 +50,29 @@ public class MessageService : IMessageService
             FromAI = true
         };
 
-        // Save the new AI message and add it to the cache
-        await messageRepository.CreateMessage(newAIMessage, user);
-        context.Messages.Add(newAIMessage);
+        return newAIMessage;
+    }
 
-        return new MessageResponse
+    private async Task<MessageResponse> SaveMessages(AppUser user, Interview interview, Message? userMessage, Message? aiMessage, CachedMessageAndResume context)
+    {
+        MessageResponse response = new MessageResponse();
+        response.interviewId = interview.Id;
+        if (userMessage != null)
         {
-            aiResponse = aiResponse,
-            interviewId = interview.Id,
-            userMessage = userTranscript
-        };
+            
+            interview.Messages.Add(userMessage);
+            context.Messages.Add(userMessage);
+            response.userMessage = userMessage.Content;
+        }
+
+        if (aiMessage != null)
+        {
+            interview.Messages.Add(aiMessage);
+            context.Messages.Add(aiMessage);
+            response.aiResponse = aiMessage.Content;
+        }
+        await interviewRepository.Save(interview,user);
+        return response;
     }
 
     public async Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId)
@@ -90,7 +103,8 @@ public class MessageService : IMessageService
             _ => InitalizeCachedMessageAndResume(interview).Result);
 
         context.Messages.Add(userMessage);
-        var response = await GetAIResponse(interview, context, userTranscript, user);
+        var aiResponse = await GetAIResponse(interview, context, userTranscript, user);
+        var response = await SaveMessages(user,interview,userMessage,aiResponse,context);
         return response;
     }
 
@@ -105,13 +119,20 @@ public class MessageService : IMessageService
         CachedMessageAndResume context = await InitalizeCachedMessageAndResume(interview);
         idToMessage.map.AddOrUpdate(interview.Id, context, (key, old) => context);
         
-        var response = await GetAIResponse(interview, context, "", user);
+        var aiResponse = await GetAIResponse(interview, context, "", user);
+        var response = await SaveMessages(user,interview,null, aiResponse,context);
         return new MessageDto()
         {
-            content = response.aiResponse,
+            content = aiResponse.Content,
             interviewId = interview.Id,
-            fromAI = true
+            fromAI = true,
+            id = aiResponse.Id
         };
+    }
+
+    public async Task<List<Message>> GetMessagesInterview(int interviewId, AppUser user)
+    {
+       return await messageRepository.GetMessagesInterview(interviewId, user);
     }
 
     private async Task<CachedMessageAndResume> InitalizeCachedMessageAndResume(Interview interview)
@@ -120,7 +141,9 @@ public class MessageService : IMessageService
         string resumeUrl = interview.ResumeLink;
         var fileTuple = await _fileService.DownloadPdf(resumeUrl);
         string resumeText = await _fileService.GetPdfTranscriptAsync(fileTuple.FilePath);
-        return new CachedMessageAndResume(new List<Message>(), resumeText);
+        // if you are restarting an existing interview, put its messages back
+        List<Message> existingMessages = interview.Messages;
+        return new CachedMessageAndResume(existingMessages, resumeText);
     }
 
     private string GetInterviewPrompt(string messages, string? jobDescription, string? userResume, string additionalDescription)

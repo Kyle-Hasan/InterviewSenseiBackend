@@ -6,7 +6,7 @@ namespace API.Messages;
 public class Message: BaseEntity
 {
     
-    public Interview Interview { get; set; }
+    public virtual Interview Interview { get; set; }
     public int InterviewId { get; set; }
     
     public string Content { get; set; }
