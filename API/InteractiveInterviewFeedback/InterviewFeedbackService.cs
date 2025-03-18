@@ -1,22 +1,68 @@
 ﻿using System.Text.Json;
 using API.AI;
+using API.AWS;
 using API.Interviews;
 using API.Messages;
+using API.PDF;
 using API.Users;
 
 namespace API.InteractiveInterviewFeedback;
 
-public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewRepository interviewRepository,IOpenAIService openAiService): IinterviewFeedbackService
+public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewRepository interviewRepository, IinterviewFeedbackRepository feedbackRepository,IOpenAIService openAiService, 
+    IBlobStorageService blobStorageService, IFileService fileService): IinterviewFeedbackService
 {
-    public async Task<InterviewFeedback> EndInterview(AppUser user, int interviewId)
+    public async Task<InterviewFeedbackDTO> EndInterview(AppUser user, int interviewId, IFormFile videoFile, string serverUrl)
     {
         Interview interview = await interviewRepository.GetInterview(user,interviewId);
         if (interview == null)
         {
             throw new UnauthorizedAccessException();
         }
+        // save video and create feedback in parallel
+        Task<InterviewFeedback> feedbackJob = CreateFeedback(user,interview);
+        Task<string> saveVideoFile = SaveVideoFile(videoFile);
+        
 
         
+        await Task.WhenAll(feedbackJob, saveVideoFile);
+
+        var feedback = await feedbackJob;
+        var videoName = await saveVideoFile;
+        
+        interview.Feedback = feedback;
+        interview.VideoLink = serverUrl + "/" + videoName;
+
+        await interviewRepository.Save(interview,user);
+        
+       idToMessage.map.TryRemove(interview.Id, out _);
+        
+        return new InterviewFeedbackDTO()
+        {
+            positiveFeedback = feedback.PostiveFeedback,
+            negativeFeedback = feedback.NegativeFeedback,
+            id = feedback.Id
+        };
+
+
+
+    }
+
+    private async Task<string> SaveVideoFile(IFormFile file)
+    {
+        string cloudKey = "";
+        var fileInfo = await fileService.CreateNewFile(file);
+        if (AppConfig.UseCloudStorage)
+        {
+            cloudKey = await blobStorageService.UploadFileAsync(fileInfo.FilePath, fileInfo.FileName, "videos");
+            File.Delete(fileInfo.FilePath);
+        }
+
+        return fileInfo.FileName;
+
+    }
+
+    private async Task<InterviewFeedback> CreateFeedback(AppUser user, Interview interview)
+    {
         idToMessage.map.TryGetValue(interview.Id, out CachedMessageAndResume context);
         if (context == null)
         {
@@ -25,7 +71,7 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
         
         string messages = idToMessage.ConvertMessagesToString(context.Messages);
         
-        string prompt = GetInterviewFeedbackPrompt(messages, interview.AdditionalDescription, context.ResumeText);
+        string prompt = GetInterviewFeedbackPrompt(messages, interview.JobDescription);
         
         string json = await openAiService.MakeRequest(prompt);
         string cleanJson = json.Replace("```json", "").Replace("```", "").Trim();
@@ -34,31 +80,32 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
         InterviewFeedback feedback = new InterviewFeedback
         {
             InterviewId = interview.Id,
-            NegativeFeedback = string.Join("\n", feedbackJson.NegativeFeedback),
-            PostiveFeedback = string.Join("\n", feedbackJson.PositiveFeedback)
+            NegativeFeedback = string.Join("\n", feedbackJson.negativeFeedback),
+            PostiveFeedback = string.Join("\n", feedbackJson.positiveFeedback)
         };
-        
-        interview.Feedback = feedback;
-
-        await interviewRepository.Save(interview,user);
-        
-       idToMessage.map.TryRemove(interview.Id, out _);
-        
         return feedback;
+    }
 
-
-
+    public async Task<InterviewFeedbackDTO> GetInterviewFeedback(AppUser user, int interviewId)
+    {
+        var feedback = await feedbackRepository.GetInterviewFeedbackByInterviewId(interviewId, user);
+        return new InterviewFeedbackDTO()
+        {
+            positiveFeedback = feedback.PostiveFeedback,
+            negativeFeedback = feedback.NegativeFeedback,
+            id = feedback.Id
+        };
     }
     
-    private string GetInterviewFeedbackPrompt(string messages, string? jobDescription, string? userResume)
+
+
+    private string GetInterviewFeedbackPrompt(string messages, string? jobDescription)
     {
         string jobDescriptionSection = !string.IsNullOrWhiteSpace(jobDescription)
             ? $"**Job Description:**\n{jobDescription}"
             : "The job description is not available. Please generate general interview feedback suitable for a software engineering role.";
 
-        string userResumeSection = !string.IsNullOrWhiteSpace(userResume)
-            ? $"**Candidate's Resume:**\n{userResume}"
-            : "The candidate's resume is not available. Focus on general software engineering skills.";
+        
 
         string messagesSection = messages != null && messages.Length > 0
             ? $"Interview transcript:\n{messages}"
@@ -69,7 +116,7 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
                 
                     {jobDescriptionSection}
                 
-                    {userResumeSection}
+                    
                 
                     {messagesSection}
                 
@@ -77,7 +124,8 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
                     - `positiveFeedback`: A list of positive aspects of the candidate's performance.
                     - `negativeFeedback`: A list of areas where the candidate can improve.
                 
-                    The feedback should be clear, professional, and useful for the candidate’s improvement.
+                    The feedback should be clear, professional, and useful for the candidate’s improvement. Focus on how well they fit the role,
+                    be harsh and unforgiving. You want to give the candidate no benefit of the doubt to simulate feedback for the harshest possible interviewer.
                 
                     Return the result in JSON format only, with no explanations or extra text. DO NOT INCLUDE ANY FORMATTING, ONLY JSON OBJECT, no ```json formatting, assume i only need the object.
                 """;

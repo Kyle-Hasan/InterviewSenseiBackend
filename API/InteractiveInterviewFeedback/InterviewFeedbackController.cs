@@ -12,14 +12,15 @@ public class InterviewFeedbackController(
 ) : BaseController(userManager)
 {
 
-    [HttpGet]
-    [Route("endInterview/{interviewId}")]
     
-    public async Task<InterviewFeedback> EndInterview(int interviewId)
+
+    [HttpGet]
+    [Route("feedbackByInterviewId/{interviewId}")]
+    public async Task<InterviewFeedbackDTO> FeedbackByInterviewId(int interviewId)
     {
         var user = await base.GetCurrentUser();
-
-        return await interviewFeedbackService.EndInterview(user,interviewId);
+        var feedback = await interviewFeedbackService.GetInterviewFeedback(user, interviewId);
+        return feedback;
     }
     
 }

@@ -29,7 +29,7 @@ using API.Users;
         private readonly Mock<IQuestionRepository> _questionRepositoryMock;
         private readonly Mock<IQuestionService> _questionServiceMock;
         private readonly Mock<IBlobStorageService> _blobStorageServiceMock;
-        private readonly Mock<IPDFService> _pdfServiceMock;
+        private readonly Mock<IFileService> _pdfServiceMock;
         private readonly Mock<IMessageService> _messageServiceMock;
         private readonly InterviewService _service;
         private readonly AppUser _testUser;
@@ -43,7 +43,7 @@ using API.Users;
             _questionServiceMock = new Mock<IQuestionService>();
             _blobStorageServiceMock = new Mock<IBlobStorageService>();
             _messageServiceMock = new Mock<IMessageService>();
-            _pdfServiceMock = new Mock<IPDFService>();
+            _pdfServiceMock = new Mock<IFileService>();
 
             // Create an instance of InterviewService using the mocked dependencies.
             _service = new InterviewService(

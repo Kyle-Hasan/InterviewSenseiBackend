@@ -125,7 +125,7 @@ builder.Services.AddScoped<IResponseRepository,ResponseRepository>();
 builder.Services.AddScoped<IResponseService,ResponseService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IBlobStorageService, S3Service>();
-builder.Services.AddScoped<IPDFService, PDFService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IMessageRepository,MessageRepository>();
 builder.Services.AddScoped<IinterviewFeedbackService, InterviewFeedbackService>();
 

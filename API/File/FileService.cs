@@ -6,7 +6,7 @@ using iText.Kernel.Pdf.Canvas.Parser;
 
 namespace API.PDF;
 
-public class PDFService(IBlobStorageService blobStorageService): IPDFService 
+public class FileService(IBlobStorageService blobStorageService): IFileService 
 {
     public async Task<string> GetPdfTranscriptAsync(string pdfPath)
     {
@@ -58,7 +58,7 @@ public class PDFService(IBlobStorageService blobStorageService): IPDFService
         return (fileName, filePath);
     }
 
-    public async Task<(string FileName, string FilePath)> CreateNewPDF(IFormFile file)
+    public async Task<(string FileName, string FilePath)> CreateNewFile(IFormFile file)
     {
         string fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
         string filePath = Path.Combine("Uploads",

@@ -1,6 +1,7 @@
 ﻿using API.Base;
 using API.Data;
 using API.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.InteractiveInterviewFeedback;
 
@@ -29,5 +30,10 @@ public class InterviewFeedbackRepository: BaseRepository<InterviewFeedback>, Iin
         }
         return base.Save(feedback, user);
         
+    }
+
+    public Task<InterviewFeedback> GetInterviewFeedbackByInterviewId(int interviewId, AppUser user)
+    {
+        return base._entities.Where(feedback => feedback.InterviewId == interviewId && feedback.CreatedById == user.Id).FirstOrDefaultAsync();
     }
 }

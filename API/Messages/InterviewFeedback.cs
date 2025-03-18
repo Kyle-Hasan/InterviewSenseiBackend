@@ -2,6 +2,6 @@
 
 public class InterviewFeedbackJSON
 {
-    public List<string> PositiveFeedback { get; set; } = new();
-    public List<string> NegativeFeedback { get; set; } = new();
+    public List<string> positiveFeedback { get; set; } = new();
+    public List<string> negativeFeedback { get; set; } = new();
 }

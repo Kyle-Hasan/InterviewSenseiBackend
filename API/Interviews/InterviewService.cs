@@ -21,35 +21,14 @@ public class InterviewService(
     IQuestionRepository questionRepository,
     IQuestionService questionService,
     IBlobStorageService blobStorageService,
-    IPDFService pdfService,
+    IFileService fileService,
     IMessageService messageService) : IinterviewService
 {
-    
 
-
-    public async Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription, int numberOfBehavioral,
-        int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName)
+    private string GetQuestionPrompt(string jobDescription, string resume, int numberOfBehavioral,
+        int numberOfTechnical, string additionalDescription)
     {
-        string resume = "";
-
-
-        if (!string.IsNullOrEmpty(resumePdfPath))
-        {
-            resume = await pdfService.GetPdfTranscriptAsync(resumePdfPath);
-        }
-
-        /* upload resume in the background to blob storage,delete old resume because we are done with it
-         after reading it to avoid an error where 2 processes are using the same file
-
-        */
-        Task<string> cloudKey = null;
-        if (AppConfig.UseCloudStorage && !String.IsNullOrEmpty(resumeName) && !String.IsNullOrEmpty(resumePdfPath))
-        {
-            cloudKey = blobStorageService.UploadFileDeleteAsync(resumePdfPath, resumeName, "resumes");
-        }
-
-        // put everything in prompt for chat gpt request(info about format in prompt)
-        string prompt = $@"
+        return $@"
         You are an AI specialized in creating highly relevant interview questions.
 
         Job Description:
@@ -113,6 +92,31 @@ public class InterviewService(
    - Responses should use plain text formatting for clarity.
         ";
 
+    }
+
+    public async Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription, int numberOfBehavioral,
+        int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName)
+    {
+        string resume = "";
+
+
+        if (!string.IsNullOrEmpty(resumePdfPath))
+        {
+            resume = await fileService.GetPdfTranscriptAsync(resumePdfPath);
+        }
+
+        /* upload resume in the background to blob storage,delete old resume because we are done with it
+         after reading it to avoid an error where 2 processes are using the same file
+
+        */
+        Task<string> cloudKey = null;
+        if (AppConfig.UseCloudStorage && !String.IsNullOrEmpty(resumeName) && !String.IsNullOrEmpty(resumePdfPath))
+        {
+            cloudKey = blobStorageService.UploadFileDeleteAsync(resumePdfPath, resumeName, "resumes");
+        }
+
+        // put everything in prompt for chat gpt request(info about format in prompt)
+        string prompt = GetQuestionPrompt(jobDescription,resume,numberOfBehavioral,numberOfTechnical,additionalDescription);
 
         if (!string.IsNullOrEmpty(additionalDescription))
         {

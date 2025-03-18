@@ -4,5 +4,6 @@ namespace API.InteractiveInterviewFeedback;
 
 public interface IinterviewFeedbackService
 {
-    Task<InterviewFeedback> EndInterview(AppUser user, int interviewId);
+    Task<InterviewFeedbackDTO> EndInterview(AppUser user, int interviewId, IFormFile videoFile, string serverUrl);
+    Task<InterviewFeedbackDTO> GetInterviewFeedback(AppUser user, int interviewId);
 }

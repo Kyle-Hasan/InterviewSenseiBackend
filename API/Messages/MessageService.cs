@@ -15,20 +15,20 @@ public class MessageService : IMessageService
     private readonly IOpenAIService openAIService;
     private readonly IMessageRepository messageRepository;
     private readonly IinterviewRepository interviewRepository;
-    private readonly IPDFService pdfService;
+    private readonly IFileService _fileService;
     private readonly IdToMessage idToMessage;
 
     public MessageService(
         IOpenAIService openAIService, 
         IMessageRepository messageRepository, 
         IinterviewRepository interviewRepository, 
-        IPDFService pdfService, 
+        IFileService fileService, 
         IdToMessage idToMessage)
     {
         this.openAIService = openAIService;
         this.messageRepository = messageRepository;
         this.interviewRepository = interviewRepository;
-        this.pdfService = pdfService;
+        this._fileService = fileService;
         this.idToMessage = idToMessage;
     }
 
@@ -74,16 +74,7 @@ public class MessageService : IMessageService
         // Transcribe the uploaded audio file.
         string userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
         // Delete the file immediately after transcription.
-        Task deletionTask =  Task.Run(()=> File.Delete(audioFilePath));
-        // fire and forget
-        deletionTask.ContinueWith((task) =>
-        {
-            foreach (var ex in task.Exception.InnerExceptions)
-            {
-                Console.WriteLine(ex);
-            }
-            
-        });
+        File.Delete(audioFilePath);
         
 
         Message userMessage = new Message()
@@ -127,8 +118,8 @@ public class MessageService : IMessageService
     {
         // Download and transcribe the candidate's resume.
         string resumeUrl = interview.ResumeLink;
-        var fileTuple = await pdfService.DownloadPdf(resumeUrl);
-        string resumeText = await pdfService.GetPdfTranscriptAsync(fileTuple.FilePath);
+        var fileTuple = await _fileService.DownloadPdf(resumeUrl);
+        string resumeText = await _fileService.GetPdfTranscriptAsync(fileTuple.FilePath);
         return new CachedMessageAndResume(new List<Message>(), resumeText);
     }
 

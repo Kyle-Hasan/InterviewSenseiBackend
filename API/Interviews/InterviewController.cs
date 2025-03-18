@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using API.InteractiveInterviewFeedback;
 using API.PDF;
 
 namespace API.Interviews;
@@ -16,7 +17,8 @@ public class InterviewController(
     IinterviewService interviewService,
     UserManager<AppUser> userManager,
     IBlobStorageService blobStorageService,
-    IPDFService pdfService) : BaseController(userManager)
+    IinterviewFeedbackService interviewFeedbackService,
+    IFileService fileService) : BaseController(userManager)
 {
     [HttpPost("generateQuestions")]
     public async Task<ActionResult<GenerateQuestionsResponse>> GetQuestions(
@@ -38,11 +40,13 @@ public class InterviewController(
     public async Task<ActionResult<InterviewDTO>> GenerateInterview(
         [FromForm] GenerateInterviewRequest generateInterviewRequest)
     {
-        if (!generateInterviewRequest.isLive && (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0))
+        if (!generateInterviewRequest.isLive &&
+            (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0))
         {
             return BadRequest();
         }
-        else if (!generateInterviewRequest.isLive && (generateInterviewRequest.secondsPerAnswer < 10 || generateInterviewRequest.numberOfBehavioral > 300))
+        else if (!generateInterviewRequest.isLive && (generateInterviewRequest.secondsPerAnswer < 10 ||
+                                                      generateInterviewRequest.numberOfBehavioral > 300))
         {
             return BadRequest();
         }
@@ -53,20 +57,21 @@ public class InterviewController(
         // existing resume url, should be on our server so to get its name just strip the server part
         if (generateInterviewRequest.resumeUrl != null)
         {
-            
-            var fileTuple = await pdfService.DownloadPdf(generateInterviewRequest.resumeUrl);
+
+            var fileTuple = await fileService.DownloadPdf(generateInterviewRequest.resumeUrl);
             filePath = fileTuple.FilePath;
             fileName = fileTuple.FileName;
         }
         // new resume uploaded directly(only when no signed urls)
-        else if (generateInterviewRequest.resume != null && generateInterviewRequest.resume.ContentType == "application/pdf")
+        else if (generateInterviewRequest.resume != null &&
+                 generateInterviewRequest.resume.ContentType == "application/pdf")
         {
-            var fileTuple = await pdfService.CreateNewPDF(generateInterviewRequest.resume);
+            var fileTuple = await fileService.CreateNewFile(generateInterviewRequest.resume);
             fileName = fileTuple.FileName;
             filePath = fileTuple.FilePath;
-            
+
         }
-        
+
 
         var user = await base.GetCurrentUser();
 
@@ -74,8 +79,8 @@ public class InterviewController(
             generateInterviewRequest.jobDescription,
             generateInterviewRequest.numberOfBehavioral, generateInterviewRequest.numberOfTechnical,
             generateInterviewRequest.secondsPerAnswer, filePath, generateInterviewRequest.additionalDescription,
-            fileName, serverUrl,generateInterviewRequest.isLive);
-       
+            fileName, serverUrl, generateInterviewRequest.isLive);
+
         return interviewService.InterviewToDTO(i);
     }
 
@@ -187,4 +192,23 @@ public class InterviewController(
         var resumes = await interviewService.GetAllResumes(user);
         return resumes;
     }
+
+    [HttpPost]
+    [Route("endInterview")]
+
+    public async Task<InterviewFeedbackDTO> EndInterview([FromForm] InterviewEndRequest request)
+    {
+        var user = await base.GetCurrentUser();
+        
+        string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getVideo";
+
+        if (request.video == null)
+        {
+            throw new BadHttpRequestException("No video provided");
+        }
+
+
+        return await interviewFeedbackService.EndInterview(user, request.interviewId,request.video,serverUrl);
+    }
+
 }

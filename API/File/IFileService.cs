@@ -1,6 +1,6 @@
 ﻿namespace API.PDF;
 
-public interface IPDFService
+public interface IFileService
 {
     Task<string> GetPdfTranscriptAsync(string pdfPath);
 
@@ -12,6 +12,6 @@ public interface IPDFService
     Task<(string FileName, string FilePath)> DownloadPdf(string pdfUrl);
 
     // upload new pdf
-    Task<(string FileName, string FilePath)> CreateNewPDF(IFormFile file);
+    Task<(string FileName, string FilePath)> CreateNewFile(IFormFile file);
 
 }
