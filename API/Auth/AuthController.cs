@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace API.Auth
 {
-    
+    [IgnoreUserFetchFilter]
     public class AuthController(IJwtTokenService jwtTokenService,UserManager<AppUser> userManager) : BaseController(userManager)
 
     {
