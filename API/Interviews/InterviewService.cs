@@ -258,7 +258,16 @@ public class InterviewService(
 
     public async Task<bool> VerifyVideoView(string fileName, AppUser user)
     {
-        return await questionRepository.VerifyVideoView(fileName, user);
+        // cant do multithreading nicely due to dbcontext not being thread-safe, do it sequentially for simplicity
+        var onQuestion =  await questionRepository.VerifyVideoView(fileName, user);
+        if (onQuestion)
+        {
+            return true;
+        }
+        var onVideoTask  = await interviewRepository.VerifyVideoView(user,fileName);
+        return onVideoTask;
+        
+        
     }
 
     public async Task<bool> VerifyPdfView(string fileName, AppUser user)
@@ -408,19 +417,24 @@ public class InterviewService(
 
     public async Task<FeedbackAndTranscript> GetFeedbackAndMessages(AppUser user, int interviewId)
     {
-        var feedbackAndMessages = await interviewRepository.GetFeedbackAndMessages(user, interviewId);
+         var feedbackAndMessages = await interviewRepository.GetFeedbackAndMessages(user, interviewId);
         FeedbackAndTranscript feedbackAndTranscript = new FeedbackAndTranscript();
-        InterviewFeedbackDTO interviewFeedbackDTO = new InterviewFeedbackDTO()
+        InterviewFeedbackDTO interviewFeedbackDTO = null;
+        if (feedbackAndMessages.feedback != null)
         {
-            negativeFeedback = feedbackAndMessages.feedback.NegativeFeedback,
-            positiveFeedback = feedbackAndMessages.feedback.PostiveFeedback,
-            id = feedbackAndMessages.feedback.Id,
-        };
+            interviewFeedbackDTO = new InterviewFeedbackDTO()
+            {
+                negativeFeedback = feedbackAndMessages.feedback.NegativeFeedback,
+                positiveFeedback = feedbackAndMessages.feedback.PostiveFeedback,
+                id = feedbackAndMessages.feedback.Id
+            };
+        }
 
         List<MessageDto> messageDtos = feedbackAndMessages.messages.Select(x => IMessageService.ConvertToMessageDto(x)).ToList();
 
         feedbackAndTranscript.feedback = interviewFeedbackDTO;
         feedbackAndTranscript.messages = messageDtos;
+        feedbackAndTranscript.videoLink = feedbackAndMessages.videoLink;
         
         return feedbackAndTranscript;
     }

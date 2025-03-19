@@ -9,4 +9,6 @@ public interface IinterviewFeedbackRepository
     
     Task<InterviewFeedback> GetInterviewFeedbackByInterviewId(int interviewId, AppUser user);
     
+    Task Delete(InterviewFeedback feedback, AppUser user);
+    
 }

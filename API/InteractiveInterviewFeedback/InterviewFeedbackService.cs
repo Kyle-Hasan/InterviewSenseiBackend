@@ -29,6 +29,12 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
         var feedback = await feedbackJob;
         var videoName = await saveVideoFile;
         
+        // delete existing feedback if it's there
+        if (interview.Feedback != null)
+        {
+            await feedbackRepository.Delete(interview.Feedback,user);
+        }
+        
         interview.Feedback = feedback;
         interview.VideoLink = serverUrl + "/" + videoName;
 
@@ -46,11 +52,13 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
 
 
     }
-
+    // should return the file name
     private async Task<string> SaveVideoFile(IFormFile file)
     {
+        
         string cloudKey = "";
         var fileInfo = await fileService.CreateNewFile(file);
+        
         if (AppConfig.UseCloudStorage)
         {
             cloudKey = await blobStorageService.UploadFileAsync(fileInfo.FilePath, fileInfo.FileName, "videos");

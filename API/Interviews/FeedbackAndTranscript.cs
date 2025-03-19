@@ -5,6 +5,8 @@ namespace API.Interviews;
 
 public class FeedbackAndTranscript
 {
-    public InterviewFeedbackDTO feedback { get; set; }
+    public InterviewFeedbackDTO? feedback { get; set; }
     public List<MessageDto> messages { get; set; } = new List<MessageDto>();
+    
+    public string? videoLink { get; set; }
 }

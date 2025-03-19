@@ -22,9 +22,9 @@ public interface IinterviewRepository
    // only fills out url and date created, let the function calling handle logic for figuring out the display name
    Task<ResumeUrlAndName[]> GetAllResumes(AppUser user);
 
-   Task<(InterviewFeedback feedback, List<Message> messages)>GetFeedbackAndMessages(AppUser user, int id);
+   Task<(InterviewFeedback? feedback, List<Message>? messages, string videoLink)>GetFeedbackAndMessages(AppUser user, int id);
 
-
+   Task<bool> VerifyVideoView(AppUser user, string videoLink);
 
 
 

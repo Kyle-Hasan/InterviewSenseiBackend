@@ -36,4 +36,9 @@ public class InterviewFeedbackRepository: BaseRepository<InterviewFeedback>, Iin
     {
         return base._entities.Where(feedback => feedback.InterviewId == interviewId && feedback.CreatedById == user.Id).FirstOrDefaultAsync();
     }
+
+    public override async Task Delete(InterviewFeedback feedback, AppUser user)
+    {
+       await base.Delete(feedback, user);
+    }
 }

@@ -132,7 +132,7 @@ public class InterviewRepository: BaseRepository<Interview>, IinterviewRepositor
         return resumes;
     }
 
-    public async Task<(InterviewFeedback feedback, List<Message> messages)> GetFeedbackAndMessages(AppUser user, int id)
+    public async Task<(InterviewFeedback feedback, List<Message> messages, string videoLink)> GetFeedbackAndMessages(AppUser user, int id)
     {
         var interview = await _entities
             .Where(x => x.Id == id && x.CreatedById == user.Id)
@@ -145,6 +145,11 @@ public class InterviewRepository: BaseRepository<Interview>, IinterviewRepositor
             throw new UnauthorizedAccessException();
         }
 
-        return (feedback: interview.Feedback, messages: interview.Messages);
+        return (feedback: interview.Feedback, messages: interview.Messages, interview.VideoLink);
+    }
+
+    public async Task<bool> VerifyVideoView(AppUser user, string videoLink)
+    {
+        return await _entities.AnyAsync(x => x.CreatedById == user.Id && x.VideoLink != null && x.VideoLink.Contains(videoLink));
     }
 }

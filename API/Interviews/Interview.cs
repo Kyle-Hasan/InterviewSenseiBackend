@@ -22,7 +22,7 @@ public class Interview:BaseEntity
     
     public virtual List<Message> Messages { get; set; } = new List<Message>();
     
-    public virtual InterviewFeedback Feedback { get; set; }
+    public virtual InterviewFeedback? Feedback { get; set; }
     
     public string? VideoLink { get; set; }
 }
