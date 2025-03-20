@@ -174,6 +174,7 @@ public class MessageService : IMessageService
                 asking difficult/thorough follow up questions.
                 The idea of this role play is getting more experience with follow up questions, so focus on that as well while also incorporating other questions.
                 Make your replies to user messages flow naturally.
+                Max 3 follow up questions before trying to move onto a new topic entirely.
             
                 Job Description:
                 {jobDescriptionSection}

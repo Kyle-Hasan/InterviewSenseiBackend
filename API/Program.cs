@@ -122,7 +122,7 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddScoped<IJwtTokenService,JwtTokenService>();
-builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<IOpenAIService, GeminiService>();
 builder.Services.AddScoped<IinterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IinterviewService,InterviewService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
@@ -140,7 +140,7 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IdToMessage>();
 builder.Services.AddScoped<IinterviewFeedbackRepository,InterviewFeedbackRepository>();
 
-//builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
+builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 
 
 builder.Services.AddAuthorization();
