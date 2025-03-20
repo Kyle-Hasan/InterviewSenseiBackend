@@ -66,7 +66,7 @@ public class InterviewController(
         else if (generateInterviewRequest.resume != null &&
                  generateInterviewRequest.resume.ContentType == "application/pdf")
         {
-            var fileTuple = await fileService.CreateNewFile(generateInterviewRequest.resume);
+            var fileTuple = await IFileService.CreateNewFile(generateInterviewRequest.resume);
             fileName = fileTuple.FileName;
             filePath = fileTuple.FilePath;
 

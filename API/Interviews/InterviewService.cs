@@ -103,7 +103,7 @@ public class InterviewService(
 
         if (!string.IsNullOrEmpty(resumePdfPath))
         {
-            resume = await fileService.GetPdfTranscriptAsync(resumePdfPath);
+            resume = await IFileService.GetPdfTranscriptAsync(resumePdfPath);
         }
 
         /* upload resume in the background to blob storage,delete old resume because we are done with it
@@ -299,8 +299,8 @@ public class InterviewService(
         interviewDTO.resumeLink = interview.ResumeLink;
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
-        interviewDTO.additionalDescription =
-            interview.AdditionalDescription == null ? "" : interview.AdditionalDescription;
+        interviewDTO.additionalDescription = 
+            interview.AdditionalDescription ?? "";
         interviewDTO.isLive = interview.IsLive;
 
         interviewDTO.secondsPerAnswer = interview.SecondsPerAnswer;

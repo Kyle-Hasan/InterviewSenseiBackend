@@ -1,5 +1,6 @@
 ﻿using API.Base;
 using API.InteractiveInterviewFeedback;
+using API.PDF;
 using API.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,22 +19,20 @@ public class MessageController(
     public async Task<ActionResult<MessageResponse>> AddMessage([FromForm] CreateUserMessageDto message)
     {
         
-        if (message.audio == null || message.audio.Length == 0)
+        if ((message.audio == null || message.audio.Length == 0) && string.IsNullOrEmpty(message.textMessage) )
         {
-            return BadRequest("no audio provided");
-        }
-        // give audio new random name to be saved into system
-        string audioName = Guid.NewGuid().ToString() + "_" + message.audio.FileName;
-        var filePath=  Path.Combine("Uploads", audioName);
-
-        await using (var stream = new FileStream(filePath, FileMode.Create,FileAccess.ReadWrite))
-        {
-            await message.audio.CopyToAsync(stream);
+            return BadRequest("no user message provided");
         }
 
-        var messageResponse = await messageService.ProcessUserMessage(CurrentUser, filePath, message.interviewId);
-        
-        
+        string? filePath = null;
+
+        if (message.audio != null && message.audio.Length > 0)
+        {
+            var fileResult = await IFileService.CreateNewFile(message.audio);
+            filePath = fileResult.FilePath;
+        }
+
+        var messageResponse = await messageService.ProcessUserMessage(CurrentUser, filePath, message.interviewId, message.textMessage);
         
         return messageResponse;
     }

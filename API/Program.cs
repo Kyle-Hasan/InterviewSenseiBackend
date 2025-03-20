@@ -10,6 +10,7 @@ using API.Data;
 using API.InteractiveInterviewFeedback;
 using API.Interviews;
 using API.Messages;
+using API.MiddleWare;
 using API.PDF;
 using API.Questions;
 using API.Responses;

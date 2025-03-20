@@ -13,7 +13,7 @@ public class FileService(IBlobStorageService blobStorageService): IFileService
         return await Task.FromResult(GetPdfText(pdfPath));
     }
 
-    public string GetPdfText(string pdfPath)
+    public static string GetPdfText(string pdfPath)
     {
         using (PdfReader reader = new PdfReader(pdfPath))
         using (PdfDocument pdfDoc = new PdfDocument(reader))
@@ -58,16 +58,6 @@ public class FileService(IBlobStorageService blobStorageService): IFileService
         return (fileName, filePath);
     }
 
-    public async Task<(string FileName, string FilePath)> CreateNewFile(IFormFile file)
-    {
-        string fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-        string filePath = Path.Combine("Uploads",
-            fileName);
-        using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
-        {
-            await file.CopyToAsync(stream);
-        }
-        return (fileName, filePath);
-    }
+    
 
 }

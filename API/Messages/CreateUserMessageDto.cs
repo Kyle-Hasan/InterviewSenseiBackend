@@ -2,9 +2,11 @@
 
 public class CreateUserMessageDto
 {
-    public IFormFile audio  { get; set; }
+    public IFormFile? audio  { get; set; }
     
     public int interviewId { get; set; }
+    
+    public string? textMessage { get; set; }
     
     
     

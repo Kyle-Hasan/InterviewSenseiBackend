@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using API.Base;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace API.Base;
+namespace API.MiddleWare;
 
 public class CurrentUserFilter : IAsyncActionFilter
 {

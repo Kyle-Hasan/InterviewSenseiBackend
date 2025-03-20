@@ -75,7 +75,7 @@ public class MessageService : IMessageService
         return response;
     }
 
-    public async Task<MessageResponse> ProcessUserMessage(AppUser user, string audioFilePath, int interviewId)
+    public async Task<MessageResponse> ProcessUserMessage(AppUser user, string? audioFilePath, int interviewId, string? textMessage)
     {
         // Validate that the interview belongs to this user.
         Interview interview = await interviewRepository.GetInterview(user, interviewId);
@@ -83,13 +83,20 @@ public class MessageService : IMessageService
         {
             throw new UnauthorizedAccessException();
         }
-
+        List<Task> tasks = new List<Task>();
         // Transcribe the uploaded audio file.
-        string userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
-        // Delete the file immediately after transcription.
-        File.Delete(audioFilePath);
-        
-
+        string userTranscript = "";
+        if (!string.IsNullOrEmpty(audioFilePath))
+        {
+            userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
+            // Delete the file after transcription.
+            Task deleteAudio = IFileService.DeleteFileAsync(audioFilePath);
+            tasks.Add(deleteAudio);
+        }
+        else if (!string.IsNullOrEmpty(textMessage))
+        {
+            userTranscript = textMessage;
+        }
         Message userMessage = new Message()
         {
             Content = userTranscript,
@@ -104,7 +111,10 @@ public class MessageService : IMessageService
 
         context.Messages.Add(userMessage);
         var aiResponse = await GetAIResponse(interview, context, userTranscript, user);
-        var response = await SaveMessages(user,interview,userMessage,aiResponse,context);
+        var responseTask = SaveMessages(user,interview,userMessage,aiResponse,context);
+        tasks.Add(responseTask);
+        Task.WaitAll(tasks.ToArray());
+        var response = await responseTask;
         return response;
     }
 
@@ -136,7 +146,7 @@ public class MessageService : IMessageService
         // Download and transcribe the candidate's resume.
         string resumeUrl = interview.ResumeLink;
         var fileTuple = await _fileService.DownloadPdf(resumeUrl);
-        string resumeText = await _fileService.GetPdfTranscriptAsync(fileTuple.FilePath);
+        string resumeText = await IFileService.GetPdfTranscriptAsync(fileTuple.FilePath);
         // if you are restarting an existing interview, put its messages back
         List<Message> existingMessages = interview.Messages;
         return new CachedMessageAndResume(existingMessages, resumeText);

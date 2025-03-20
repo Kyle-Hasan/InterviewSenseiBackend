@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using API.AI;
 using API.AWS;
+using API.Extensions;
 using API.Interviews;
 using API.Messages;
 using API.PDF;
@@ -21,19 +22,34 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
         // save video and create feedback in parallel
         Task<InterviewFeedback> feedbackJob = CreateFeedback(user,interview);
         Task<string> saveVideoFile = SaveVideoFile(videoFile);
-        
 
-        
-        await Task.WhenAll(feedbackJob, saveVideoFile);
+    
+        List<Task> tasks = new List<Task>
+        {
+            feedbackJob,
+            saveVideoFile
+        };
 
-        var feedback = await feedbackJob;
-        var videoName = await saveVideoFile;
+        if (!string.IsNullOrEmpty(interview.VideoLink))
+        {
+            string fileName = interview.VideoLink.GetStringAfterPattern("getVideo/");
+            tasks.Add(IFileService.DeleteFileAsync(fileName));
+        }
+
+        await Task.WhenAll(tasks);
         
-        // delete existing feedback if it's there
+        
+        
+        // delete existing feedback if it's there(can't async due to db context not being thread safe and also decided that overhead of creating multiple db contexts per request wasnt worth it)
         if (interview.Feedback != null)
         {
             await feedbackRepository.Delete(interview.Feedback,user);
         }
+
+        var feedback = await feedbackJob;
+        var videoName = await saveVideoFile;
+        
+        
         
         interview.Feedback = feedback;
         interview.VideoLink = serverUrl + "/" + videoName;
@@ -57,12 +73,14 @@ public class InterviewFeedbackService(IdToMessage idToMessage, IinterviewReposit
     {
         
         string cloudKey = "";
-        var fileInfo = await fileService.CreateNewFile(file);
+        var fileInfo = await IFileService.CreateNewFile(file);
         
         if (AppConfig.UseCloudStorage)
         {
-            cloudKey = await blobStorageService.UploadFileAsync(fileInfo.FilePath, fileInfo.FileName, "videos");
+            await blobStorageService.UploadFileAsync(fileInfo.FilePath, fileInfo.FileName, "videos");
+            // it's on the cloud now, so delete from local
             File.Delete(fileInfo.FilePath);
+           
         }
 
         return fileInfo.FileName;
