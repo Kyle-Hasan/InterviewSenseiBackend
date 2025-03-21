@@ -23,16 +23,9 @@ public class MessageController(
         {
             return BadRequest("no user message provided");
         }
+        
 
-        string? filePath = null;
-
-        if (message.audio != null && message.audio.Length > 0)
-        {
-            var fileResult = await IFileService.CreateNewFile(message.audio);
-            filePath = fileResult.FilePath;
-        }
-
-        var messageResponse = await messageService.ProcessUserMessage(CurrentUser, filePath, message.interviewId, message.textMessage);
+        var messageResponse = await messageService.ProcessUserMessage(CurrentUser, message);
         
         return messageResponse;
     }

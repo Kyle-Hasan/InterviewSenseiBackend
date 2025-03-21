@@ -10,4 +10,9 @@ public interface IQuestionService
     Task<List<QuestionPageDto>> GetQuestionsByInterviewId(int interviewId, AppUser user);
 
     List<QuestionPageDto> ConvertToDtos(List<Question> questions, Interview interview);
+    
+    
+    Task<Question> CreateLiveCodingQuestion(string additionalDescription, AppUser user);
+    
+    Task<Question> CreateCodeReviewQuestion(string additionalDescription, string jobDescription, AppUser user);
 }

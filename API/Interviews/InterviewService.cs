@@ -25,7 +25,6 @@ public class InterviewService(
     IFileService fileService,
     IMessageService messageService) : IinterviewService
 {
-
     private string GetQuestionPrompt(string jobDescription, string resume, int numberOfBehavioral,
         int numberOfTechnical, string additionalDescription)
     {
@@ -92,7 +91,6 @@ public class InterviewService(
    - Do not use special characters like `*` in the response under any circumstances.
    - Responses should use plain text formatting for clarity.
         ";
-
     }
 
     public async Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription, int numberOfBehavioral,
@@ -117,7 +115,8 @@ public class InterviewService(
         }
 
         // put everything in prompt for chat gpt request(info about format in prompt)
-        string prompt = GetQuestionPrompt(jobDescription,resume,numberOfBehavioral,numberOfTechnical,additionalDescription);
+        string prompt = GetQuestionPrompt(jobDescription, resume, numberOfBehavioral, numberOfTechnical,
+            additionalDescription);
 
         if (!string.IsNullOrEmpty(additionalDescription))
         {
@@ -158,7 +157,9 @@ public class InterviewService(
     }
 
 
-    private async Task<List<Question>>  CreateNonInteractiveInterviewQuestions(string jobDescription, int numberOfBehavioral, int numberOfTechnical, string resumePdfPath,string additionalDescription,string resumeName)
+    private async Task<List<Question>> CreateNonInteractiveInterviewQuestions(string jobDescription,
+        int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription,
+        string resumeName)
     {
         var questions = await GenerateQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,
             additionalDescription, resumeName);
@@ -177,52 +178,113 @@ public class InterviewService(
         {
             questionList.AddRange(behavioralQuestions);
         }
+
         return questionList;
     }
-    public async Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription,
-        int numberOfBehavioral, int numberOfTechnical, int secondsPerAnswer, string resumePdfPath,
-        string additionalDescription, string resumeName, string serverUrl, bool isLive)
+    
+    private async Task<(string ResumeName, string ResumePath)> GetResumeInfo(IFormFile resume, string resumeUrl)
+    {
+        string resumeName = "";
+        string resumePath = "";
+
+        if (!string.IsNullOrEmpty(resumeUrl))
+        {
+            var fileTuple = await fileService.DownloadPdf(resumeUrl);
+            resumePath = fileTuple.FilePath;
+            resumeName = fileTuple.FileName;
+        }
+        else if (resume != null && resume.ContentType == "application/pdf")
+        {
+            var fileTuple = await IFileService.CreateNewFile(resume);
+            resumeName = fileTuple.FileName;
+            resumePath = fileTuple.FilePath;
+        }
+
+        return (resumeName, resumePath);
+    }
+
+    public async Task<Interview> GenerateInterview(AppUser user, GenerateInterviewRequest request, string serverUrl)
     {
         Interview interview = new Interview();
-
-        if (!isLive)
+        InterviewType type = ConvertStringToInterviewType(request.type);
+        
+        var resumeTuple = await GetResumeInfo(request.resume,request.resumeUrl);
+        string resumeName = resumeTuple.ResumeName;
+        string resumePath = resumeTuple.ResumePath;
+        
+        
+        if (string.IsNullOrEmpty(request.jobDescription))
         {
-            var questionList = await CreateNonInteractiveInterviewQuestions(jobDescription, numberOfBehavioral, numberOfTechnical, resumePdfPath,additionalDescription, resumeName);
+            request.jobDescription = "";
+        }
+
+        if (string.IsNullOrEmpty(resumePath))
+        {
+            resumePath = "";
+        }
+
+        if (type == InterviewType.NonLive)
+        {
+            var questionList = await CreateNonInteractiveInterviewQuestions(request.jobDescription,
+                request.numberOfBehavioral, request.numberOfTechnical, resumePath, request.additionalDescription,
+                resumeName);
             interview.Questions = questionList;
         }
+        else if (type == InterviewType.CodeReview)
+        {
+            var question =
+                await questionService.CreateCodeReviewQuestion(request.additionalDescription, request.jobDescription,
+                    user);
+            interview.Questions = [question];
+        }
+
+        else if (type == InterviewType.LiveCoding)
+        {
+            var question = await questionService.CreateLiveCodingQuestion(request.additionalDescription, user);
+            interview.Questions = [question];
+            
+        }
+
 
        
 
-        if (string.IsNullOrEmpty(jobDescription))
-        {
-            jobDescription = "";
-        }
-
-        if (string.IsNullOrEmpty(resumePdfPath))
-        {
-            resumePdfPath = "";
-        }
-
-        if (string.IsNullOrEmpty(interviewName))
+        if (string.IsNullOrEmpty(request.name))
         {
             throw new BadHttpRequestException("Interview name is required.");
         }
 
-        interview.Name = interviewName;
-       
-        interview.JobDescription = jobDescription;
+        interview.Name = request.name;
+
+        interview.JobDescription = request.jobDescription;
         if (!string.IsNullOrEmpty(resumeName))
         {
             interview.ResumeLink = serverUrl + "/" + resumeName;
         }
 
-        interview.SecondsPerAnswer = secondsPerAnswer;
-        interview.AdditionalDescription = additionalDescription;
-        interview.IsLive = isLive;
+        interview.SecondsPerAnswer = request.secondsPerAnswer;
+        interview.AdditionalDescription = request.additionalDescription;
+        interview.Type = type;
 
         var i = await createInterview(interview, user);
 
         return i;
+    }
+
+    private InterviewType ConvertStringToInterviewType(string type)
+    {
+        switch (type)
+        {
+            case "NonLive":
+                return InterviewType.NonLive;
+            case "Live":
+                return InterviewType.Live;
+            case "LiveCoding":
+                return InterviewType.LiveCoding;
+            case "CodeReview":
+                return InterviewType.CodeReview;
+            default:
+                return InterviewType.NonLive;
+        }
     }
 
     public async Task DeleteInterview(Interview interview, AppUser user)
@@ -259,15 +321,14 @@ public class InterviewService(
     public async Task<bool> VerifyVideoView(string fileName, AppUser user)
     {
         // cant do multithreading nicely due to dbcontext not being thread-safe, do it sequentially for simplicity
-        var onQuestion =  await questionRepository.VerifyVideoView(fileName, user);
+        var onQuestion = await questionRepository.VerifyVideoView(fileName, user);
         if (onQuestion)
         {
             return true;
         }
-        var onVideoTask  = await interviewRepository.VerifyVideoView(user,fileName);
+
+        var onVideoTask = await interviewRepository.VerifyVideoView(user, fileName);
         return onVideoTask;
-        
-        
     }
 
     public async Task<bool> VerifyPdfView(string fileName, AppUser user)
@@ -299,9 +360,9 @@ public class InterviewService(
         interviewDTO.resumeLink = interview.ResumeLink;
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
-        interviewDTO.additionalDescription = 
+        interviewDTO.additionalDescription =
             interview.AdditionalDescription ?? "";
-        interviewDTO.isLive = interview.IsLive;
+        interviewDTO.type = interview.Type.ToString();
 
         interviewDTO.secondsPerAnswer = interview.SecondsPerAnswer;
         return interviewDTO;
@@ -349,6 +410,8 @@ public class InterviewService(
         return stream;
     }
 
+    
+
 
     public async Task<ResumeUrlAndName> GetLatestResume(AppUser user)
     {
@@ -389,7 +452,7 @@ public class InterviewService(
         string searchPattern = "/Interview/getPdf/";
         // gives start index of pattern
         string filename = resume.url.GetStringAfterPattern(searchPattern);
-        
+
         // convert url to signed url for viewing
         if (AppConfig.UseSignedUrl)
         {
@@ -400,24 +463,24 @@ public class InterviewService(
         // get the original name the user uploaded(we needed the guid part to fish it from storage)
         filename = filename.GetStringAfterPattern("_");
         resume.fileName = filename;
-       
     }
 
     // return resumes url and names for a user
     public async Task<ResumeUrlAndName[]> GetAllResumes(AppUser user)
     {
         ResumeUrlAndName[] resumes = await interviewRepository.GetAllResumes(user);
-        
+
         foreach (ResumeUrlAndName resume in resumes)
         {
             await FormatResume(resume);
         }
+
         return resumes;
     }
 
     public async Task<FeedbackAndTranscript> GetFeedbackAndMessages(AppUser user, int interviewId)
     {
-         var feedbackAndMessages = await interviewRepository.GetFeedbackAndMessages(user, interviewId);
+        var feedbackAndMessages = await interviewRepository.GetFeedbackAndMessages(user, interviewId);
         FeedbackAndTranscript feedbackAndTranscript = new FeedbackAndTranscript();
         InterviewFeedbackDTO interviewFeedbackDTO = null;
         if (feedbackAndMessages.feedback != null)
@@ -430,12 +493,13 @@ public class InterviewService(
             };
         }
 
-        List<MessageDto> messageDtos = feedbackAndMessages.messages.Select(x => IMessageService.ConvertToMessageDto(x)).ToList();
+        List<MessageDto> messageDtos =
+            feedbackAndMessages.messages.Select(x => IMessageService.ConvertToMessageDto(x)).ToList();
 
         feedbackAndTranscript.feedback = interviewFeedbackDTO;
         feedbackAndTranscript.messages = messageDtos;
         feedbackAndTranscript.videoLink = feedbackAndMessages.videoLink;
-        
+
         return feedbackAndTranscript;
     }
 }

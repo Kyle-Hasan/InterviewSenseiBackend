@@ -3,6 +3,7 @@ using Moq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.AI;
 using API.Interviews;    // For Interview
 using API.Questions;     // For IQuestionRepository, Question, IQuestionService, QuestionPageDto, QuestionService
 using API.Responses;     // For IResponseRepository, Response, ResponseDto
@@ -19,9 +20,10 @@ namespace API.Tests;
             var questionRepoMock = new Mock<IQuestionRepository>();
             var interviewRepoMock = new Mock<IinterviewRepository>();
             var responseRepoMock = new Mock<IResponseRepository>();
+            var aiServiceMock = new Mock<IOpenAIService>();
 
             // Instantiate the service with mocks.
-            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object);
+            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object, aiServiceMock.Object);
 
             // Create a dummy interview with three questions.
             var interview = new Interview
@@ -31,9 +33,9 @@ namespace API.Tests;
                 Questions = new List<Question>()
             };
 
-            var q1 = new Question { Id = 1, Body = "Question 1", Type = "Behavioral", Responses = new List<Response>(), Interview = interview };
-            var q2 = new Question { Id = 2, Body = "Question 2", Type = "Technical", Responses = new List<Response>(), Interview = interview };
-            var q3 = new Question { Id = 3, Body = "Question 3", Type = "Behavioral", Responses = new List<Response>(), Interview = interview };
+            var q1 = new Question { Id = 1, Body = "Question 1", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
+            var q2 = new Question { Id = 2, Body = "Question 2", Type = QuestionType.Technical, Responses = new List<Response>(), Interview = interview };
+            var q3 = new Question { Id = 3, Body = "Question 3", Type = QuestionType.CodeReview, Responses = new List<Response>(), Interview = interview };
 
             interview.Questions.AddRange(new[] { q1, q2, q3 });
 
@@ -84,8 +86,10 @@ namespace API.Tests;
             var questionRepoMock = new Mock<IQuestionRepository>();
             var interviewRepoMock = new Mock<IinterviewRepository>();
             var responseRepoMock = new Mock<IResponseRepository>();
+            var aiServiceMock = new Mock<IOpenAIService>();
 
-            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object);
+
+            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object,aiServiceMock.Object);
 
             // Create an interview with two questions.
             var interview = new Interview
@@ -94,8 +98,8 @@ namespace API.Tests;
                 SecondsPerAnswer = 45,
                 Questions = new List<Question>()
             };
-            var q1 = new Question { Id = 10, Body = "Q1", Type = "Type1", Responses = new List<Response>(), Interview = interview };
-            var q2 = new Question { Id = 20, Body = "Q2", Type = "Type2", Responses = new List<Response>(), Interview = interview };
+            var q1 = new Question { Id = 10, Body = "Q1", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
+            var q2 = new Question { Id = 20, Body = "Q2", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
             interview.Questions.AddRange(new[] { q1, q2 });
 
             // For this test, we assume no responses (or they are not needed).
@@ -123,8 +127,10 @@ namespace API.Tests;
             var questionRepoMock = new Mock<IQuestionRepository>();
             var interviewRepoMock = new Mock<IinterviewRepository>();
             var responseRepoMock = new Mock<IResponseRepository>();
+            var aiServiceMock = new Mock<IOpenAIService>();
 
-            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object);
+
+            var service = new QuestionService(questionRepoMock.Object, interviewRepoMock.Object, responseRepoMock.Object,aiServiceMock.Object);
 
             // Create an interview with three questions.
             var interview = new Interview
@@ -133,9 +139,9 @@ namespace API.Tests;
                 SecondsPerAnswer = 60,
                 Questions = new List<Question>()
             };
-            var q1 = new Question { Id = 1, Body = "First", Type = "A", Responses = new List<Response>(), Interview = interview };
-            var q2 = new Question { Id = 2, Body = "Second", Type = "B", Responses = new List<Response>(), Interview = interview };
-            var q3 = new Question { Id = 3, Body = "Third", Type = "C", Responses = new List<Response>(), Interview = interview };
+            var q1 = new Question { Id = 1, Body = "First", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
+            var q2 = new Question { Id = 2, Body = "Second", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
+            var q3 = new Question { Id = 3, Body = "Third", Type = QuestionType.Behavioral, Responses = new List<Response>(), Interview = interview };
             interview.Questions.AddRange(new[] { q1, q2, q3 });
 
             var testUser = new AppUser { Id = 50, UserName = "test" };

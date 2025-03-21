@@ -8,6 +8,10 @@ public class CreateUserMessageDto
     
     public string? textMessage { get; set; }
     
-    
-    
+    public string? code { get; set; }
+
+    public string messageType { get; set; } = "Text";
+
+
+
 }

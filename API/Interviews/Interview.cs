@@ -18,7 +18,7 @@ public class Interview:BaseEntity
     
     public string? AdditionalDescription { get; set; }
     
-    public bool IsLive { get; set; } = false;
+    public InterviewType Type { get; set; }
     
     public virtual List<Message> Messages { get; set; } = new List<Message>();
     

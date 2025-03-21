@@ -159,18 +159,20 @@ namespace API.Interviews.Tests
                 Questions = new List<Question>() // omitted for simplicity.
             };
 
+            var generateInterviewRequest = new GenerateInterviewRequest
+            {
+                name = request.name,
+                jobDescription = request.jobDescription,
+                numberOfBehavioral = request.numberOfBehavioral,
+                numberOfTechnical = request.numberOfTechnical,
+                secondsPerAnswer = request.secondsPerAnswer,
+                additionalDescription = request.additionalDescription
+            };
+
             _interviewServiceMock.Setup(s => s.GenerateInterview(
                 _testUser,
-                request.name,
-                request.jobDescription,
-                request.numberOfBehavioral,
-                request.numberOfTechnical,
-                request.secondsPerAnswer,
-                It.IsAny<string>(), // filePath computed by controller
-                request.additionalDescription,
-                It.IsAny<string>(), // fileName computed by controller
-                It.IsAny<string>(), 
-                false// serverUrl computed by controller
+                generateInterviewRequest,
+                "NonLive" // serverUrl computed by controller
             )).ReturnsAsync(dummyInterview);
 
             var dummyInterviewDTO = new InterviewDTO

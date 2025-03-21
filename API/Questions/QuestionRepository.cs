@@ -59,9 +59,26 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
             id = question.Id,
           
             body = question.Body,
-            type = question.Type,
+            type = question.Type.ToString(),
             responses = new List<ResponseDto>()
         };
+    }
+
+    private static QuestionType ConvertStringToQuestionType(string questionType)
+    {
+        switch (questionType)
+        {
+            case "Behavioral":
+                return QuestionType.Behavioral;
+            case "Technical":
+                return QuestionType.Technical;
+            case "LiveCoding":
+                return QuestionType.LiveCoding;
+            case "CodeReview":
+                return QuestionType.CodeReview;
+            default:
+                return QuestionType.Behavioral;
+        }
     }
 
     public async Task<bool> VerifyVideoView(string fileName, AppUser user)
@@ -88,7 +105,7 @@ public class QuestionRepository:BaseRepository<Question>,IQuestionRepository
         {
             Body = body,
            
-            Type = type,
+            Type = ConvertStringToQuestionType(type),
             Responses = new List<Response>()
 
         };

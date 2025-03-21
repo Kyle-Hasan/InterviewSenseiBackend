@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using API.Interviews;
 
 namespace API.Messages;
 
@@ -14,7 +15,10 @@ public class IdToMessage
         foreach (Message message in messages)
         {
             string sender = message.FromAI ? "AI: " :  "User: ";
-            builder.AppendLine( sender  +  message.Content);
+            string messageAsString = sender + message.Content;
+            
+           
+            builder.AppendLine( messageAsString );
         }
         return builder.ToString();
     }

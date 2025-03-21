@@ -11,9 +11,9 @@ namespace tests
 {
     public static class JwtSettings
     {
-        public static string SecretKey = "mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343";
-        public static string RefreshTokenExpirationDays = "1440";
-        public static string AccessTokenExpirationMinutes = "15";
+        public static readonly string SecretKey = "mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343";
+        public static readonly string RefreshTokenExpirationDays = "1440";
+        public static readonly string AccessTokenExpirationMinutes = "15";
     }
 
     public class AppUser

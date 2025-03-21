@@ -99,7 +99,7 @@ public class InterviewTests
             Body = "Test question1",
             InterviewId = 1,
             Responses = new List<Response> {testResponse1,testResponse2},
-            Type = "technical"
+            Type = QuestionType.Behavioral
         };
         
         Question question2 = new Question
@@ -108,7 +108,7 @@ public class InterviewTests
             Body = "Test question2",
             InterviewId = 1,
             Responses = new List<Response> {testResponse3},
-            Type = "behavioral"
+            Type = QuestionType.Technical
         };
         
         await questionRepository.saveQuestion(question1, appUser);

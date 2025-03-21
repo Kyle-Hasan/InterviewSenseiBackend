@@ -13,6 +13,10 @@ public class Message: BaseEntity
     
     public bool FromAI {get; set;}
     
+    public MessageType Type { get; set; }
+    
+    public string? Code { get; set; }
+    
     
     
 }

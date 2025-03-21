@@ -5,6 +5,10 @@ public class CachedMessageAndResume
 {
     public string ResumeText { get; set; }
     public List<Message> Messages { get; set; }
+    // for coding questions
+    public string? QuestionBody {get; set;}
+    
+    public string? Code { get; set; }
 
     public CachedMessageAndResume()
     {

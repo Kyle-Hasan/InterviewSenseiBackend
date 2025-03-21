@@ -113,11 +113,20 @@ Technical Questions:
         [Fact]
         public async Task GenerateInterview_WithEmptyName_ThrowsException()
         {
-            // Explanation:
-            // An empty interview name is not allowed. We verify that the method
-            // throws a BadHttpRequestException in that case.
+            // Create request object with an empty name
+            var request = new GenerateInterviewRequest
+            {
+                name = "", // Empty name should trigger exception
+                jobDescription = "Job Description",
+                numberOfBehavioral = 1,
+                numberOfTechnical = 1,
+                secondsPerAnswer = 30,
+                additionalDescription = ""
+            };
+
+            // Expect BadHttpRequestException to be thrown
             await Assert.ThrowsAsync<BadHttpRequestException>(async () =>
-                await _service.GenerateInterview(_testUser, "", "Job Description", 1, 1, 30, "", "", "resume.pdf", "http://server",false));
+                await _service.GenerateInterview(_testUser, request,  "http://server"));
         }
 
         // Test for GenerateInterview method to ensure it returns an Interview with the expected properties.
@@ -127,11 +136,13 @@ Technical Questions:
             // Explanation:
             // This test sets up the AI service to return one behavioral and one technical question.
             // We also mock the repository save method to simulate assigning an Id to the Interview.
+
             string aiResponse = @"Behavioral Questions:
 1. Describe a challenging project.
 
 Technical Questions:
 1. What is polymorphism?";
+
             _openAiServiceMock
                 .Setup(s => s.MakeRequest(It.IsAny<string>()))
                 .ReturnsAsync(aiResponse);
@@ -140,8 +151,20 @@ Technical Questions:
                 .Setup(r => r.Save(It.IsAny<Interview>(), _testUser))
                 .ReturnsAsync((Interview i, AppUser user) => { i.Id = 101; return i; });
 
+            // Arrange: Create request object
+            var request = new GenerateInterviewRequest
+            {
+                name = "Interview Test",
+                jobDescription = "Job Description",
+                numberOfBehavioral = 1,
+                numberOfTechnical = 1,
+                secondsPerAnswer = 45,
+                additionalDescription = "Additional info",
+                
+            };
+
             // Act: Generate the interview.
-            var interview = await _service.GenerateInterview(_testUser, "Interview Test", "Job Description", 1, 1, 45, "", "Additional info", "resume.pdf", "http://server",false);
+            var interview = await _service.GenerateInterview(_testUser, request, "http://server");
 
             // Assert:
             // Check that all properties are correctly set.

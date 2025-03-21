@@ -19,7 +19,7 @@ public class InterviewDTO
     
     public string additionalDescription {get; set;}
     
-    public bool isLive{get;set;}
+    public string type {get; set;}
     
     
     

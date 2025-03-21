@@ -8,8 +8,7 @@ public interface IinterviewService
 {
   
 
-    Task<Interview> GenerateInterview(AppUser user, string interviewName, string jobDescription, int numberOfBehavioral,
-        int numberOfTechnical, int secondsPerAnswer, string resumePdfPath, string additionalDescription, string resumeName,string serverUrl, bool isLive);
+    Task<Interview> GenerateInterview(AppUser user, GenerateInterviewRequest request,string serverUrl);
 
     Task<GenerateQuestionsResponse> GenerateQuestions(string jobDescription,int numberOfBehavioral, int numberOfTechnical, string resumePdfPath, string additionalDescription, string resumeName );
     

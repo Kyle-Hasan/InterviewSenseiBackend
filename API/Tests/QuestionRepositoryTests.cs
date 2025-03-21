@@ -49,7 +49,7 @@ namespace API.Tests;
             var question = new Question 
             { 
                 Body = "Test body", 
-                Type = "TestType", 
+                Type = QuestionType.CodeReview, 
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id 
             };
@@ -69,7 +69,7 @@ namespace API.Tests;
             { 
                 Id = 10, 
                 Body = "Q", 
-                Type = "T", 
+                Type = QuestionType.Behavioral, 
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id 
             };
@@ -90,7 +90,7 @@ namespace API.Tests;
             { 
                 Id = 11, 
                 Body = "Q", 
-                Type = "T", 
+                Type = QuestionType.Behavioral, 
                 Responses = new List<Response>(), 
                 CreatedById = 999 
             };
@@ -114,7 +114,7 @@ namespace API.Tests;
             { 
                 Id = 20, 
                 Body = "Body 20", 
-                Type = "Behavioral",
+                Type = QuestionType.Behavioral,
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id, 
                 Interview = interview 
@@ -123,7 +123,7 @@ namespace API.Tests;
             { 
                 Id = 21, 
                 Body = "Body 21", 
-                Type = "Technical",
+                Type = QuestionType.Technical,
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id, 
                 Interview = interview 
@@ -149,7 +149,7 @@ namespace API.Tests;
             { 
                 Id = 30, 
                 Body = "Old Body", 
-                Type = "TypeX", 
+                Type = QuestionType.Behavioral, 
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id 
             };
@@ -177,7 +177,7 @@ namespace API.Tests;
             { 
                 Id = 40, 
                 Body = "Delete me", 
-                Type = "T", 
+                Type = QuestionType.Behavioral, 
                 Responses = new List<Response>(), 
                 CreatedById = _testUser.Id 
             };
@@ -198,7 +198,7 @@ namespace API.Tests;
             { 
                 Id = 50, 
                 Body = "Test Body", 
-                Type = "TestType", 
+                Type = QuestionType.CodeReview, 
                 Responses = new List<Response>() 
             };
             // Act
@@ -262,7 +262,7 @@ namespace API.Tests;
             var question = QuestionRepository.createQuestionFromString("Sample Body", "SampleType");
             // Assert
             Assert.Equal("Sample Body", question.Body);
-            Assert.Equal("SampleType", question.Type);
+            Assert.Equal(QuestionType.Behavioral, question.Type);
             Assert.NotNull(question.Responses);
             Assert.Empty(question.Responses);
         }

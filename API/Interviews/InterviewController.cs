@@ -40,12 +40,12 @@ public class InterviewController(
     public async Task<ActionResult<InterviewDTO>> GenerateInterview(
         [FromForm] GenerateInterviewRequest generateInterviewRequest)
     {
-        if (!generateInterviewRequest.isLive &&
+        if (generateInterviewRequest.type == InterviewType.NonLive.ToString() &&
             (generateInterviewRequest.numberOfBehavioral + generateInterviewRequest.numberOfTechnical == 0))
         {
             return BadRequest();
         }
-        else if (!generateInterviewRequest.isLive && (generateInterviewRequest.secondsPerAnswer < 10 ||
+        else if (generateInterviewRequest.type == InterviewType.NonLive.ToString() && (generateInterviewRequest.secondsPerAnswer < 10 ||
                                                       generateInterviewRequest.numberOfBehavioral > 300))
         {
             return BadRequest();
@@ -54,32 +54,9 @@ public class InterviewController(
         string filePath = "";
         string fileName = "";
         string serverUrl = $"{Request.Scheme}s://{Request.Host}{Request.PathBase}/api/Interview/getPdf";
-        // existing resume url, should be on our server so to get its name just strip the server part
-        if (generateInterviewRequest.resumeUrl != null)
-        {
-
-            var fileTuple = await fileService.DownloadPdf(generateInterviewRequest.resumeUrl);
-            filePath = fileTuple.FilePath;
-            fileName = fileTuple.FileName;
-        }
-        // new resume uploaded directly(only when no signed urls)
-        else if (generateInterviewRequest.resume != null &&
-                 generateInterviewRequest.resume.ContentType == "application/pdf")
-        {
-            var fileTuple = await IFileService.CreateNewFile(generateInterviewRequest.resume);
-            fileName = fileTuple.FileName;
-            filePath = fileTuple.FilePath;
-
-        }
-
-
-      
-
-        var i = await interviewService.GenerateInterview(CurrentUser, generateInterviewRequest.name,
-            generateInterviewRequest.jobDescription,
-            generateInterviewRequest.numberOfBehavioral, generateInterviewRequest.numberOfTechnical,
-            generateInterviewRequest.secondsPerAnswer, filePath, generateInterviewRequest.additionalDescription,
-            fileName, serverUrl, generateInterviewRequest.isLive);
+        
+        
+        var i = await interviewService.GenerateInterview(CurrentUser, generateInterviewRequest, serverUrl);
 
         return interviewService.InterviewToDTO(i);
     }
