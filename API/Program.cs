@@ -6,6 +6,7 @@ using API.AI;
 using API.Auth;
 using API.AWS;
 using API.Base;
+using API.CodeRunner;
 using API.Data;
 using API.InteractiveInterviewFeedback;
 using API.Interviews;
@@ -133,7 +134,9 @@ builder.Services.AddScoped<IBlobStorageService, S3Service>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IMessageRepository,MessageRepository>();
 builder.Services.AddScoped<IinterviewFeedbackService, InterviewFeedbackService>();
+builder.Services.AddScoped<ICodeRunnerService, JudgeZeroService>();
 builder.Services.AddScoped<CurrentUserFilter>();
+
 
 
 builder.Services.AddScoped<IMessageService, MessageService>();

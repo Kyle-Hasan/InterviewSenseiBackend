@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Base
 {
-   
-    
     
     [ApiController]
     [Route("api/[controller]")]

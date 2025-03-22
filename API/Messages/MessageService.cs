@@ -88,6 +88,8 @@ public class MessageService : IMessageService
             context.Messages.Add(aiMessage);
             response.aiResponse = aiMessage.Content;
         }
+        response.aiMessageId = aiMessage.Id;
+        response.userMessageId = userMessage.Id;
         await interviewRepository.Save(interview,user);
         return response;
     }

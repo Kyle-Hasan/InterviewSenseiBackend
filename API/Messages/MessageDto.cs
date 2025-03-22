@@ -4,7 +4,7 @@ public class MessageDto
 {
     public string content{ get; set; }
     
-    public int? id{ get; set; }
+    public int id{ get; set; }
     
     public int interviewId { get; set; }
     
