@@ -88,9 +88,10 @@ public class MessageService : IMessageService
             context.Messages.Add(aiMessage);
             response.aiResponse = aiMessage.Content;
         }
+        // updates the interview if its cached or anything
+        interview = await interviewRepository.Save(interview,user);
         response.aiMessageId = aiMessage.Id;
-        response.userMessageId = userMessage.Id;
-        await interviewRepository.Save(interview,user);
+        response.userMessageId = userMessage?.Id ?? -1;
         return response;
     }
 
@@ -159,6 +160,8 @@ public class MessageService : IMessageService
         if (!string.IsNullOrEmpty(createMessage.code))
         {
             context.Code = createMessage.code;
+            // interview should get saved eventually with the messages, so hold off on the save for now
+            interview.UserCode = createMessage.code;
         }
 
         context.Messages.Add(userMessage);

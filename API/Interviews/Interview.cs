@@ -1,4 +1,5 @@
 ﻿using API.Base;
+using API.CodeRunner;
 using API.Messages;
 using API.Questions;
 using API.InteractiveInterviewFeedback;
@@ -25,4 +26,10 @@ public class Interview:BaseEntity
     public virtual InterviewFeedback? Feedback { get; set; }
     
     public string? VideoLink { get; set; }
+    
+    public string? UserCode {get; set;}
+    
+    public string? CodeLanguageName { get; set; }
+
+    public virtual List<CodeSubmission> CodeSubmissions { get; set; } = new List<CodeSubmission>();
 }

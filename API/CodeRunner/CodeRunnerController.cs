@@ -11,16 +11,16 @@ public class CodeRunnerController(
 ) : BaseController(userManager)
 {
     [HttpPost("submitCode")]
-    public async Task<string> SubmitCode(RunCodeRequest request)
+    public async Task<CodeSubmissionResult> SubmitCode(RunCodeRequest request)
     {
-        var token = await codeRunnerService.RunCode(request);
-        return token;
+        return await codeRunnerService.RunCode(request,CurrentUser);
+        
     }
 
-    [HttpPost("runCode")]
-    public async Task<RunCodeResult> GetCodeResult(TokenResult tokenObj)
+    [HttpGet("checkSubmission")]
+    public async Task<RunCodeResult?> GetCodeResult([FromQuery]int codeSubmissionId)
     {
-        var result= await codeRunnerService.GetCodeResult(tokenObj.token);
-        return result;
+        return await codeRunnerService.GetCodeResult(codeSubmissionId,CurrentUser);
+       
     }
 }

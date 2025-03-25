@@ -11459,7 +11459,6 @@
       "packagesPath": "C:\\Users\\kyleh\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\API\\obj\\",
       "projectStyle": "PackageReference",
-      "UsingMicrosoftNETSdk": false,
       "configFilePaths": [
         "C:\\Users\\kyleh\\Documents\\interview-sensei\\backend\\NuGet.Config",
         "C:\\Users\\kyleh\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -11486,7 +11485,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net9.0": {

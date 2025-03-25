@@ -296,6 +296,10 @@ public class InterviewService(
     public async Task<Interview> UpdateInterview(Interview interview, AppUser user)
     {
         Interview oldInterview = await GetInterview(interview.Id, user);
+        if (oldInterview == null)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to update this interview.");
+        }
         Interview toUpdated = interviewRepository.GetChangedInterview(interview, oldInterview);
         return await interviewRepository.Save(toUpdated, user);
     }
@@ -313,6 +317,10 @@ public class InterviewService(
     public async Task<Interview> GetInterview(int id, AppUser user)
     {
         Interview i = await interviewRepository.GetInterview(user, id);
+        if (i == null)
+        {
+            throw new UnauthorizedAccessException("You do not have permission to access this interview.");
+        }
         return i;
     }
 

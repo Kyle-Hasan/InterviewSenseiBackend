@@ -142,6 +142,7 @@ builder.Services.AddScoped<CurrentUserFilter>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IdToMessage>();
 builder.Services.AddScoped<IinterviewFeedbackRepository,InterviewFeedbackRepository>();
+builder.Services.AddScoped<ICodeSubmissionRepository, CodeSubmissionRepository>();
 
 builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
 

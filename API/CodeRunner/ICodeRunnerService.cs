@@ -1,14 +1,15 @@
 ﻿using System.Text.Json;
 using API.Messages;
+using API.Users;
 
 namespace API.CodeRunner;
 
 public interface ICodeRunnerService
 {
-    // returns a token
-    Task<string> RunCode(RunCodeRequest request);
+    // returns a code submission id
+    Task<CodeSubmissionResult> RunCode(RunCodeRequest request,AppUser user);
     
-    Task<RunCodeResult> GetCodeResult(string token);
+    Task<RunCodeResult?> GetCodeResult(int codeSubmissionId, AppUser user);
     
     
     public static RunCodeResult ParseCodeResultJSON(string jsonResponse)
