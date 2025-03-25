@@ -33,11 +33,7 @@ public class QuestionService(IQuestionRepository questionRepository, IinterviewR
             }
         }
         int length = interview.Questions.Count;
-        QuestionPageDto dto = new QuestionPageDto();
-        dto.body = q.Body;
-        dto.responses = q.Responses.Select(x => responseRepository.ConvertToDto(x)).ToList();
-        dto.id = q.Id;
-        dto.type = q.Type.ToString();
+        QuestionPageDto dto = new QuestionPageDto(q);
         if (index > 0)
         {
             dto.previousQuestionId =  sortedList[index - 1].Id;

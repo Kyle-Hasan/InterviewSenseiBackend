@@ -188,4 +188,17 @@ public class InterviewController(
     {
         return await interviewService.GetFeedbackAndMessages(CurrentUser,interviewId);
     }
+
+    [HttpPost("getInterviewFields")]
+    public async Task<InterviewDTO> GetInterviewQuery(InterviewQueryRequest request)
+    {
+        return await interviewService.GetInterviewQuery(request,CurrentUser);
+    }
+    
+    
+    [HttpPost("getCodingInterviewInfo")]
+    public async Task<CodingInterviewResponse> GetCodingInterviewQuery(InterviewQueryRequest request)
+    {
+        return await interviewService.GetCodingInterviewResponse(request,CurrentUser);
+    }
 }

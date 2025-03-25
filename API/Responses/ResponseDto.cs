@@ -1,6 +1,6 @@
 ﻿namespace API.Responses;
 
-public class ResponseDto
+public record ResponseDto
 {
     public int id { get; set; }
     public string answer { get; set; }
@@ -12,4 +12,16 @@ public class ResponseDto
     public string exampleResponse { get; set; }
     public string videoLink { get; set; }
     public int questionId { get; set; }
+
+    public ResponseDto(Response response)
+    {
+        answer = response.Answer;
+        questionId = response.QuestionId;
+        negativeFeedback = response.NegativeFeedback;
+        exampleResponse = response.ExampleResponse;
+        videoLink = response.VideoLink;
+        id = response.QuestionId;
+        questionId = response.QuestionId;
+        
+    }
 }

@@ -45,20 +45,7 @@ public class ResponseRepository: BaseRepository<Response>,IResponseRepository
         return await base._entities.AnyAsync(q => q.VideoLink.Contains(filename) && q.CreatedById == user.Id);
     }
 
-    public ResponseDto ConvertToDto(Response response)
-    {
-        return new ResponseDto
-        {
-            id = response.Id,
-            answer = response.Answer,
-            negativeFeedback = response.NegativeFeedback, 
-            positiveFeedback = response.PositiveFeedback,
-            exampleResponse = response.ExampleResponse,
-            videoLink = response.VideoLink,
-            questionId = response.QuestionId,
-
-        };
-    }
+   
 
     public Response DtoToResponse(ResponseDto response)
     {

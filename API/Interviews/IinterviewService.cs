@@ -41,6 +41,10 @@ public interface IinterviewService
     
     Task<FeedbackAndTranscript> GetFeedbackAndMessages(AppUser user, int interviewId);
     
+    Task<InterviewDTO> GetInterviewQuery(InterviewQueryRequest request, AppUser user);
+    
+    Task<CodingInterviewResponse> GetCodingInterviewResponse(InterviewQueryRequest request, AppUser user);
+    
     
     
 

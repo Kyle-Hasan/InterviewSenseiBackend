@@ -1,6 +1,6 @@
 ﻿namespace API.Interviews;
 
-public class RatingRequestDTO
+public record RatingRequestDTO
 {
     public IFormFile video  { get; set; }
     

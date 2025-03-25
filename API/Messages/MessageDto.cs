@@ -1,6 +1,6 @@
 ﻿namespace API.Messages;
 
-public class MessageDto
+public class MessageDTO
 {
     public string content{ get; set; }
     
@@ -9,6 +9,18 @@ public class MessageDto
     public int interviewId { get; set; }
     
     public bool fromAI { get; set; }
+
+    public MessageDTO()
+    {
+        
+    }
+    public MessageDTO(Message message)
+    {
+        id = message.Id;
+        content = message.Content;
+        interviewId = message.InterviewId;
+        fromAI = message.FromAI;
+    }
     
     
     

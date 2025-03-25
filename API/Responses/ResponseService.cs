@@ -49,7 +49,7 @@ public class ResponseService(IOpenAIService openAiService,IResponseRepository re
         }
 
       
-        return responseRepository.ConvertToDto(response);
+        return new ResponseDto(response);
 
     }
 }

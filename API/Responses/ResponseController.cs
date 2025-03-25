@@ -16,7 +16,7 @@ public class ResponseController(IResponseRepository responseRepository, IRespons
     {
        
         var responses = await responseRepository.GetResponsesQuestion(questionId,CurrentUser);
-        return responses.Select(responseRepository.ConvertToDto).ToList();
+        return responses.Select(x=> new ResponseDto(x)).ToList();
     }
     
     [HttpPost("rateAnswer")]

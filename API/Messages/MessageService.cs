@@ -173,7 +173,7 @@ public class MessageService : IMessageService
         return response;
     }
 
-    public async Task<MessageDto> GetInitialInterviewMessage(AppUser user, int interviewId)
+    public async Task<MessageDTO> GetInitialInterviewMessage(AppUser user, int interviewId)
     {
         Interview interview = await interviewRepository.GetInterview(user, interviewId);
         if (interview == null)
@@ -186,7 +186,7 @@ public class MessageService : IMessageService
         
         var aiResponse = await GetAIResponse(interview, context, user,MessageType.Text);
         var response = await SaveMessages(user,interview,null, aiResponse,context);
-        return IMessageService.ConvertToMessageDto(aiResponse);
+        return new MessageDTO(aiResponse);
     }
 
   

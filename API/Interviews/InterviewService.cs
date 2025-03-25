@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using API.Extensions;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using API.InteractiveInterviewFeedback;
 using API.Messages;
@@ -22,8 +23,8 @@ public class InterviewService(
     IQuestionRepository questionRepository,
     IQuestionService questionService,
     IBlobStorageService blobStorageService,
-    IFileService fileService,
-    IMessageService messageService) : IinterviewService
+    IFileService fileService
+    ) : IinterviewService
 {
     private string GetQuestionPrompt(string jobDescription, string resume, int numberOfBehavioral,
         int numberOfTechnical, string additionalDescription)
@@ -369,8 +370,10 @@ public class InterviewService(
         interviewDTO.jobDescription = interview.JobDescription;
         interviewDTO.createdDate = interview.CreatedDate.ToShortDateString();
         interviewDTO.additionalDescription =
-            interview.AdditionalDescription ?? "";
+        interview.AdditionalDescription ?? "";
         interviewDTO.type = interview.Type.ToString();
+        interviewDTO.userCode = interview.UserCode;
+        interviewDTO.codeLanguageName = interview.CodeLanguageName;
 
         interviewDTO.secondsPerAnswer = interview.SecondsPerAnswer;
         return interviewDTO;
@@ -501,13 +504,107 @@ public class InterviewService(
             };
         }
 
-        List<MessageDto> messageDtos =
-            feedbackAndMessages.messages.Select(x => IMessageService.ConvertToMessageDto(x)).ToList();
+        List<MessageDTO> messageDtos =
+            feedbackAndMessages.messages.Select(x => new MessageDTO(x)).ToList();
 
         feedbackAndTranscript.feedback = interviewFeedbackDTO;
         feedbackAndTranscript.messages = messageDtos;
         feedbackAndTranscript.videoLink = feedbackAndMessages.videoLink;
 
         return feedbackAndTranscript;
+    }
+
+    public async Task<InterviewDTO> GetInterviewQuery(InterviewQueryRequest request, AppUser user)
+    {
+        var interview = await GetInterview(request.id, user);
+
+        var dto = new InterviewDTO();
+        var requestedFields = request.fields.Select(f => f.ToLower()).ToHashSet();
+
+        if (requestedFields.Contains("id"))
+        {
+            dto.id = interview.Id;
+        }
+
+        if (requestedFields.Contains("name"))
+        {
+            dto.name = interview.Name;
+        }
+
+        if (requestedFields.Contains("jobdescription"))
+        {
+            dto.jobDescription = interview.JobDescription;
+        }
+
+        if (requestedFields.Contains("resumelink"))
+        {
+            dto.resumeLink = interview.ResumeLink;
+        }
+
+        if (requestedFields.Contains("createddate"))
+        {
+            dto.createdDate = interview.CreatedDate.ToString("yyyy-MM-dd");
+        }
+
+        if (requestedFields.Contains("secondsperanswer"))
+        {
+            dto.secondsPerAnswer = interview.SecondsPerAnswer;
+        }
+
+        if (requestedFields.Contains("additionaldescription"))
+        {
+            dto.additionalDescription = interview.AdditionalDescription ?? string.Empty;
+        }
+
+        if (requestedFields.Contains("type"))
+        {
+            dto.type = interview.Type.ToString();
+        }
+
+        if (requestedFields.Contains("usercode"))
+        {
+            dto.userCode = interview.UserCode;
+        }
+
+        if (requestedFields.Contains("codelanguagename"))
+        {
+            dto.codeLanguageName = interview.CodeLanguageName;
+        }
+
+        if (requestedFields.Contains("questions"))
+        {
+            dto.questions = questionService.ConvertToDtos(interview.Questions, interview);
+        }
+
+        if (requestedFields.Contains("feedback") && interview.Feedback != null)
+        {
+            dto.feedback = new InterviewFeedbackDTO(interview.Feedback);
+        }
+
+        if (requestedFields.Contains("messages"))
+        {
+            dto.messages = interview.Messages.Select(x => new MessageDTO(x)).ToList();
+        } 
+
+        return dto;
+    }
+
+    public async Task<CodingInterviewResponse> GetCodingInterviewResponse(InterviewQueryRequest request, AppUser user)
+    {
+        if (!request.fields.Contains("questions"))
+        {
+            request.fields.Add("questions");
+        }
+
+        InterviewDTO interviewDTO = await GetInterviewQuery(request, user);
+        // coding interviews should only have 1 question
+        if (interviewDTO.questions == null || interviewDTO.questions.Count == 0)
+        {
+            throw new BadHttpRequestException(" this is not a coding interview");
+        }
+        string questionBody = interviewDTO.questions[0].body;
+        return new CodingInterviewResponse(interviewDTO.userCode,interviewDTO.codeLanguageName, interviewDTO.feedback,interviewDTO.messages,questionBody);
+        
+
     }
 }

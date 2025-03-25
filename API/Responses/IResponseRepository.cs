@@ -14,7 +14,7 @@ public interface IResponseRepository
     
     Task<bool> VerifyVideoView(string filename,AppUser user);
     
-    ResponseDto ConvertToDto(Response response);
+
     Response DtoToResponse(ResponseDto response);
     
     Task<List<Response>> GetResponsesQuestion(int questionId,AppUser user);
