@@ -28,7 +28,7 @@ public class JwtTokenService : IJwtTokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
         var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha512);
 
-        DateTime expiration = refreshToken ? DateTime.Now.AddMinutes(int.Parse(JwtSettings.RefreshTokenExpirationDays)) : 
+        DateTime expiration = refreshToken ? DateTime.Now.AddDays(int.Parse(JwtSettings.RefreshTokenExpirationDays)) : 
         DateTime.Now.AddMinutes(int.Parse(JwtSettings.AccessTokenExpirationMinutes));
 
         var token = new JwtSecurityToken(

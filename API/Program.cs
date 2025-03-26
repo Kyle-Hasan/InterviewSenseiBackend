@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using DotNetEnv;
+using Microsoft.AspNetCore.Antiforgery;
 
 SetupUploadsFolder();
 LoadEnvironment();
@@ -147,11 +148,17 @@ static void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IinterviewFeedbackService, InterviewFeedbackService>();
     builder.Services.AddScoped<ICodeRunnerService, JudgeZeroService>();
     builder.Services.AddScoped<CurrentUserFilter>();
+    builder.Services.AddScoped<CsrfValidationFilter>();
     builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddSingleton<IdToMessage>();
     builder.Services.AddScoped<IinterviewFeedbackRepository, InterviewFeedbackRepository>();
     builder.Services.AddScoped<ICodeSubmissionRepository, CodeSubmissionRepository>();
     builder.Services.AddHttpClient<IOpenAIService, GeminiService>();
+    builder.Services.AddAntiforgery(options =>
+    {
+        
+        options.HeaderName = "X-CSRF-TOKEN";
+    });
     builder.Services.AddAuthorization();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
@@ -160,6 +167,22 @@ static void ConfigureServices(WebApplicationBuilder builder)
 
 static void ConfigurePipeline(WebApplication app)
 {
+    // csrf protection, put on all cookies
+    app.Use(async (context, next) =>
+    {
+        var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+        var tokens = antiforgery.GetAndStoreTokens(context);
+        context.Response.Cookies.Append("CSRF-TOKEN", tokens.RequestToken!,
+            new CookieOptions
+            {
+                HttpOnly = false,  // readable by JavaScript so the client can attach it in requests
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+        await next();
+    });
+
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
