@@ -1,4 +1,4 @@
-﻿namespace API.Extensions;
+namespace API.Extensions;
 
 public static class StringExtensions
 {
@@ -16,5 +16,23 @@ public static class StringExtensions
     {
         int index = text.IndexOf(searchPattern, StringComparison.Ordinal);
         return index != -1 ? text.Substring(0, index) : text;
+    }
+
+    public static string Escape(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+        return text.Replace("\r", "\\r").Replace("\n", "\\n");
+    }
+
+    public static string Unescape(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+        return text.Replace("\\r","\r").Replace("\\n","\n");
     }
 }

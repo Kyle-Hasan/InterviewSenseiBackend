@@ -10,6 +10,7 @@ using API.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace API.Data
@@ -66,11 +67,6 @@ namespace API.Data
                 .HasForeignKey<InterviewFeedback>(f => f.InterviewId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-            
-            
-            
-            
-
 
 
         }
@@ -119,6 +115,27 @@ namespace API.Data
                     E.Property("ModifiedDate").CurrentValue = DateTime.Now;
                 }
                 );
+
+            var saveEntites = new List<EntityEntry>();
+            saveEntites.AddRange(AddedEntities);
+            saveEntites.AddRange(EditedEntities);
+            saveEntites.ForEach((E) =>
+            {
+                var entity = E.Entity;
+                var properties = entity.GetType().GetProperties();
+
+                foreach (var property in properties)
+                {
+                    if (property.GetValue(entity) is string value)
+                    {
+                        property.SetValue(entity,value.Escape());
+                    }
+                }
+                
+
+
+            });
+            
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }

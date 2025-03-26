@@ -66,7 +66,7 @@ public class JudgeZeroService: ICodeRunnerService
 
         var postTask = _client.PostAsync(url, content);
         
-        // make request and update db at the same time (don't fire and forget since this doesnt notify of errors)
+        // make request and update db at the same time (don't fire and forget since that doesnt notify of errors)
         await Task.WhenAll(updateInterviewTask, postTask);
         var response = await postTask;
         response.EnsureSuccessStatusCode();
