@@ -15,115 +15,113 @@ namespace API.Auth
 {
     [IgnoreUserFetchFilter]
     [IgnoreCsrfValidation]
-    public class AuthController(IJwtTokenService jwtTokenService,UserManager<AppUser> userManager) : BaseController(userManager)
+    public class AuthController(IJwtTokenService jwtTokenService, UserManager<AppUser> userManager)
+        : BaseController(userManager)
 
     {
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<UserDTO>> Login(LoginDto loginDto) {
-            var user = await userManager.Users.FirstOrDefaultAsync(x=> x.NormalizedUserName == loginDto.Username.ToUpper());
+        public async Task<ActionResult<UserDTO>> Login(LoginDto loginDto)
+        {
+            var user = await userManager.Users.FirstOrDefaultAsync(x =>
+                x.NormalizedUserName == loginDto.Username.ToUpper());
 
-            if(user == null || user.UserName == null) {
+            if (user == null || user.UserName == null)
+            {
                 return Unauthorized("bad login");
             }
 
-            var result = await userManager.CheckPasswordAsync(user,loginDto.Password);
-            if(!result) {
+            var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
+            if (!result)
+            {
                 return Unauthorized();
             }
-                
-           
-            string accessToken =  await jwtTokenService.GenerateToken(user,false);
-            string refreshToken = await jwtTokenService.GenerateToken(user,true);
+
+
+            string accessToken = await jwtTokenService.GenerateToken(user, false);
+            string refreshToken = await jwtTokenService.GenerateToken(user, true);
 
             Response.Cookies.Append("accessToken", accessToken, new CookieOptions
-        {
-            HttpOnly = true, 
-            Secure = true,   
-            SameSite = SameSiteMode.None, 
-            Expires = DateTime.UtcNow.AddMinutes(15) 
-        });
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(15)
+            });
 
-        
-        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Expires = DateTime.UtcNow.AddDays(7) 
-        });
-                return new UserDTO {
-                    Username = loginDto.Username,
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    userId = user.Id
-                    };
-                
 
-                
-                
-
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+            return new UserDTO
+            {
+                Username = loginDto.Username,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                userId = user.Id
+            };
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-
-        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO){
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
+        {
             bool exists = await UserExists(registerDTO.Username);
 
-            if(exists) {
+            if (exists)
+            {
                 return BadRequest("username taken");
             }
 
-            AppUser user = new AppUser {
+            AppUser user = new AppUser
+            {
                 UserName = registerDTO.Username,
                 Email = registerDTO.Email
             };
 
-            var result = await userManager.CreateAsync(user,registerDTO.Password);
-            
-            if(result.Succeeded) {
-            var createdUser = await userManager.FindByNameAsync(user.UserName);
+            var result = await userManager.CreateAsync(user, registerDTO.Password);
 
-            string accessToken =  await jwtTokenService.GenerateToken(user,false);
-            string refreshToken = await jwtTokenService.GenerateToken(user,true);
-
-
-           
-        Response.Cookies.Append("accessToken", accessToken, new CookieOptions
-        {
-            HttpOnly = true, 
-            Secure = true,   
-            SameSite = SameSiteMode.Strict, 
-            Expires = DateTime.UtcNow.AddMinutes(15) 
-        });
-
-        
-        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7) 
-        });
-
-            return new UserDTO
+            if (result.Succeeded)
             {
-                Username = registerDTO.Username,
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                userId = createdUser.Id
-            };
+                var createdUser = await userManager.FindByNameAsync(user.UserName);
 
+                string accessToken = await jwtTokenService.GenerateToken(user, false);
+                string refreshToken = await jwtTokenService.GenerateToken(user, true);
+
+
+                Response.Cookies.Append("accessToken", accessToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMinutes(15)
+                });
+
+
+                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                });
+
+                return new UserDTO
+                {
+                    Username = registerDTO.Username,
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    userId = createdUser.Id
+                };
             }
-            else {
+            else
+            {
                 return Problem();
             }
-        
-
-            
-
-
         }
 
         [AllowAnonymous]
@@ -141,11 +139,13 @@ namespace API.Auth
             {
                 throw new UnauthorizedAccessException("Refresh token is invalid.");
             }
+
             AppUser user = userManager.Users.FirstOrDefault(x => x.Id == userId);
             if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found.");
             }
+
             string accessToken = await jwtTokenService.GenerateToken(user, false);
 
             Response.Cookies.Append("accessToken", accessToken, new CookieOptions
@@ -156,19 +156,19 @@ namespace API.Auth
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
         }
+
         [AllowAnonymous]
         [HttpGet("logout")]
         public async Task Logout()
         {
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
-            
         }
-        
+
 
         private async Task<bool> UserExists(string username)
         {
-            return await userManager.Users.AnyAsync(x=> x.NormalizedUserName == username.ToUpper() );
+            return await userManager.Users.AnyAsync(x => x.NormalizedUserName == username.ToUpper());
         }
     }
 }

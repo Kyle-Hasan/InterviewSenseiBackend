@@ -134,7 +134,7 @@ public class MessageService : IMessageService
         string userTranscript = "";
         if (!string.IsNullOrEmpty(audioFilePath))
         {
-            userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath);
+            userTranscript = await openAIService.TranscribeAudioAPI(audioFilePath,false);
             // Delete the file after transcription.
             Task deleteAudio = IFileService.DeleteFileAsync(audioFilePath);
             tasks.Add(deleteAudio);

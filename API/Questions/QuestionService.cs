@@ -119,7 +119,7 @@ ONLY GET PROBLEM statement, no solutions or adding your own thoughts.
         }
         else if (questionType == QuestionType.CodeReview)
         {
-            prompt = GetCodeReviewInterviewPrompt(additionalDescription, additionalDescription);
+            prompt = GetCodeReviewInterviewPrompt(jobDescription, additionalDescription);
         }
         
         string aiResponse = await aiService.MakeRequest(prompt);

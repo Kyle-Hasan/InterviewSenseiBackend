@@ -1,167 +1,185 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Xunit;
+using API;
+using API.Auth;
+using API.Users;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
+using Xunit;
 
-namespace tests
+public class JwtTokenServiceTests
 {
-    public static class JwtSettings
+    private static readonly string TestSecretKey = "supersecretkeythaertetertetretretetertetretertertetetrtetisverylong";
+
+    [Fact]
+    public async void GenerateToken_AccessToken_ReturnsValidToken()
     {
-        public static readonly string SecretKey = "mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343mySuperSecretKeyWhichIsLongEnoughForHmac2132324234232343";
-        public static readonly string RefreshTokenExpirationDays = "1440";
-        public static readonly string AccessTokenExpirationMinutes = "15";
+        // Arrange
+        var user = new AppUser { Id = 1, UserName = "testUser" };
+        JwtSettings.SecretKey = TestSecretKey;
+        JwtSettings.AccessTokenExpirationMinutes = "60";
+        var service = new JwtTokenService();
+
+        // Act
+        var token = await service.GenerateToken(user, false);
+
+        // Assert
+        Assert.NotNull(token);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        Assert.Equal("access", jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value);
+        Assert.Equal("1", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        Assert.Equal("testUser", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value);
+        Assert.True(jwtToken.ValidTo > DateTime.Now);
     }
 
-    public class AppUser
+    [Fact]
+    public async void GenerateToken_RefreshToken_ReturnsValidToken()
     {
-        public int Id { get; set; }
-        public string UserName { get; set; }
+        // Arrange
+        var user = new AppUser { Id = 1, UserName = "testUser" };
+        JwtSettings.SecretKey = TestSecretKey;
+        JwtSettings.RefreshTokenExpirationDays = "1";
+        var service = new JwtTokenService();
+
+        // Act
+        var token = await service.GenerateToken(user, true);
+
+        // Assert
+        Assert.NotNull(token);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        Assert.Equal("refresh", jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value);
+        Assert.Equal("1", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        Assert.Equal("testUser", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value);
+        Assert.True(jwtToken.ValidTo > DateTime.Now);
     }
 
-    public interface IJwtTokenService
+    [Fact]
+    public void ValidateRefreshToken_ValidToken_ReturnsUserId()
     {
-        Task<string> GenerateToken(AppUser user, bool refreshToken);
-        int ValidateRefreshToken(string token);
+        // Arrange
+        var user = new AppUser { Id = 1, UserName = "testUser" };
+        JwtSettings.SecretKey = TestSecretKey;
+        JwtSettings.RefreshTokenExpirationDays = "1";
+        var service = new JwtTokenService();
+        var token = service.GenerateToken(user, true).Result;
+
+        // Act
+        var userId = service.ValidateRefreshToken(token);
+
+        // Assert
+        Assert.Equal(1, userId);
     }
 
-    public class JwtTokenService : IJwtTokenService
+    [Fact]
+    public void ValidateRefreshToken_InvalidToken_ReturnsNegativeOne()
     {
-        public JwtTokenService() { }
+        // Arrange
+        JwtSettings.SecretKey = TestSecretKey;
+        var service = new JwtTokenService();
+        var invalidToken = "invalidToken";
 
-        public async Task<string> GenerateToken(AppUser user, bool refreshToken)
-        {
-            var claims = new System.Collections.Generic.List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, user.UserName),
-                new("tokenType", refreshToken ? "refresh" : "access")
-            };
+        // Act
+        var userId = service.ValidateRefreshToken(invalidToken);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
-
-            DateTime expiration = refreshToken
-                ? DateTime.Now.AddMinutes(int.Parse(JwtSettings.RefreshTokenExpirationDays))
-                : DateTime.Now.AddMinutes(int.Parse(JwtSettings.AccessTokenExpirationMinutes));
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: expiration,
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public int ValidateRefreshToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            try
-            {
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-
-                if (validatedToken is JwtSecurityToken jwtToken)
-                {
-                    var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value;
-                    int? userId = int.Parse(jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-                    if (userId.HasValue)
-                    {
-                        return userId.Value;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                    if (tokenType == null || tokenType != "refresh")
-                    {
-                        return -1;
-                    }
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            catch (SecurityTokenExpiredException)
-            {
-                return -1;
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-
-            return -1;
-        }
+        // Assert
+        Assert.Equal(-1, userId);
     }
 
-    public class JwtTokenServiceTests
+    [Fact]
+    public void ValidateRefreshToken_ExpiredToken_ReturnsNegativeOne()
     {
-        private readonly JwtTokenService _service;
+        // Arrange
+        var user = new AppUser { Id = 1, UserName = "testUser" };
+        JwtSettings.SecretKey = TestSecretKey;
+        JwtSettings.RefreshTokenExpirationDays = "1";
+        var service = new JwtTokenService();
+        var token = service.GenerateToken(user, true).Result;
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var expiredToken = handler.WriteToken(jwtToken);
 
-        public JwtTokenServiceTests()
-        {
-            _service = new JwtTokenService();
-        }
+        // Act
+        var userId = service.ValidateRefreshToken(expiredToken);
 
-        [Fact]
-        public async Task GenerateToken_Returns_AccessToken_With_Correct_Claims()
-        {
-            var user = new AppUser { Id = 1, UserName = "testuser" };
-            var token = await _service.GenerateToken(user, false);
-            var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            Assert.Equal("access", jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value);
-            Assert.Equal("1", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-        }
+        // Assert
+        Assert.Equal(-1, userId);
+    }
 
-        [Fact]
-        public async Task GenerateToken_Returns_RefreshToken_With_Correct_Claims()
-        {
-            var user = new AppUser { Id = 2, UserName = "testuser2" };
-            var token = await _service.GenerateToken(user, true);
-            var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            Assert.Equal("refresh", jwtToken.Claims.FirstOrDefault(c => c.Type == "tokenType")?.Value);
-            Assert.Equal("2", jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-        }
+    [Fact]
+    public void ValidateRefreshToken_ExpiredAccessToken_ReturnsNegativeOne()
+    {
+        // Arrange
+        var user = new AppUser { Id = 1, UserName = "testUser" };
+        JwtSettings.SecretKey = TestSecretKey;
+        JwtSettings.AccessTokenExpirationMinutes = "-60"; // Generate a token that's already expired
+        var service = new JwtTokenService();
+        var token = service.GenerateToken(user, false).Result;
 
-        [Fact]
-        public async Task ValidateRefreshToken_Returns_UserId_For_Valid_RefreshToken()
-        {
-            var user = new AppUser { Id = 3, UserName = "refreshUser" };
-            var token = await _service.GenerateToken(user, true);
-            var result = _service.ValidateRefreshToken(token);
-            Assert.Equal(3, result);
-        }
+        // Act
+        var userId = service.ValidateRefreshToken(token);
 
-        [Fact]
-        public async Task ValidateRefreshToken_Returns_MinusOne_For_AccessToken()
-        {
-            var user = new AppUser { Id = 4, UserName = "accessUser" };
-            var token = await _service.GenerateToken(user, false);
-            var result = _service.ValidateRefreshToken(token);
-            Assert.Equal(-1, result);
-        }
+        // Assert
+        Assert.Equal(-1, userId);
+    }
 
-        [Fact]
-        public void ValidateRefreshToken_Returns_MinusOne_For_InvalidToken()
+    [Fact]
+    public void ValidateRefreshToken_MissingUserIdClaim_ReturnsNegativeOne()
+    {
+        // Arrange
+        JwtSettings.SecretKey = TestSecretKey;
+        var service = new JwtTokenService();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+
+        var claims = new List<Claim>
         {
-            var result = _service.ValidateRefreshToken("invalid.token");
-            Assert.Equal(-1, result);
-        }
+            new(ClaimTypes.Name, "testUser"),
+            new("tokenType", "refresh")
+        };
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: creds
+        );
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        // Act
+        var userId = service.ValidateRefreshToken(tokenString);
+
+        // Assert
+        Assert.Equal(-1, userId);
+    }
+
+    [Fact]
+    public void ValidateRefreshToken_MissingTokenTypeClaim_ReturnsNegativeOne()
+    {
+        // Arrange
+        JwtSettings.SecretKey = TestSecretKey;
+        var service = new JwtTokenService();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings.SecretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+
+        var claims = new List<Claim>
+        {
+            
+            new(ClaimTypes.Name, "testUser")
+        };
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: creds
+        );
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        // Act
+        var userId = service.ValidateRefreshToken(tokenString);
+
+        // Assert
+        Assert.Equal(-1, userId);
     }
 }

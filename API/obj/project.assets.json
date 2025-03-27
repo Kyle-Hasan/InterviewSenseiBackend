@@ -31,6 +31,19 @@
           }
         }
       },
+      "BouncyCastle.Cryptography/2.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Castle.Core/5.1.1": {
         "type": "package",
         "dependencies": {
@@ -196,7 +209,24 @@
           }
         }
       },
-      "itext.commons/9.0.0": {
+      "itext.bouncy-castle-adapter/9.1.0": {
+        "type": "package",
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.4.0",
+          "itext.commons": "9.1.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/itext.bouncy-castle-adapter.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/itext.bouncy-castle-adapter.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "itext.commons/9.1.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.Extensions.Logging": "5.0.0",
@@ -217,6 +247,12 @@
         "type": "package",
         "dependencies": {
           "itext": "9.0.0"
+        }
+      },
+      "itext7.bouncy-castle-adapter/9.1.0": {
+        "type": "package",
+        "dependencies": {
+          "itext.bouncy-castle-adapter": "9.1.0"
         }
       },
       "Microsoft.AspNetCore.Authentication.Abstractions/2.2.0": {
@@ -4048,6 +4084,26 @@
         "tools/uninstall.ps1"
       ]
     },
+    "BouncyCastle.Cryptography/2.4.0": {
+      "sha512": "SwXsAV3sMvAU/Nn31pbjhWurYSjJ+/giI/0n6tCrYoupEK34iIHCuk3STAd9fx8yudM85KkLSVdn951vTng/vQ==",
+      "type": "package",
+      "path": "bouncycastle.cryptography/2.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "bouncycastle.cryptography.2.4.0.nupkg.sha512",
+        "bouncycastle.cryptography.nuspec",
+        "lib/net461/BouncyCastle.Cryptography.dll",
+        "lib/net461/BouncyCastle.Cryptography.xml",
+        "lib/net6.0/BouncyCastle.Cryptography.dll",
+        "lib/net6.0/BouncyCastle.Cryptography.xml",
+        "lib/netstandard2.0/BouncyCastle.Cryptography.dll",
+        "lib/netstandard2.0/BouncyCastle.Cryptography.xml",
+        "packageIcon.png"
+      ]
+    },
     "Castle.Core/5.1.1": {
       "sha512": "rpYtIczkzGpf+EkZgDr9CClTdemhsrwA/W5hMoPjLkRFnXzH44zDLoovXeKtmxb1ykXK9aJVODSpiJml8CTw2g==",
       "type": "package",
@@ -4189,15 +4245,31 @@
         "lib/netstandard2.0/itext.svg.xml"
       ]
     },
-    "itext.commons/9.0.0": {
-      "sha512": "mfQuZz4beW2GOHMrtGay5iowg6WINBkHMm7hj38el3eDvWY3yLVZGrVxdWVRhEXJIdsXsBa3lPywxspsqi3rxg==",
+    "itext.bouncy-castle-adapter/9.1.0": {
+      "sha512": "1SVA5zIvvTX02+eIOTkYb7efwnY1oEmAPR2JuF15KcDTCp0eOPgRqfcujiDqR+xdxAqs8viFWvGZePcl7T0YhA==",
       "type": "package",
-      "path": "itext.commons/9.0.0",
+      "path": "itext.bouncy-castle-adapter/9.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "ITSC-avatar.png",
-        "itext.commons.9.0.0.nupkg.sha512",
+        "itext.bouncy-castle-adapter.9.1.0.nupkg.sha512",
+        "itext.bouncy-castle-adapter.nuspec",
+        "lib/net461/itext.bouncy-castle-adapter.dll",
+        "lib/net461/itext.bouncy-castle-adapter.xml",
+        "lib/netstandard2.0/itext.bouncy-castle-adapter.dll",
+        "lib/netstandard2.0/itext.bouncy-castle-adapter.xml"
+      ]
+    },
+    "itext.commons/9.1.0": {
+      "sha512": "oaUKSbmWg0zhOmyElnL+52yRvn+m39LxfqdXJGjHHR7ypC3MdOpfyb/GkQ4mFRMlXwyO2srLzgnZ+cN6zAjMXw==",
+      "type": "package",
+      "path": "itext.commons/9.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "itext.commons.9.1.0.nupkg.sha512",
         "itext.commons.nuspec",
         "lib/net461/itext.commons.dll",
         "lib/net461/itext.commons.xml",
@@ -4217,6 +4289,20 @@
         "gnu-agpl-v3.0.md",
         "itext7.9.0.0.nupkg.sha512",
         "itext7.nuspec"
+      ]
+    },
+    "itext7.bouncy-castle-adapter/9.1.0": {
+      "sha512": "FN8QFUA9oYnrCNRZrDYWpK8gU8AFszaKbSwuYS7nFiPr5WlMcPREb6G+JJ9NO1BEKaqJbRH079OJgAgjmQpRjg==",
+      "type": "package",
+      "path": "itext7.bouncy-castle-adapter/9.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "LICENSE.md",
+        "gnu-agpl-v3.0.md",
+        "itext7.bouncy-castle-adapter.9.1.0.nupkg.sha512",
+        "itext7.bouncy-castle-adapter.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Authentication.Abstractions/2.2.0": {
@@ -11443,6 +11529,7 @@
       "Whisper.net >= 1.7.2",
       "Whisper.net.Runtime >= 1.7.3",
       "itext7 >= 9.0.0",
+      "itext7.bouncy-castle-adapter >= 9.1.0",
       "xunit >= 2.9.2",
       "xunit.runner.visualstudio >= 3.0.0"
     ]
@@ -11573,6 +11660,10 @@
           "itext7": {
             "target": "Package",
             "version": "[9.0.0, )"
+          },
+          "itext7.bouncy-castle-adapter": {
+            "target": "Package",
+            "version": "[9.1.0, )"
           },
           "xunit": {
             "target": "Package",

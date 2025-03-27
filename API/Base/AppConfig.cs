@@ -1,8 +1,8 @@
 ﻿public static class AppConfig
 {
-    public static bool UseCloudStorage { get; private set; }
-    public static bool UseSignedUrl { get; private set; }
-    public static string FFMPEGPath { get; private set; }
+    public static bool UseCloudStorage { get; set; }
+    public static bool UseSignedUrl { get;  set; }
+    public static string FFMPEGPath { get; set; }
     
 
     public static void LoadConfiguration(IConfiguration configuration)
