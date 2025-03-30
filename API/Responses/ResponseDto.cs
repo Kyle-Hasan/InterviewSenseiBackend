@@ -18,6 +18,7 @@ public record ResponseDto
         answer = response.Answer;
         questionId = response.QuestionId;
         negativeFeedback = response.NegativeFeedback;
+        positiveFeedback = response.PositiveFeedback;
         exampleResponse = response.ExampleResponse;
         videoLink = response.VideoLink;
         id = response.QuestionId;
